@@ -13,7 +13,8 @@ export default async function Home() {
     comparisonData = (fetchedData as ExamComparisonData[]).sort((a, b) => a.exam.localeCompare(b.exam));
   } catch (err: any) {
     console.error("Error fetching exam comparison data on server:", err);
-    comparisonDataError = "Failed to load exam comparison data. Please ensure your Firebase configuration is correct, the migration script has been run, and Firestore security rules allow server-side reads.";
+    // Use the specific error message from the service layer for better diagnostics.
+    comparisonDataError = err.message;
   }
 
   return (

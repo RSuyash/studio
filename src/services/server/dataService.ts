@@ -18,9 +18,9 @@ export const fetchDataFromFirestoreOnServer = async (collectionName: string): Pr
             data.push({ id: doc.id, ...doc.data() });
         });
         return data;
-    } catch (error) {
+    } catch (error: any) {
         console.error(`Firestore server fetch error from collection "${collectionName}":`, error);
-        // This is a more specific error that will be caught by the page's try-catch block.
-        throw new Error('Failed to fetch data from Firestore on the server. This is likely due to an initialization error or invalid credentials. Please check your server logs and .env file.');
+        // Propagate a more specific error message.
+        throw new Error(`Failed to fetch data from Firestore. Please check server logs for the full error. A common cause is incorrect Firebase credentials in the .env file. Original error: ${error.message}`);
     }
 };
