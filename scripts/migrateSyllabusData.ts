@@ -54,9 +54,9 @@ const migrateSyllabusData = async () => {
     batch.set(docRef, topicData);
     batchCount++;
 
-    if (batchCount >= 500) {
-      console.log('Committing batch...');
+    if (batchCount >= 499) {
       await batch.commit();
+      console.log(`Committing batch of ${batchCount} writes.`);
       batch = db.batch();
       batchCount = 0;
     }
@@ -68,20 +68,18 @@ const migrateSyllabusData = async () => {
     }
   };
 
-  try {
-    for (const topic of initialSyllabusData) {
-      await processTopic(topic);
-    }
-
-    if (batchCount > 0) {
-      console.log('Committing final batch...');
-      await batch.commit();
-    }
-
-    console.log('Syllabus data migration completed successfully!');
-  } catch (error) {
-    console.error('Error migrating syllabus data:', error);
+  for (const topic of initialSyllabusData) {
+    await processTopic(topic);
   }
+
+  if (batchCount > 0) {
+    await batch.commit();
+    console.log('Committing final batch...');
+  }
+
+  console.log('Syllabus data migration completed successfully!');
 };
 
-migrateSyllabusData();
+migrateSyllabusData().catch((error) => {
+    console.error('Error migrating syllabus data:', error);
+});
