@@ -1,9 +1,7 @@
 import * as admin from 'firebase-admin';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
 
-// This ensures that credentials are loaded for both the app and migration scripts.
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+// NOTE: dotenv/config is NOT needed here for the main app. Next.js handles .env loading automatically for server-side code.
+// The migration scripts, which run in a plain Node.js environment, will still need it and have their own calls.
 
 let db: admin.firestore.Firestore | null = null;
 
@@ -26,6 +24,7 @@ function initializeAdminApp() {
     admin.initializeApp({
       credential: admin.credential.cert({
         projectId,
+        // The private key needs to have newlines restored.
         privateKey: privateKey.replace(/\\n/g, '\n'),
         clientEmail,
       }),
