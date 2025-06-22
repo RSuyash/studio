@@ -1,4 +1,4 @@
-import { adminDb } from '@/lib/firebase-admin';
+import { getAdminDb } from '@/lib/firebase-admin';
 
 interface FirestoreDocument {
     id: string;
@@ -11,6 +11,7 @@ interface FirestoreDocument {
  */
 export const fetchDataFromFirestoreOnServer = async (collectionName: string): Promise<FirestoreDocument[]> => {
     try {
+        const adminDb = getAdminDb();
         const querySnapshot = await adminDb.collection(collectionName).get();
         const data: FirestoreDocument[] = [];
         querySnapshot.forEach((doc) => {
