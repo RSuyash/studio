@@ -1,6 +1,8 @@
 import * as admin from 'firebase-admin';
 
+console.log("Before firebase-admin import:", admin);
 let db: admin.firestore.Firestore | null = null;
+console.log("After firebase-admin import:", admin);
 
 function initializeAdminApp() {
   if (admin.apps.length > 0) {
@@ -19,7 +21,7 @@ function initializeAdminApp() {
     auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
     client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40nexus-cortex-plus.iam.gserviceaccount.com",
     universe_domain: "googleapis.com"
-  };
+  } as admin.ServiceAccount; // Explicitly cast to ServiceAccount
 
   try {
     admin.initializeApp({

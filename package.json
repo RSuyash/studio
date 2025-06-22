@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "migrate:exam": "ts-node --project tsconfig.scripts.json scripts/migrateExamData.ts",
     "migrate:syllabus": "ts-node --project tsconfig.scripts.json scripts/migrateSyllabusData.ts",
-    "migrate:comparison": "ts-node --project tsconfig.scripts.json scripts/migrateExamComparisonData.ts"
+    "migrate:comparison": "ts-node --project tsconfig.scripts.json scripts/migrateExamComparisonData.ts",
+    "migrate:mpsc": "ts-node --project tsconfig.scripts.json scripts/migrateMpscData.ts"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.8.0",

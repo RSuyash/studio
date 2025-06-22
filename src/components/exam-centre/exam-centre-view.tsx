@@ -11,7 +11,6 @@ import { Landmark, FileText, Shield, Layers, Building, Banknote } from 'lucide-r
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
 
 const otherExams = [
-    { name: 'State PSCs', icon: Layers, comingSoon: true },
     { name: 'SSC CGL', icon: FileText, comingSoon: true },
     { name: 'CAPF (AC)', icon: Shield, comingSoon: true },
     { name: 'RBI/NABARD', icon: Building, comingSoon: true },
@@ -50,6 +49,20 @@ export default function ExamCentreView({ setActiveView, comparisonData, comparis
                    <Button className="w-full" onClick={() => setActiveView('exam-explorer')}>Structure</Button>
                    <Button className="w-full" variant="outline" onClick={() => setActiveView('syllabus')}>Syllabus</Button>
                    <Button className="w-full" variant="outline" onClick={() => setActiveView('insights')}>Insights</Button>
+                </CardFooter>
+              </Card>
+
+              <Card className="flex flex-col">
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <Landmark className="h-8 w-8 text-primary" />
+                    <CardTitle>MPSC Rajyaseva</CardTitle>
+                  </div>
+                  <CardDescription>Explore the structure of the Maharashtra State Services Examination.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow" />
+                <CardFooter>
+                   <Button className="w-full" onClick={() => setActiveView('mpsc-explorer')}>Structure</Button>
                 </CardFooter>
               </Card>
 

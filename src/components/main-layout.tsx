@@ -22,12 +22,13 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import ResourcesView from '@/components/resources/resources-view';
 import ExamExplorerView from './exam-explorer/exam-explorer-view';
+import MpscExplorerView from './exam-explorer/mpsc-explorer-view';
 import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
 
-export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights';
+export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer';
 
 interface MainLayoutProps {
   comparisonData: ExamComparisonData[];
@@ -51,6 +52,8 @@ export default function MainLayout({ comparisonData, comparisonDataError }: Main
             return <DashboardView setActiveView={setActiveView} />;
         case 'exam-explorer':
             return <ExamExplorerView setActiveView={setActiveView} />;
+        case 'mpsc-explorer':
+            return <MpscExplorerView setActiveView={setActiveView} />;
         case 'insights':
             return <InsightsView setActiveView={setActiveView} />;
         case 'exam-centre':

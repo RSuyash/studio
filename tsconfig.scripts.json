@@ -15,6 +15,7 @@
     "scripts/**/*.ts",
     "src/lib/exam-comparison-data.ts",
     "src/lib/exam-data.ts",
+    "src/lib/mpsc-exam-data.ts",
     "src/lib/syllabus-data.ts",
     "src/lib/firebase-admin.ts"
   ],
