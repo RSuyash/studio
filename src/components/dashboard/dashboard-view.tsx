@@ -192,6 +192,21 @@ export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) =
                     </CardHeader>
                 </Card>
 
+                <Card className="cursor-pointer transition-colors hover:bg-muted/50" onClick={() => setActiveView('mpsc-insights')}>
+                    <CardHeader className="flex flex-row items-center gap-4">
+                        <div className="rounded-full bg-primary/10 p-3">
+                            <Icons.Sparkles className="h-8 w-8 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                            <CardTitle>MPSC Insights</CardTitle>
+                            <CardDescription>Discover trends, analysis, and key insights into the MPSC Rajyaseva examination.</CardDescription>
+                        </div>
+                        <Button variant="ghost" size="icon" asChild>
+                           <ChevronRight className="h-6 w-6 text-muted-foreground" />
+                        </Button>
+                    </CardHeader>
+                </Card>
+
                  <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">

@@ -61,8 +61,9 @@ export default function ExamCentreView({ setActiveView, comparisonData, comparis
                   <CardDescription>Explore the structure of the Maharashtra State Services Examination.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow" />
-                <CardFooter>
+                <CardFooter className="flex flex-col gap-2 sm:flex-row">
                    <Button className="w-full" onClick={() => setActiveView('mpsc-explorer')}>Structure</Button>
+                   <Button className="w-full" variant="outline" onClick={() => setActiveView('mpsc-insights')}>Insights</Button>
                 </CardFooter>
               </Card>
 

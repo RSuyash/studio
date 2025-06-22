@@ -26,9 +26,10 @@ import MpscExplorerView from './exam-explorer/mpsc-explorer-view';
 import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
+import MpscInsightsView from './insights/mpsc-insights-view';
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
 
-export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer';
+export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'mpsc-insights';
 
 interface MainLayoutProps {
   comparisonData: ExamComparisonData[];
@@ -56,6 +57,8 @@ export default function MainLayout({ comparisonData, comparisonDataError }: Main
             return <MpscExplorerView setActiveView={setActiveView} />;
         case 'insights':
             return <InsightsView setActiveView={setActiveView} />;
+        case 'mpsc-insights':
+            return <MpscInsightsView />;
         case 'exam-centre':
             return <ExamCentreView setActiveView={setActiveView} comparisonData={comparisonData} comparisonDataError={comparisonDataError} />;
         case 'syllabus':
