@@ -45,6 +45,21 @@ export default function SyllabusNode({ topic, onUpdate, onFocus, level = 0, isLa
     }
   };
 
+  const cardLevelStyle =
+    level === 0
+      ? 'shadow-md'
+      : level === 1
+      ? 'shadow'
+      : 'shadow-sm';
+
+  const titleLevelStyle =
+    level === 0
+      ? 'text-xl font-headline text-primary'
+      : level === 1
+      ? 'text-lg font-semibold'
+      : 'text-base font-semibold';
+
+
   return (
     <div
       className={cn(
@@ -67,7 +82,7 @@ export default function SyllabusNode({ topic, onUpdate, onFocus, level = 0, isLa
           <div className="absolute -left-px top-10 h-px w-6 bg-border" />
         </>
       )}
-      <Card className={cn("mb-4", masteryColorMap[topic.mastery])}>
+      <Card className={cn("mb-4", masteryColorMap[topic.mastery], cardLevelStyle)}>
         <CardHeader className="flex flex-row items-center gap-4 space-y-0 p-4">
           {hasSubtopics && (
             <Button
@@ -83,7 +98,7 @@ export default function SyllabusNode({ topic, onUpdate, onFocus, level = 0, isLa
             </Button>
           )}
           <div className="flex-1 grid gap-1">
-            <CardTitle className="text-lg">{topic.title}</CardTitle>
+            <CardTitle className={titleLevelStyle}>{topic.title}</CardTitle>
           </div>
           <div className="flex items-center gap-2">
             <MasteryControl

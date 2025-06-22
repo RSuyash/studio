@@ -127,9 +127,25 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-qualifying',
         title: 'Qualifying Papers (A & B)',
-        description: 'Paper A (any Indian Language from Eighth Schedule) and Paper B (English). Both are for 300 marks and are qualifying in nature.',
+        description: 'These papers test basic language proficiency and are not counted for merit. Candidates must score 25% (75/300) to pass.',
         tags: ['qualifying', 'language'],
         mastery: 'none',
+        subtopics: [
+          {
+            id: 'mains-qualifying-a',
+            title: 'Paper A: Indian Language',
+            description: 'Any language from the Eighth Schedule. The pattern is similar to the English paper, focusing on comprehension, précis, and translation.',
+            tags: ['indian-language'],
+            mastery: 'none',
+          },
+          {
+            id: 'mains-qualifying-b',
+            title: 'Paper B: English',
+            description: 'Tests comprehension of given passages, précis writing, usage and vocabulary, and short essays. Class X level.',
+            tags: ['english'],
+            mastery: 'none',
+          },
+        ]
       },
       {
         id: 'mains-essay',
@@ -169,9 +185,25 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-optional',
         title: 'Papers VI & VII: Optional Subject',
-        description: 'Two papers (Paper 1 & Paper 2) based on a single optional subject chosen by the candidate. Each paper is for 250 marks.',
-        tags: ['optional', 'specialized'],
+        description: 'Candidates choose one subject from a list. This tests in-depth knowledge and understanding of the chosen discipline.',
+        tags: ['optional', 'specialized', 'merit'],
         mastery: 'none',
+        subtopics: [
+          {
+            id: 'mains-optional-1',
+            title: 'Optional Paper 1',
+            description: 'The first of two papers on the chosen optional subject. Each paper is 250 marks. Syllabus varies by subject.',
+            tags: ['paper-1'],
+            mastery: 'none',
+          },
+          {
+            id: 'mains-optional-2',
+            title: 'Optional Paper 2',
+            description: 'The second of two papers on the chosen optional subject. Each paper is 250 marks. Syllabus varies by subject.',
+            tags: ['paper-2'],
+            mastery: 'none',
+          },
+        ]
       },
     ],
   },
