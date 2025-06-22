@@ -1,7 +1,7 @@
+
 "use client";
 
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 import { initialSyllabusData, type SyllabusTopic, type MasteryLevel } from "@/lib/syllabus-data";
 import FocusModeDialog from "./focus-mode-dialog";
 import FilterPanel from "./filter-panel";
@@ -252,7 +252,7 @@ const SyllabusExplorer = ({ data, onUpdate, onFocus }: { data: SyllabusTopic[], 
   const hasSubtopics = activeTopics && activeTopics.length > 0;
   
   return (
-    <div className="flex h-[calc(100vh-8rem)] w-full flex-col overflow-hidden rounded-lg border bg-card text-card-foreground shadow-inner">
+    <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border bg-card text-card-foreground shadow-inner">
       <SyllabusBreadcrumb 
         topics={breadcrumbTopics}
         onClickHome={() => handleBreadcrumbClick(0)}
@@ -288,11 +288,6 @@ export default function SyllabusViewer() {
   const [syllabusData, setSyllabusData] = React.useState(initialSyllabusData);
   const [focusTopic, setFocusTopic] = React.useState<SyllabusTopic | null>(null);
   const [selectedTags, setSelectedTags] = React.useState(new Set<string>());
-  const [portalContainer, setPortalContainer] = React.useState<Element | null>(null);
-
-  React.useEffect(() => {
-    setPortalContainer(document.getElementById('sidebar-content-portal'));
-  }, []);
 
   const handleUpdateTopic = React.useCallback(
     (id: string, updates: Partial<SyllabusTopic>) => {
@@ -319,30 +314,32 @@ export default function SyllabusViewer() {
 
   const allTags = React.useMemo(() => Array.from(getAllTagsFromTree(initialSyllabusData)).sort(), []);
   const filteredData = React.useMemo(() => filterSyllabus(syllabusData, selectedTags), [syllabusData, selectedTags]);
-
-  const filterPanel = (
-    <FilterPanel 
-      allTags={allTags}
-      selectedTags={selectedTags}
-      onTagToggle={handleTagToggle}
-    />
-  );
   
   return (
     <>
-      {portalContainer ? ReactDOM.createPortal(filterPanel, portalContainer) : null}
-      {filteredData.length > 0 ? (
-        <SyllabusExplorer
-          data={filteredData}
-          onUpdate={handleUpdateTopic}
-          onFocus={handleFocusTopic}
-        />
-      ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-card p-12 text-center h-[calc(100vh-8rem)]">
-          <h3 className="text-lg font-semibold">No topics match your filter.</h3>
-          <p className="text-sm text-muted-foreground">Try selecting different tags or clearing the filter.</p>
+      <div className="flex h-full items-start gap-6">
+        <aside className="sticky top-6 hidden w-64 flex-shrink-0 lg:block">
+          <FilterPanel 
+            allTags={allTags}
+            selectedTags={selectedTags}
+            onTagToggle={handleTagToggle}
+          />
+        </aside>
+        <div className="min-w-0 flex-1">
+          {filteredData.length > 0 ? (
+            <SyllabusExplorer
+              data={filteredData}
+              onUpdate={handleUpdateTopic}
+              onFocus={handleFocusTopic}
+            />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-card p-12 text-center">
+              <h3 className="text-lg font-semibold">No topics match your filter.</h3>
+              <p className="text-sm text-muted-foreground">Try selecting different tags or clearing the filter.</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
       <FocusModeDialog
         isOpen={!!focusTopic}
         topic={focusTopic}
