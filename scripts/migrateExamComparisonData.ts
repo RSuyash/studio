@@ -5,9 +5,12 @@ import { examComparisonData } from '../src/lib/exam-comparison-data';
 // Replace './serviceAccountKey.json' with the actual path to your service account key file
 const serviceAccount = require('./serviceAccountKey.json');
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
+
 
 const db = admin.firestore();
 

@@ -9,7 +9,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "migrate:exam": "ts-node --project tsconfig.scripts.json scripts/migrateExamData.ts",
+    "migrate:syllabus": "ts-node --project tsconfig.scripts.json scripts/migrateSyllabusData.ts",
+    "migrate:comparison": "ts-node --project tsconfig.scripts.json scripts/migrateExamComparisonData.ts"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.8.0",

@@ -1,3 +1,6 @@
+'use client';
+
+import * as React from 'react';
 import {
   Table,
   TableBody,
@@ -6,9 +9,50 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { examComparisonData, type ExamComparisonData } from '@/lib/exam-comparison-data';
+import { Skeleton } from "@/components/ui/skeleton";
+import type { ExamComparisonData } from '@/lib/exam-comparison-data';
+import { fetchDataFromFirestore } from '@/services/dataService';
 
 export default function ExamComparisonTable() {
+  const [data, setData] = React.useState<ExamComparisonData[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const fetchedData = await fetchDataFromFirestore('examComparisons');
+        setData(fetchedData as ExamComparisonData[]);
+      } catch (err) {
+        console.error("Error fetching exam comparison data:", err);
+        setError("Failed to load exam comparison data. Please ensure your Firebase configuration is correct and the migration script has been run.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-2">
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} className="h-12 w-full" />
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-destructive/50 bg-destructive/10 p-8 text-center">
+            <h3 className="text-lg font-semibold text-destructive">Error Loading Data</h3>
+            <p className="max-w-md text-sm text-destructive/80">{error}</p>
+        </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto rounded-lg border">
       <Table>
@@ -21,14 +65,18 @@ export default function ExamComparisonTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {examComparisonData.map((exam: ExamComparisonData, index: number) => (
+          {data.length > 0 ? data.map((exam: ExamComparisonData, index: number) => (
             <TableRow key={index}>
               <TableCell className="font-medium">{exam.exam}</TableCell>
               <TableCell>{exam.majorTopics}</TableCell>
               <TableCell>{exam.overlap}</TableCell>
               <TableCell>{exam.notes}</TableCell>
             </TableRow>
-          ))}
+          )) : (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">No data found. Please run the migration script.</TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </div>
