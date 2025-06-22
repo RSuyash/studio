@@ -117,25 +117,12 @@ const getAllResources = (
   return results;
 };
 
-// Helper to get a flat list of all topics for the selector
-const flattenTopicsForSelector = (topics: SyllabusTopic[], path: string[] = []): { value: string; label: string }[] => {
-    let flatList: { value: string; label: string }[] = [];
-    topics.forEach(topic => {
-        const newPath = [...path, topic.title];
-        flatList.push({ value: topic.id, label: newPath.join(' / ') });
-        if (topic.subtopics) {
-            flatList = flatList.concat(flattenTopicsForSelector(topic.subtopics, newPath));
-        }
-    });
-    return flatList;
-};
-
 const resourceSchema = z.object({
     title: z.string().min(3, { message: 'Title must be at least 3 characters long.' }),
     url: z.string().url({ message: 'Please enter a valid URL.' }),
     description: z.string().optional(),
     category: z.enum(['book-ncert', 'book-reference', 'lecture-playlist', 'lecture-video']),
-    topicId: z.string({ required_error: 'Please select a syllabus topic.' }),
+    topicId: z.string().min(1, { message: 'Please select a final syllabus topic.' }),
 });
 
 type ResourceFormValues = z.infer<typeof resourceSchema>;
@@ -159,7 +146,6 @@ export default function ResourcesView({
   const [resourceToDelete, setResourceToDelete] = React.useState<ResourceWithTopicInfo | null>(null);
   
   const allResources = React.useMemo(() => getAllResources(syllabusData), [syllabusData]);
-  const allTopicsForSelector = React.useMemo(() => flattenTopicsForSelector(syllabusData), [syllabusData]);
   
   const groupedResources = React.useMemo(() => {
     return allResources.reduce((acc, resource) => {
@@ -311,7 +297,7 @@ export default function ResourcesView({
         onOpenChange={handleDialogClose}
         onSubmit={handleFormSubmit}
         resourceToEdit={editingResource}
-        topics={allTopicsForSelector}
+        syllabusData={syllabusData}
       />
       
       {/* Delete Confirmation Dialog */}
@@ -333,19 +319,34 @@ export default function ResourcesView({
   );
 }
 
+const findPathToTopic = (topics: SyllabusTopic[], id: string, currentPath: string[] = []): string[] | null => {
+    for (const topic of topics) {
+        const newPath = [...currentPath, topic.id];
+        if (topic.id === id) {
+            return newPath;
+        }
+        if (topic.subtopics) {
+            const foundPath = findPathToTopic(topic.subtopics, id, newPath);
+            if (foundPath) return foundPath;
+        }
+    }
+    return null;
+};
+
+
 // Reusable Dialog for Add/Edit Resource
 function ResourceFormDialog({ 
     isOpen, 
     onOpenChange, 
     onSubmit,
     resourceToEdit,
-    topics
+    syllabusData
 }: {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     onSubmit: (values: ResourceFormValues) => void;
     resourceToEdit: ResourceWithTopicInfo | null;
-    topics: { value: string; label: string }[];
+    syllabusData: SyllabusTopic[];
 }) {
     const form = useForm<ResourceFormValues>({
         resolver: zodResolver(resourceSchema),
@@ -358,19 +359,87 @@ function ResourceFormDialog({
         }
     });
 
+    const [selectedPath, setSelectedPath] = React.useState<string[]>([]);
+
     React.useEffect(() => {
-        if (resourceToEdit) {
-            form.reset({
-                title: resourceToEdit.title,
-                url: resourceToEdit.url,
-                description: resourceToEdit.description || '',
-                category: resourceToEdit.category,
-                topicId: resourceToEdit.topicId,
-            });
-        } else {
-            form.reset();
+        if (isOpen) {
+            if (resourceToEdit) {
+                form.reset({
+                    title: resourceToEdit.title,
+                    url: resourceToEdit.url,
+                    description: resourceToEdit.description || '',
+                    category: resourceToEdit.category,
+                    topicId: resourceToEdit.topicId,
+                });
+                const path = findPathToTopic(syllabusData, resourceToEdit.topicId);
+                setSelectedPath(path || []);
+            } else {
+                form.reset({
+                    title: '',
+                    url: '',
+                    description: '',
+                    category: 'book-reference',
+                    topicId: '',
+                });
+                setSelectedPath([]);
+            }
         }
-    }, [resourceToEdit, form, isOpen]);
+    }, [resourceToEdit, form, isOpen, syllabusData]);
+
+    const renderCascadingSelects = () => {
+        const selects = [];
+        let currentLevelTopics = syllabusData;
+
+        for (let i = 0; i <= selectedPath.length; i++) {
+            if (!currentLevelTopics || currentLevelTopics.length === 0) break;
+
+            const currentIterationTopics = [...currentLevelTopics];
+            const selectedValue = selectedPath[i] || "";
+
+            selects.push(
+                 <FormItem key={`level-${i}`}>
+                    <FormLabel>{i === 0 ? 'Syllabus Topic' : 'Sub-topic'}</FormLabel>
+                    <Select
+                        value={selectedValue}
+                        onValueChange={(value) => {
+                            const newPath = [...selectedPath.slice(0, i), value];
+                            setSelectedPath(newPath);
+
+                            const selectedTopic = findTopicById(syllabusData, value);
+                            if (selectedTopic && (!selectedTopic.subtopics || selectedTopic.subtopics.length === 0)) {
+                                form.setValue('topicId', value, { shouldValidate: true });
+                            } else {
+                                form.setValue('topicId', '', { shouldValidate: true });
+                            }
+                        }}
+                    >
+                        <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder={i === 0 ? 'Select a top-level topic...' : 'Select a sub-topic...'} />
+                            </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                            <ScrollArea className="h-60">
+                                {currentIterationTopics.map(topic => (
+                                    <SelectItem key={topic.id} value={topic.id}>
+                                        {topic.title}
+                                    </SelectItem>
+                                ))}
+                            </ScrollArea>
+                        </SelectContent>
+                    </Select>
+                </FormItem>
+            );
+
+            if (selectedValue) {
+                const nextParent = currentIterationTopics.find(t => t.id === selectedValue);
+                currentLevelTopics = nextParent?.subtopics || [];
+            } else {
+                break;
+            }
+        }
+        return selects;
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -422,56 +491,40 @@ function ResourceFormDialog({
                                 </FormItem>
                             )}
                         />
-                        <div className="grid grid-cols-2 gap-4">
-                           <FormField
-                                control={form.control}
-                                name="category"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Category</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select a category" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {Object.entries(categoryInfo).map(([key, {title}]) => (
-                                                    <SelectItem key={key} value={key}>{title}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="topicId"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Syllabus Topic</FormLabel>
-                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Link to a topic..." />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <ScrollArea className="h-60">
-                                                    {topics.map(topic => (
-                                                        <SelectItem key={topic.value} value={topic.value}>
-                                                            {topic.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </ScrollArea>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        <FormField
+                            control={form.control}
+                            name="category"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Category</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a category" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {Object.entries(categoryInfo).map(([key, {title}]) => (
+                                                <SelectItem key={key} value={key}>{title}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="topicId"
+                            render={({ field }) => (
+                                <div className="space-y-2">
+                                    {renderCascadingSelects()}
+                                    <input type="hidden" {...field} />
+                                    <FormMessage />
+                                </div>
+                            )}
+                        />
+
                         <DialogFooter>
                             <Button type="submit">
                                 {resourceToEdit ? 'Save Changes' : 'Add Resource'}
