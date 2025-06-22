@@ -7,6 +7,7 @@ export interface Resource {
   url: string;
   category: ResourceCategory;
   description?: string;
+  class?: 'VI' | 'VII' | 'VIII' | 'IX' | 'X' | 'XI' | 'XII';
 }
 
 export type MasteryLevel = 'none' | 'novice' | 'advanced' | 'expert';

@@ -111,3 +111,35 @@ export const filterSyllabus = (
     return acc;
   }, []);
 };
+
+
+export const subjectTopicMap: Record<string, string> = {
+    'preliminary-exam': 'Prelims',
+    'main-exam': 'Mains',
+    'mains-gs1': 'GS-I: History, Geo, Society',
+    'mains-gs2': 'GS-II: Polity, Gov, IR',
+    'mains-gs3': 'GS-III: Economy, S&T, Security',
+    'mains-gs4': 'GS-IV: Ethics',
+    'mains-optional': 'Optional Subject',
+    'interview': 'Interview'
+};
+
+export const subjects = Object.values(subjectTopicMap);
+export const ncertClasses = ['VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+
+export const getSubjectForResource = (resource: ResourceWithTopicInfo, topics: SyllabusTopic[]): string => {
+    const path = findPathToTopic(topics, resource.topicId);
+    if (!path || path.length === 0) {
+        return 'Uncategorized';
+    }
+    
+    // Find the most specific subject mapping from the path
+    for (let i = path.length - 1; i >= 0; i--) {
+        const topicId = path[i];
+        if (subjectTopicMap[topicId]) {
+            return subjectTopicMap[topicId];
+        }
+    }
+    
+    return 'Other';
+};

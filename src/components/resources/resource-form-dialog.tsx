@@ -41,9 +41,12 @@ const resourceSchema = z.object({
   description: z.string().optional(),
   category: z.enum(['book-ncert', 'book-reference', 'lecture-playlist', 'lecture-video']),
   topicId: z.string().min(1, { message: 'Please select a final syllabus topic.' }),
+  class: z.string().optional(),
 });
 
 export type ResourceFormValues = z.infer<typeof resourceSchema>;
+
+const ncertClasses = ['VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 
 interface ResourceFormDialogProps {
     isOpen: boolean;
@@ -68,11 +71,13 @@ export default function ResourceFormDialog({
             description: '',
             category: 'book-reference',
             topicId: '',
+            class: '',
         }
     });
 
     const [selectedPath, setSelectedPath] = React.useState<string[]>([]);
     const formId = React.useId();
+    const watchedCategory = form.watch('category');
 
     React.useEffect(() => {
         if (isOpen) {
@@ -83,6 +88,7 @@ export default function ResourceFormDialog({
                     description: resourceToEdit.description || '',
                     category: resourceToEdit.category,
                     topicId: resourceToEdit.topicId,
+                    class: resourceToEdit.class || '',
                 });
                 const path = findPathToTopic(syllabusData, resourceToEdit.topicId);
                 setSelectedPath(path || []);
@@ -93,6 +99,7 @@ export default function ResourceFormDialog({
                     description: '',
                     category: 'book-reference',
                     topicId: '',
+                    class: '',
                 });
                 setSelectedPath([]);
             }
@@ -227,6 +234,30 @@ export default function ResourceFormDialog({
                                     </FormItem>
                                 )}
                             />
+                            {watchedCategory === 'book-ncert' && (
+                                <FormField
+                                    control={form.control}
+                                    name="class"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Class</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a class for the NCERT book" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {ncertClasses.map(c => (
+                                                        <SelectItem key={c} value={c}>Class {c}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
                             <FormField
                                 control={form.control}
                                 name="topicId"
