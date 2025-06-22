@@ -39,26 +39,6 @@ const findTopicById = (topics: SyllabusTopic[], id: string): SyllabusTopic | nul
   return null;
 };
 
-// Recursive function to update a topic in the nested structure
-const updateTopicInTree = (
-  topics: SyllabusTopic[],
-  id: string,
-  updates: Partial<SyllabusTopic>
-): SyllabusTopic[] => {
-  return topics.map((topic) => {
-    if (topic.id === id) {
-      return { ...topic, ...updates };
-    }
-    if (topic.subtopics) {
-      return {
-        ...topic,
-        subtopics: updateTopicInTree(topic.subtopics, id, updates),
-      };
-    }
-    return topic;
-  });
-};
-
 // Recursive function to get all unique tags from the tree
 const getAllTagsFromTree = (topics: SyllabusTopic[]): Set<string> => {
   const tags = new Set<string>();
@@ -370,17 +350,9 @@ const SyllabusExplorer = ({ data, onUpdate, onFocus }: { data: SyllabusTopic[], 
   );
 };
 
-export default function SyllabusViewer() {
-  const [syllabusData, setSyllabusData] = React.useState(initialSyllabusData);
+export default function SyllabusViewer({ syllabusData, onUpdate }: { syllabusData: SyllabusTopic[], onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void }) {
   const [focusTopic, setFocusTopic] = React.useState<SyllabusTopic | null>(null);
   const [selectedTags, setSelectedTags] = React.useState(new Set<string>());
-
-  const handleUpdateTopic = React.useCallback(
-    (id: string, updates: Partial<SyllabusTopic>) => {
-      setSyllabusData((currentData) => updateTopicInTree(currentData, id, updates));
-    },
-    []
-  );
 
   const handleFocusTopic = React.useCallback((topic: SyllabusTopic) => {
     setFocusTopic(topic);
@@ -426,7 +398,7 @@ export default function SyllabusViewer() {
               {filteredData.length > 0 ? (
                 <SyllabusExplorer
                   data={filteredData}
-                  onUpdate={handleUpdateTopic}
+                  onUpdate={onUpdate}
                   onFocus={handleFocusTopic}
                 />
               ) : (

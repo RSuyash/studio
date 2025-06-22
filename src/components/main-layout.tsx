@@ -20,14 +20,16 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar'
 import { Icons } from '@/components/icons'
+import { initialSyllabusData, type SyllabusTopic, type MasteryLevel } from "@/lib/syllabus-data";
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
+import ResourcesView from '@/components/resources/resources-view';
 
-type View = 'dashboard' | 'syllabus';
+type View = 'dashboard' | 'syllabus' | 'resources';
 
 const SubjectMasteryChart = dynamic(
   () => import('@/components/dashboard/subject-mastery-chart'),
@@ -36,6 +38,27 @@ const SubjectMasteryChart = dynamic(
     loading: () => <Skeleton className="h-[300px] w-full" />
   }
 )
+
+// Recursive function to update a topic in the nested structure
+const updateTopicInTree = (
+  topics: SyllabusTopic[],
+  id: string,
+  updates: Partial<SyllabusTopic>
+): SyllabusTopic[] => {
+  return topics.map((topic) => {
+    if (topic.id === id) {
+      return { ...topic, ...updates };
+    }
+    if (topic.subtopics) {
+      return {
+        ...topic,
+        subtopics: updateTopicInTree(topic.subtopics, id, updates),
+      };
+    }
+    return topic;
+  });
+};
+
 
 const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void }) => {
     return (
@@ -133,15 +156,15 @@ const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void 
                                 </div>
                                 <Button size="sm" onClick={() => setActiveView('syllabus')}>Open</Button>
                             </div>
-                            <div className="flex items-center justify-between rounded-lg border p-4 opacity-50">
+                            <div className="flex items-center justify-between rounded-lg border p-4">
                                  <div className="flex items-center gap-4">
-                                    <Icons.Library className="h-6 w-6" />
+                                    <Icons.Library className="h-6 w-6 text-primary" />
                                     <div>
                                         <p className="font-semibold">My Resources</p>
-                                        <p className="text-sm text-muted-foreground">Coming soon.</p>
+                                        <p className="text-sm text-muted-foreground">Browse your saved links.</p>
                                     </div>
                                 </div>
-                                <Button size="sm" disabled>Open</Button>
+                                <Button size="sm" onClick={() => setActiveView('resources')}>Open</Button>
                             </div>
                             <div className="flex items-center justify-between rounded-lg border p-4 opacity-50">
                                  <div className="flex items-center gap-4">
@@ -171,7 +194,7 @@ const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void 
     )
 }
 
-const SyllabusView = () => {
+const SyllabusView = ({ syllabusData, onUpdate }: { syllabusData: SyllabusTopic[], onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void }) => {
     return (
         <>
             <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
@@ -181,7 +204,7 @@ const SyllabusView = () => {
                 </div>
             </header>
             <main className="flex-1 p-4 md:p-6">
-                <SyllabusViewer />
+                <SyllabusViewer syllabusData={syllabusData} onUpdate={onUpdate} />
             </main>
         </>
     )
@@ -189,10 +212,19 @@ const SyllabusView = () => {
 
 export default function MainLayout() {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
+  const [syllabusData, setSyllabusData] = React.useState(initialSyllabusData);
+
+  const handleUpdateTopic = React.useCallback(
+    (id: string, updates: Partial<SyllabusTopic>) => {
+      setSyllabusData((currentData) => updateTopicInTree(currentData, id, updates));
+    },
+    []
+  );
 
   const menuItems = [
     { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
     { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen },
+    { view: 'resources', label: 'My Resources', icon: Icons.Library },
   ];
 
   return (
@@ -227,12 +259,6 @@ export default function MainLayout() {
             <SidebarGroupLabel>Tools</SidebarGroupLabel>
             <SidebarMenuItem>
               <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
-                <Icons.Library className="size-4" />
-                <span className="group-data-[collapsible=icon]:hidden">My Resources</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
                 <Icons.Sparkles className="size-4" />
                 <span className="group-data-[collapsible=icon]:hidden">Mock Test Generator</span>
               </SidebarMenuButton>
@@ -262,7 +288,8 @@ export default function MainLayout() {
       </Sidebar>
       <SidebarInset>
         {activeView === 'dashboard' && <DashboardView setActiveView={setActiveView} />}
-        {activeView === 'syllabus' && <SyllabusView />}
+        {activeView === 'syllabus' && <SyllabusView syllabusData={syllabusData} onUpdate={handleUpdateTopic} />}
+        {activeView === 'resources' && <ResourcesView syllabusData={syllabusData} />}
       </SidebarInset>
     </SidebarProvider>
   )
