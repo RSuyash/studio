@@ -168,8 +168,23 @@ export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) =
                             <Icons.Landmark className="h-8 w-8 text-primary" />
                         </div>
                         <div className="flex-1">
-                            <CardTitle>UPSC Exam Insights</CardTitle>
+                            <CardTitle>UPSC CSE Exam Structure</CardTitle>
                             <CardDescription>An interactive breakdown of the CSE stages, papers, marks, and syllabus.</CardDescription>
+                        </div>
+                        <Button variant="ghost" size="icon" asChild>
+                           <ChevronRight className="h-6 w-6 text-muted-foreground" />
+                        </Button>
+                    </CardHeader>
+                </Card>
+
+                <Card className="cursor-pointer transition-colors hover:bg-muted/50" onClick={() => setActiveView('insights')}>
+                    <CardHeader className="flex flex-row items-center gap-4">
+                        <div className="rounded-full bg-primary/10 p-3">
+                            <Icons.Sparkles className="h-8 w-8 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                            <CardTitle>UPSC Insights</CardTitle>
+                            <CardDescription>Discover trends, analysis, and key insights into the UPSC examination.</CardDescription>
                         </div>
                         <Button variant="ghost" size="icon" asChild>
                            <ChevronRight className="h-6 w-6 text-muted-foreground" />

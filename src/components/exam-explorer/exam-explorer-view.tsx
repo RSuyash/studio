@@ -18,7 +18,7 @@ export default function ExamExplorerView({ setActiveView }: { setActiveView: (vi
     <>
        <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
         <Icons.Landmark className="h-6 w-6" />
-        <h2 className="text-lg font-semibold">{exam.title}</h2>
+        <h2 className="text-lg font-semibold">UPSC CSE Exam Structure</h2>
       </header>
        <ScrollArea className="h-[calc(100vh-3.5rem)]">
          <main className="flex-1 space-y-6 p-4 md:p-6">

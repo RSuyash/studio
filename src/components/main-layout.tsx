@@ -25,8 +25,9 @@ import ResourcesView from '@/components/resources/resources-view';
 import ExamExplorerView from './exam-explorer/exam-explorer-view';
 import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
+import InsightsView from './insights/insights-view';
 
-export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre';
+export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights';
 
 export default function MainLayout() {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
@@ -34,7 +35,8 @@ export default function MainLayout() {
 
   const menuItems = [
     { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
-    { view: 'exam-explorer', label: 'UPSC Insights', icon: Icons.Landmark },
+    { view: 'exam-explorer', label: 'UPSC CSE Exam', icon: Icons.Landmark },
+    { view: 'insights', label: 'UPSC Insights', icon: Icons.Sparkles },
     { view: 'exam-centre', label: 'Exam Centre', icon: Icons.Layers },
     { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen },
     { view: 'resources', label: 'My Resources', icon: Icons.Library },
@@ -46,6 +48,8 @@ export default function MainLayout() {
             return <DashboardView setActiveView={setActiveView} />;
         case 'exam-explorer':
             return <ExamExplorerView setActiveView={setActiveView} />;
+        case 'insights':
+            return <InsightsView setActiveView={setActiveView} />;
         case 'exam-centre':
             return <ExamCentreView setActiveView={setActiveView} />;
         case 'syllabus':
