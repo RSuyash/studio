@@ -7,22 +7,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
-import { fetchDataFromFirestoreOnServer } from '@/services/server/dataService';
 
+interface ExamComparisonTableProps {
+  data: ExamComparisonData[];
+  error: string | null;
+}
 
-export default async function ExamComparisonTable() {
-  let data: ExamComparisonData[] = [];
-  let error: string | null = null;
-
-  try {
-    const fetchedData = await fetchDataFromFirestoreOnServer('examComparisons');
-    // Simple sort to ensure a consistent order
-    data = (fetchedData as ExamComparisonData[]).sort((a, b) => a.exam.localeCompare(b.exam));
-  } catch (err) {
-    console.error("Error fetching exam comparison data:", err);
-    error = "Failed to load exam comparison data. Please ensure your Firebase configuration is correct, the migration script has been run, and Firestore security rules allow server-side reads.";
-  }
-  
+export default function ExamComparisonTable({ data, error }: ExamComparisonTableProps) {
   if (error) {
     return (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-destructive/50 bg-destructive/10 p-8 text-center">

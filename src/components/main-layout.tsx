@@ -25,10 +25,16 @@ import ExamExplorerView from './exam-explorer/exam-explorer-view';
 import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
+import type { ExamComparisonData } from '@/lib/exam-comparison-data';
 
 export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights';
 
-export default function MainLayout() {
+interface MainLayoutProps {
+  comparisonData: ExamComparisonData[];
+  comparisonDataError: string | null;
+}
+
+export default function MainLayout({ comparisonData, comparisonDataError }: MainLayoutProps) {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
   const [syllabusData, setSyllabusData] = React.useState(initialSyllabusData);
 
@@ -48,7 +54,7 @@ export default function MainLayout() {
         case 'insights':
             return <InsightsView setActiveView={setActiveView} />;
         case 'exam-centre':
-            return <ExamCentreView setActiveView={setActiveView} />;
+            return <ExamCentreView setActiveView={setActiveView} comparisonData={comparisonData} comparisonDataError={comparisonDataError} />;
         case 'syllabus':
             return <SyllabusViewer syllabusData={syllabusData} setSyllabusData={setSyllabusData} />;
         case 'resources':

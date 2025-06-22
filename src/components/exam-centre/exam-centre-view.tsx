@@ -8,6 +8,7 @@ import { Icons } from '../icons';
 import ExamComparisonTable from './exam-comparison-table';
 import type { View } from '../main-layout';
 import { Landmark, FileText, Shield, Layers, Building, Banknote } from 'lucide-react';
+import type { ExamComparisonData } from '@/lib/exam-comparison-data';
 
 const otherExams = [
     { name: 'State PSCs', icon: Layers, comingSoon: true },
@@ -17,7 +18,13 @@ const otherExams = [
     { name: 'Banking (SBI/IBPS)', icon: Banknote, comingSoon: true },
 ]
 
-export default function ExamCentreView({ setActiveView }: { setActiveView: (view: View) => void }) {
+interface ExamCentreViewProps {
+  setActiveView: (view: View) => void;
+  comparisonData: ExamComparisonData[];
+  comparisonDataError: string | null;
+}
+
+export default function ExamCentreView({ setActiveView, comparisonData, comparisonDataError }: ExamCentreViewProps) {
   return (
     <>
       <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
@@ -79,7 +86,7 @@ export default function ExamCentreView({ setActiveView }: { setActiveView: (view
                 Percentages are approximate, representing the fraction of syllabus content common with UPSC General Studies.
               </p>
               <div className="mt-4">
-                 <ExamComparisonTable />
+                 <ExamComparisonTable data={comparisonData} error={comparisonDataError} />
               </div>
             </CardContent>
           </Card>
