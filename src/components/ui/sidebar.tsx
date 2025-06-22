@@ -401,6 +401,7 @@ const SidebarContent = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return (
     <div
+      id="sidebar-content-portal"
       ref={ref}
       data-sidebar="content"
       className={cn(
