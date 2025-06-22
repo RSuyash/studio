@@ -105,7 +105,7 @@ const TopicColumn = ({ topics, title, onSelect }: { topics: SyllabusTopic[], tit
   return (
     <div className="h-full w-full flex-shrink-0 md:w-80 md:border-r">
       <div className="p-4">
-        <h2 className="mb-4 text-lg font-bold tracking-tight text-primary">{title}</h2>
+        <h2 className="mb-4 font-headline text-lg font-bold tracking-tight text-primary">{title}</h2>
       </div>
       <Separator />
       <ScrollArea className="h-[calc(100%-5rem)]">
@@ -275,7 +275,7 @@ const SyllabusExplorer = ({ data, onUpdate, onFocus }: { data: SyllabusTopic[], 
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center p-8 text-center text-muted-foreground">
             <Icons.Library className="h-16 w-16 mb-4 text-primary/50" />
-            <h3 className="text-xl font-semibold">Welcome to Nexus Cortex</h3>
+            <h3 className="font-headline text-xl font-semibold">Welcome to Nexus Cortex</h3>
             <p className="max-w-md text-sm">Select a topic from the syllabus on the left to begin your journey. Each selection will reveal more details and sub-topics.</p>
           </div>
         )}

@@ -22,7 +22,7 @@ const DashboardView = () => {
                 <div className="mb-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Welcome to Nexus Cortex!</CardTitle>
+                            <CardTitle className="font-headline">Welcome to Nexus Cortex!</CardTitle>
                             <CardDescription>This is your personal learning dashboard. Use the sidebar to navigate to different tools.</CardDescription>
                         </CardHeader>
                     </Card>
