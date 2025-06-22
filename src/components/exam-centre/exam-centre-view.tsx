@@ -1,12 +1,23 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import ExamComparisonTable from './exam-comparison-table';
+import type { View } from '../main-layout';
+import { Landmark, FileText, Shield, Layers, Building, Banknote } from 'lucide-react';
 
-export default function ExamCentreView() {
+const otherExams = [
+    { name: 'State PSCs', icon: Layers, comingSoon: true },
+    { name: 'SSC CGL', icon: FileText, comingSoon: true },
+    { name: 'CAPF (AC)', icon: Shield, comingSoon: true },
+    { name: 'RBI/NABARD', icon: Building, comingSoon: true },
+    { name: 'Banking (SBI/IBPS)', icon: Banknote, comingSoon: true },
+]
+
+export default function ExamCentreView({ setActiveView }: { setActiveView: (view: View) => void }) {
   return (
     <>
       <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
@@ -14,10 +25,49 @@ export default function ExamCentreView() {
         <h2 className="text-lg font-semibold">Exam Centre</h2>
       </header>
       <ScrollArea className="h-[calc(100vh-3.5rem)]">
-        <main className="flex-1 space-y-6 p-4 md:p-6">
+        <main className="flex-1 space-y-8 p-4 md:p-6">
+          
+          <div>
+            <h2 className="mb-4 text-2xl font-headline font-bold">Select an Exam for Detailed Insights</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <Card className="flex flex-col">
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <Landmark className="h-8 w-8 text-primary" />
+                    <CardTitle>UPSC CSE</CardTitle>
+                  </div>
+                  <CardDescription>The primary focus of this tool. Dive deep into the Civil Services Examination.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow" />
+                <CardFooter>
+                   <Button className="w-full" onClick={() => setActiveView('exam-explorer')}>Explore UPSC Insights</Button>
+                </CardFooter>
+              </Card>
+
+              {otherExams.map((exam) => {
+                const Icon = exam.icon;
+                return (
+                  <Card key={exam.name} className="flex flex-col bg-muted/50">
+                    <CardHeader>
+                      <div className="flex items-center gap-4">
+                        <Icon className="h-8 w-8 text-muted-foreground" />
+                        <CardTitle className="text-muted-foreground">{exam.name}</CardTitle>
+                      </div>
+                       <CardDescription>Detailed insights for this exam are coming soon.</CardDescription>
+                    </CardHeader>
+                     <CardContent className="flex-grow" />
+                    <CardFooter>
+                      <Button className="w-full" disabled>Coming Soon</Button>
+                    </CardFooter>
+                  </Card>
+                )
+              })}
+            </div>
+          </div>
+          
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-3xl text-primary">Syllabus Overlap Analysis</CardTitle>
+              <CardTitle className="font-headline text-2xl text-primary">Syllabus Overlap Analysis</CardTitle>
               <CardDescription>
                 An analysis of syllabus overlap between UPSC CSE and other major government examinations. This helps in understanding how preparation for one exam can be leveraged for others.
               </CardDescription>
@@ -26,10 +76,11 @@ export default function ExamCentreView() {
               <p className="text-sm text-muted-foreground">
                 Percentages are approximate, representing the fraction of syllabus content common with UPSC General Studies.
               </p>
+              <div className="mt-4">
+                 <ExamComparisonTable />
+              </div>
             </CardContent>
           </Card>
-
-          <ExamComparisonTable />
 
         </main>
       </ScrollArea>

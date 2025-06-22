@@ -47,7 +47,7 @@ export default function MainLayout() {
         case 'exam-explorer':
             return <ExamExplorerView setActiveView={setActiveView} />;
         case 'exam-centre':
-            return <ExamCentreView />;
+            return <ExamCentreView setActiveView={setActiveView} />;
         case 'syllabus':
             return <SyllabusViewer syllabusData={syllabusData} setSyllabusData={setSyllabusData} />;
         case 'resources':
