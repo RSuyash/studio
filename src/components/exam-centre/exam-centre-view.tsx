@@ -39,8 +39,10 @@ export default function ExamCentreView({ setActiveView }: { setActiveView: (view
                   <CardDescription>The primary focus of this tool. Dive deep into the Civil Services Examination.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow" />
-                <CardFooter>
-                   <Button className="w-full" onClick={() => setActiveView('exam-explorer')}>Explore UPSC Insights</Button>
+                <CardFooter className="flex flex-col gap-2 sm:flex-row">
+                   <Button className="w-full" onClick={() => setActiveView('exam-explorer')}>Structure</Button>
+                   <Button className="w-full" variant="outline" onClick={() => setActiveView('syllabus')}>Syllabus</Button>
+                   <Button className="w-full" variant="outline" onClick={() => setActiveView('insights')}>Insights</Button>
                 </CardFooter>
               </Card>
 
