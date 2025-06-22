@@ -7,8 +7,53 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
 import { type View } from '../main-layout';
+import { upscCseExam } from '@/lib/exam-data';
+import { initialSyllabusData, type SyllabusTopic } from '@/lib/syllabus-data';
+import { FileText, BookOpen, ListTree } from 'lucide-react';
+
+const countSyllabusEntries = (topics: SyllabusTopic[]): number => {
+  let count = 0;
+  const recurse = (items: SyllabusTopic[]) => {
+    items.forEach(item => {
+      count++;
+      if (item.subtopics) {
+        recurse(item.subtopics);
+      }
+    });
+  };
+  recurse(topics);
+  return count;
+};
+
 
 export default function InsightsView({ setActiveView }: { setActiveView: (view: View) => void }) {
+  const stats = React.useMemo(() => {
+    const totalPapers = upscCseExam.stages.reduce((acc, stage) => acc + (stage.papers?.length ?? 0), 0);
+    const coreSubjects = 7; // GS Mains (4), Essay (1), Optional (1), GS Prelims (1)
+    const totalSyllabusTopics = countSyllabusEntries(initialSyllabusData);
+    
+    return [
+      {
+        title: 'Total Papers',
+        value: totalPapers,
+        icon: FileText,
+        description: 'Across Prelims, Mains & Interview.'
+      },
+      {
+        title: 'Core Merit Subjects',
+        value: coreSubjects,
+        icon: BookOpen,
+        description: 'GS (Prelims + Mains), Essay & Optional.'
+      },
+      {
+        title: 'Total Syllabus Topics',
+        value: totalSyllabusTopics,
+        icon: ListTree,
+        description: 'Detailed topics & sub-topics combined.'
+      }
+    ];
+  }, []);
+
   return (
     <>
       <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
@@ -17,6 +62,27 @@ export default function InsightsView({ setActiveView }: { setActiveView: (view: 
       </header>
       <ScrollArea className="h-[calc(100vh-3.5rem)]">
         <main className="flex-1 space-y-8 p-4 md:p-6">
+          
+           <div>
+            <h2 className="mb-4 text-2xl font-headline font-bold">Exam at a Glance</h2>
+             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {stats.map((stat) => {
+                const Icon = stat.icon;
+                return (
+                  <Card key={stat.title}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stat.value}</div>
+                        <p className="text-xs text-muted-foreground">{stat.description}</p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
           
           <div>
             <h2 className="mb-4 text-2xl font-headline font-bold">Trends & Analysis</h2>
