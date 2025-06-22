@@ -1,3 +1,4 @@
+
 import { type SyllabusTopic, type Resource } from '@/lib/syllabus-data';
 
 // Helper to find a topic by ID in a nested structure
@@ -76,4 +77,37 @@ export const findPathToTopic = (topics: SyllabusTopic[], id: string, currentPath
         }
     }
     return null;
+};
+
+
+// Recursive function to get all unique tags from the tree
+export const getAllTagsFromTree = (topics: SyllabusTopic[]): Set<string> => {
+  const tags = new Set<string>();
+  topics.forEach((topic) => {
+    topic.tags.forEach((tag) => tags.add(tag));
+    if (topic.subtopics) {
+      getAllTagsFromTree(topic.subtopics).forEach((tag) => tags.add(tag));
+    }
+  });
+  return tags;
+};
+
+// Recursive function to filter the syllabus
+export const filterSyllabus = (
+  topics: SyllabusTopic[],
+  selectedTags: Set<string>
+): SyllabusTopic[] => {
+  if (selectedTags.size === 0) {
+    return topics;
+  }
+
+  return topics.reduce<SyllabusTopic[]>((acc, topic) => {
+    const hasMatchingTag = Array.from(selectedTags).some(tag => topic.tags.includes(tag));
+    const filteredSubtopics = topic.subtopics ? filterSyllabus(topic.subtopics, selectedTags) : [];
+    
+    if (hasMatchingTag || filteredSubtopics.length > 0) {
+      acc.push({ ...topic, subtopics: filteredSubtopics });
+    }
+    return acc;
+  }, []);
 };
