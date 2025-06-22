@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from 'react'
@@ -35,8 +34,6 @@ export default function MainLayout() {
 
   const menuItems = [
     { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
-    { view: 'exam-explorer', label: 'UPSC CSE Exam', icon: Icons.Landmark },
-    { view: 'insights', label: 'UPSC Insights', icon: Icons.Sparkles },
     { view: 'exam-centre', label: 'Exam Centre', icon: Icons.Layers },
     { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen },
     { view: 'resources', label: 'My Resources', icon: Icons.Library },
