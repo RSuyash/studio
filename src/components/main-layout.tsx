@@ -4,7 +4,21 @@
 import * as React from 'react'
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 
-import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarTrigger, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar'
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarTrigger,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarSeparator,
+} from '@/components/ui/sidebar'
 import { Icons } from '@/components/icons'
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -16,6 +30,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 type View = 'dashboard' | 'syllabus';
 
@@ -210,6 +225,7 @@ export default function MainLayout() {
   return (
     <SidebarProvider>
       <Sidebar>
+        <SidebarTrigger />
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -233,7 +249,37 @@ export default function MainLayout() {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
+          <SidebarSeparator />
+          <SidebarGroup className="p-2">
+            <SidebarGroupLabel>Tools</SidebarGroupLabel>
+            <SidebarMenuItem>
+              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
+                <Icons.Sparkles className="size-4" />
+                <span>Mock Test Generator</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
+                <Icons.Layers className="size-4" />
+                <span>Flashcard Maker</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarGroup>
         </SidebarContent>
+        <SidebarFooter>
+          <div className="flex items-center gap-3 p-2">
+            <Avatar className="h-9 w-9">
+                <AvatarFallback>UA</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 overflow-hidden">
+                <p className="truncate text-sm font-semibold">UPSC Aspirant</p>
+                <p className="truncate text-xs text-sidebar-foreground/70">Test User</p>
+            </div>
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                <Icons.Settings className="size-4" />
+            </Button>
+          </div>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         {activeView === 'dashboard' && <DashboardView setActiveView={setActiveView} />}

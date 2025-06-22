@@ -13,6 +13,8 @@ import {
   CalendarDays,
   Sparkles,
   Layers,
+  User,
+  Settings,
 } from 'lucide-react';
 
 export type Icon = LucideIcon;
@@ -31,4 +33,6 @@ export const Icons = {
   CalendarDays,
   Sparkles,
   Layers,
+  User,
+  Settings,
 };
