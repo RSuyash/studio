@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/components/icons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Helper function to find a topic by ID in the tree
 const findTopicById = (topics: SyllabusTopic[], id: string): SyllabusTopic | null => {
@@ -326,18 +327,31 @@ export default function SyllabusViewer() {
           />
         </aside>
         <div className="min-w-0 flex-1">
-          {filteredData.length > 0 ? (
-            <SyllabusExplorer
-              data={filteredData}
-              onUpdate={handleUpdateTopic}
-              onFocus={handleFocusTopic}
-            />
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-card p-12 text-center">
-              <h3 className="text-lg font-semibold">No topics match your filter.</h3>
-              <p className="text-sm text-muted-foreground">Try selecting different tags or clearing the filter.</p>
-            </div>
-          )}
+          <Tabs defaultValue="explorer" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="explorer">Explorer</TabsTrigger>
+              <TabsTrigger value="mindmap" disabled>
+                Mind Map
+              </TabsTrigger>
+              <TabsTrigger value="timeline" disabled>
+                Timeline
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="explorer">
+              {filteredData.length > 0 ? (
+                <SyllabusExplorer
+                  data={filteredData}
+                  onUpdate={handleUpdateTopic}
+                  onFocus={handleFocusTopic}
+                />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-card p-12 text-center">
+                  <h3 className="text-lg font-semibold">No topics match your filter.</h3>
+                  <p className="text-sm text-muted-foreground">Try selecting different tags or clearing the filter.</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
       <FocusModeDialog
