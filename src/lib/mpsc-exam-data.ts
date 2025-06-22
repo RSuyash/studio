@@ -62,7 +62,7 @@ export const mpscRajyasevaExam: Exam = {
       subStages: [
         {
           title: 'Syllabus – Qualifying Paper (Marathi & English)',
-          description: 'This is a compulsory paper, but qualifying in nature. Candidates must score a minimum of 25 marks in each language section.',
+          description: 'This is a compulsory paper, but qualifying in nature. Candidates must score a minimum of 25 marks in each section and 35% overall. Marks are not counted in the final tally.',
           syllabus: [
             'Marathi Section (50 marks): Essay Writing, Translation (English to Marathi), Precis Writing, Grammar.',
             'English Section (50 marks): Essay Writing, Translation (Marathi to English), Precis Writing, Grammar.',
@@ -70,16 +70,20 @@ export const mpscRajyasevaExam: Exam = {
         },
         {
           title: 'Syllabus – Paper I (Essay)',
-          description: 'Two essays to be written, one in Marathi and one in English (125 marks each). Topics can be contemporary, socio-economic, political, environmental, or Maharashtra-specific.',
-          syllabus: []
+          description: 'Three essays need to be written on various topics, typically between 1000-1200 words each. Topics are provided in English and Marathi, and candidates can write in their chosen medium.',
+          syllabus: [
+            'Topics are drawn from: Contemporary issues, Ethics/Governance, Economic/Developmental issues, Science/Technology, Environment, Philosophy, and History/Society/Culture (including Maharashtra).',
+            'Essays are evaluated on: Clarity of thought, logical flow, coherence, originality, depth of analysis, and balanced viewpoints.',
+            'Structure should include: Introduction, Body (with thematic paragraphs), and a forward-looking Conclusion.',
+          ]
         },
         {
           title: 'Syllabus – Paper II (GS I: History, Geography, Society)',
-          description: '',
+          description: 'Covers Indian History & Culture, Geography of India & the World, and Indian Society, with special emphasis on Maharashtra.',
           syllabus: [
             'History and Culture: Ancient/Medieval India, Modern India (1757–1947), Social reform movements, Post-independence consolidation, History of Maharashtra, Art & Culture.',
             'Geography: Physical (India & Maharashtra), Economic (agriculture, industries), Human (population, urbanization), Environmental geography & disaster management.',
-            'Society: Indian society features, social problems (poverty, communalism), social justice schemes, role of women, regionalism.',
+            'Society: Indian society features, diversity, social problems (poverty, communalism), social justice schemes, role of women, regionalism.',
           ]
         },
         {
@@ -89,13 +93,29 @@ export const mpscRajyasevaExam: Exam = {
         },
         {
           title: 'Syllabus – Paper IV (GS III: Economy, Agriculture, Science, Technology)',
-          description: 'Detailed syllabus for this paper will be added in a future update.',
-          syllabus: []
+          description: 'Covers Indian Economy, Agriculture, Science, Technology, Environment, and Internal Security.',
+          syllabus: [
+            'Indian Economy and Planning: Growth, Poverty, Planning (NITI Aayog), Economic Reforms, Fiscal/Monetary Policy, PDS, and Maharashtra Economy.',
+            'Agriculture and Allied Sectors: Land reforms, Irrigation, Marketing (APMC, e-NAM), Animal Husbandry, Food Processing, Agri-credit, and Biotech.',
+            'Industry and Infrastructure: Industrial Policy, MSMEs, Make in India, SEZs, Infrastructure (Roads, Energy, PPP), and FDI.',
+            'Science and Technology: S&T in development, Space/Nuclear tech, Biotech, Nanotech, ICT, Cybersecurity, AI/ML, and Tech Missions.',
+            'Environment and Ecology: Conservation laws, Biodiversity, Climate Change, Pollution, NAPCC, Waste Management, and EIA.',
+            'Internal Security and Disaster Management: Extremism, Terrorism, Cybercrime, Security Forces, Money laundering, and Disaster Management (NDMA, SDRF).',
+          ]
         },
         {
           title: 'Syllabus – Paper V (GS IV: Ethics, Aptitude, Integrity)',
-          description: 'Detailed syllabus for this paper will be added in a future update.',
-          syllabus: []
+          description: 'Designed to assess the candidate’s attitude and approach to issues relating to integrity, probity in public life, and problem-solving through case studies.',
+          syllabus: [
+            'Ethics and Human Interface: Essence and dimensions of ethics, Human Values from leaders/reformers.',
+            'Attitude: Content, structure, function, moral/political attitudes, and social influence.',
+            'Aptitude and Foundational Values: Integrity, Impartiality, Objectivity, Dedication, Empathy, Tolerance, and Compassion.',
+            'Emotional Intelligence: Concepts, dimensions, and role in administration and governance.',
+            'Contributions of Thinkers and Philosophers: Ideas from Indian and Western thinkers.',
+            'Public/Civil Service Values: Ethical concerns, dilemmas, laws, rules as guidance, and accountability.',
+            'Probity in Governance: Concept of public service, RTI, Codes of Ethics/Conduct, Citizen’s Charters, and challenges of corruption.',
+            'Case Studies on Above Topics: Testing ethical reasoning and decision-making in practical situations.',
+          ]
         },
       ]
     },
