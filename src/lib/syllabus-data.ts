@@ -1,3 +1,4 @@
+
 export type MasteryLevel = 'none' | 'novice' | 'advanced' | 'expert';
 
 export interface SyllabusTopic {
@@ -153,6 +154,11 @@ export const initialSyllabusData: SyllabusTopic[] = [
         description: 'Candidates write essays on multiple topics, testing their ability to organize ideas and write concisely. Marks: 250.',
         tags: ['essay', 'merit'],
         mastery: 'none',
+        subtopics: [
+          { id: 'mains-essay-structure', title: 'Structure', description: 'Two sections, each with four topics. You choose one essay per section (total 2 essays). Each carries 125 marks.', tags: [], mastery: 'none' },
+          { id: 'mains-essay-syllabus', title: 'Syllabus & Expectations', description: 'No fixed syllabus. Evaluation criteria: Relevance, Organization, Clarity, Brevity, Analytical depth. Topics often explore balanced perspectives and interdisciplinary issues.', tags: [], mastery: 'none' },
+          { id: 'mains-essay-strategy', title: 'Strategy Highlights', description: 'Practice structuring essays with clear intro/body/conclusion. Focus on contemporary relevance with historical/philosophical depth. Integrate data, quotes, and examples wisely.', tags: [], mastery: 'none' },
+        ],
       },
       {
         id: 'mains-gs1',
@@ -160,6 +166,13 @@ export const initialSyllabusData: SyllabusTopic[] = [
         description: 'Covers Indian Heritage and Culture, History and Geography of the World, and Society. Marks: 250.',
         tags: ['gs-1', 'history', 'geography', 'society'],
         mastery: 'none',
+        subtopics: [
+          { id: 'mains-gs1-art-culture', title: 'Indian Art & Culture', description: 'Salient aspects of art forms, architecture, literature from ancient to modern times.', tags: [], mastery: 'none' },
+          { id: 'mains-gs1-modern-history', title: 'Modern Indian History', description: 'Mid-18th century to present: key events, personalities, issues. Freedom struggle and Post-independence consolidation & state reorganization.', tags: [], mastery: 'none' },
+          { id: 'mains-gs1-world-history', title: 'World History', description: 'Events from the 18th century onwards: Industrial Revolution, world wars, decolonization, nation-state formation. Ideologies: communism, socialism, capitalism.', tags: [], mastery: 'none' },
+          { id: 'mains-gs1-society', title: 'Indian Society', description: 'Social structure: diversity, secularism, challenges. Women’s role and empowerment, population dynamics, poverty, urbanization, globalization.', tags: [], mastery: 'none' },
+          { id: 'mains-gs1-geography', title: 'Geography – India & World', description: 'Physical geography (earth structure, climate, hazards). Human geography (industry locations, resources). Environmental issues (climate change, ecological challenges).', tags: [], mastery: 'none' },
+        ],
       },
       {
         id: 'mains-gs2',
