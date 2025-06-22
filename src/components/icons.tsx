@@ -8,6 +8,7 @@ import {
   BookOpen,
   Library,
   Folder,
+  LayoutDashboard,
 } from 'lucide-react';
 
 export type Icon = LucideIcon;
@@ -21,4 +22,5 @@ export const Icons = {
   BookOpen,
   Library,
   Folder,
+  LayoutDashboard,
 };
