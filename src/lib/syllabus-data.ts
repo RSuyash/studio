@@ -155,9 +155,8 @@ export const initialSyllabusData: SyllabusTopic[] = [
         tags: ['essay', 'merit'],
         mastery: 'none',
         subtopics: [
-          { id: 'mains-essay-structure', title: 'Structure', description: 'Two sections, each with four topics. You choose one essay per section (total 2 essays). Each carries 125 marks.', tags: [], mastery: 'none' },
-          { id: 'mains-essay-syllabus', title: 'Syllabus & Expectations', description: 'No fixed syllabus. Evaluation criteria: Relevance, Organization, Clarity, Brevity, Analytical depth. Topics often explore balanced perspectives and interdisciplinary issues.', tags: [], mastery: 'none' },
-          { id: 'mains-essay-strategy', title: 'Strategy Highlights', description: 'Practice structuring essays with clear intro/body/conclusion. Focus on contemporary relevance with historical/philosophical depth. Integrate data, quotes, and examples wisely.', tags: [], mastery: 'none' },
+          { id: 'mains-essay-structure', title: 'Structure & Evaluation', description: 'Two sections, with one essay choice from each (125 marks each). Evaluated on relevance, organization, clarity, and analytical depth.', tags: [], mastery: 'none' },
+          { id: 'mains-essay-strategy', title: 'Strategy & Topics', description: 'Topics are broad, often philosophical or interdisciplinary. Practice structuring arguments with contemporary relevance and historical/philosophical depth.', tags: [], mastery: 'none' },
         ],
       },
       {
@@ -169,8 +168,8 @@ export const initialSyllabusData: SyllabusTopic[] = [
         subtopics: [
           { id: 'mains-gs1-art-culture', title: 'Indian Art & Culture', description: 'Salient aspects of art forms, architecture, literature from ancient to modern times.', tags: [], mastery: 'none' },
           { id: 'mains-gs1-modern-history', title: 'Modern Indian History', description: 'Mid-18th century to present: key events, personalities, issues. Freedom struggle and Post-independence consolidation & state reorganization.', tags: [], mastery: 'none' },
-          { id: 'mains-gs1-world-history', title: 'World History', description: 'Events from the 18th century onwards: Industrial Revolution, world wars, decolonization, nation-state formation. Ideologies: communism, socialism, capitalism.', tags: [], mastery: 'none' },
-          { id: 'mains-gs1-society', title: 'Indian Society', description: 'Social structure: diversity, secularism, challenges. Women’s role and empowerment, population dynamics, poverty, urbanization, globalization.', tags: [], mastery: 'none' },
+          { id: 'mains-gs1-world-history', title: 'World History', description: 'Events from the 18th century onwards: Industrial Revolution, world wars, decolonization, nation-state formation, and key ideologies.', tags: [], mastery: 'none' },
+          { id: 'mains-gs1-society', title: 'Indian Society', description: 'Social structure: diversity, secularism, challenges. Women’s role, population dynamics, poverty, urbanization, and globalization.', tags: [], mastery: 'none' },
           { id: 'mains-gs1-geography', title: 'Geography – India & World', description: 'Physical geography (earth structure, climate, hazards). Human geography (industry locations, resources). Environmental issues (climate change, ecological challenges).', tags: [], mastery: 'none' },
         ],
       },
@@ -180,6 +179,13 @@ export const initialSyllabusData: SyllabusTopic[] = [
         description: 'Covers Governance, Constitution, Polity, Social Justice, and International Relations. Marks: 250.',
         tags: ['gs-2', 'polity', 'governance', 'ir'],
         mastery: 'none',
+        subtopics: [
+          { id: 'mains-gs2-constitution', title: 'Indian Constitution', description: 'Historical underpinnings, evolution, features, amendments, basic structure, federalism, separation of powers, and dispute redressal mechanisms.', tags: [], mastery: 'none' },
+          { id: 'mains-gs2-governance', title: 'Governance and Polity', description: 'Structure and functioning of Parliament, Executive, and Judiciary; role of pressure groups, and aspects of governance like transparency and e-governance.', tags: [], mastery: 'none' },
+          { id: 'mains-gs2-welfare', title: 'Welfare Schemes and Policies', description: 'Policies for vulnerable sections (SC/ST, women, children), performance of schemes, and the role of NGOs/SHGs.', tags: [], mastery: 'none' },
+          { id: 'mains-gs2-justice', title: 'Social Justice', description: 'Issues related to poverty, hunger, health, education, and inclusive growth.', tags: [], mastery: 'none' },
+          { id: 'mains-gs2-ir', title: 'International Relations', description: 'India’s neighborhood relations, bilateral/global groupings, effect of foreign policies, and the role of the Indian diaspora and international institutions.', tags: [], mastery: 'none' },
+        ]
       },
       {
         id: 'mains-gs3',
@@ -187,6 +193,13 @@ export const initialSyllabusData: SyllabusTopic[] = [
         description: 'Covers Technology, Economic Development, Biodiversity, Environment, Security, and Disaster Management. Marks: 250.',
         tags: ['gs-3', 'economy', 'sci-tech', 'security'],
         mastery: 'none',
+        subtopics: [
+          { id: 'mains-gs3-economy', title: 'Indian Economy', description: 'Planning, resource mobilization, growth, budgeting, agriculture (MSP, PDS, e-tech), land reforms, infrastructure, and investment models.', tags: [], mastery: 'none' },
+          { id: 'mains-gs3-scitech', title: 'Science & Technology', description: 'Developments, applications, achievements of Indians, awareness in new fields (space, AI, biotech), and indigenization of technology.', tags: [], mastery: 'none' },
+          { id: 'mains-gs3-environment', title: 'Environment and Ecology', description: 'Conservation, pollution, EIA, climate change agreements (UNFCCC, Paris), biodiversity, and sustainable development.', tags: [], mastery: 'none' },
+          { id: 'mains-gs3-dm', title: 'Disaster Management', description: 'Types of disasters, disaster preparedness, mitigation strategies, and NDMA guidelines.', tags: [], mastery: 'none' },
+          { id: 'mains-gs3-security', title: 'Internal Security', description: 'Linkages with extremism, role of external/non-state actors, cybersecurity, money laundering, and mandates of security forces.', tags: [], mastery: 'none' },
+        ]
       },
       {
         id: 'mains-gs4',
