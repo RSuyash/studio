@@ -16,14 +16,14 @@ const migrateMpscData = async () => {
   console.log(`Upserted Exam: ${mpscRajyasevaExam.title}`);
 
   for (const stage of mpscRajyasevaExam.stages) {
-    const stageRef = examRef.collection('stages').doc(stage.title.replace(/\s+/g, '-').toLowerCase());
+    const stageRef = examRef.collection('stages').doc(stage.title.replace(/[\s/]+/g, '-').toLowerCase());
     const { papers, subStages, ...stageData } = stage;
     await stageRef.set(stageData);
     console.log(`  Upserted Stage: ${stage.title}`);
 
     if (papers && papers.length > 0) {
       for (const paper of papers) {
-        const paperRef = stageRef.collection('papers').doc(paper.name.replace(/\s+/g, '-').toLowerCase());
+        const paperRef = stageRef.collection('papers').doc(paper.name.replace(/[\s/]+/g, '-').toLowerCase());
         await paperRef.set(paper);
         console.log(`    Upserted Paper: ${paper.name}`);
       }
@@ -31,14 +31,14 @@ const migrateMpscData = async () => {
 
     if (subStages && subStages.length > 0) {
         for (const subStage of subStages) {
-            const subStageRef = stageRef.collection('subStages').doc(subStage.title.replace(/\s+/g, '-').toLowerCase());
+            const subStageRef = stageRef.collection('subStages').doc(subStage.title.replace(/[\s/]+/g, '-').toLowerCase());
             const { papers: subPapers, ...subStageData } = subStage;
             await subStageRef.set(subStageData);
             console.log(`    Upserted SubStage: ${subStage.title}`);
 
              if (subPapers && subPapers.length > 0) {
                 for (const paper of subPapers) {
-                    const paperRef = subStageRef.collection('papers').doc(paper.name.replace(/\s+/g, '-').toLowerCase());
+                    const paperRef = subStageRef.collection('papers').doc(paper.name.replace(/[\s/]+/g, '-').toLowerCase());
                     await paperRef.set(paper);
                     console.log(`      Upserted Paper: ${paper.name}`);
                 }
