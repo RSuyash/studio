@@ -16,6 +16,8 @@ interface SyllabusNodeProps {
   topic: SyllabusTopic;
   onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void;
   onFocus: (topic: SyllabusTopic) => void;
+  level: number;
+  isLastChild: boolean;
 }
 
 const masteryColorMap: Record<MasteryLevel, string> = {
@@ -25,8 +27,8 @@ const masteryColorMap: Record<MasteryLevel, string> = {
   expert: "border-l-4 border-green-400",
 };
 
-export default function SyllabusNode({ topic, onUpdate, onFocus }: SyllabusNodeProps) {
-  const [isExpanded, setIsExpanded] = React.useState(false);
+export default function SyllabusNode({ topic, onUpdate, onFocus, level = 0, isLastChild = false }: SyllabusNodeProps) {
+  const [isExpanded, setIsExpanded] = React.useState(level < 1);
   const [newTag, setNewTag] = React.useState('');
 
   const hasSubtopics = topic.subtopics && topic.subtopics.length > 0;
@@ -44,9 +46,27 @@ export default function SyllabusNode({ topic, onUpdate, onFocus }: SyllabusNodeP
   };
 
   return (
-    <div className="relative pl-6">
-       <div className="absolute -left-px top-10 h-[calc(100%-40px)] w-px bg-border" />
-       <div className="absolute top-10 -left-px h-px w-6 bg-border" />
+    <div
+      className={cn(
+        "relative",
+        level > 0 && "pl-6" // Indent sub-topics
+      )}
+    >
+      {/* Connector lines for indented items */}
+      {level > 0 && (
+        <>
+          {/* The vertical line that connects siblings. It's shorter for the last item. */}
+          <div
+            className="absolute -left-px w-px bg-border"
+            style={{
+              top: 0,
+              height: isLastChild ? '2.5rem' : '100%',
+            }}
+          />
+          {/* The horizontal line that connects to the card. "T" junction. */}
+          <div className="absolute -left-px top-10 h-px w-6 bg-border" />
+        </>
+      )}
       <Card className={cn("mb-4", masteryColorMap[topic.mastery])}>
         <CardHeader className="flex flex-row items-center gap-4 space-y-0 p-4">
           {hasSubtopics && (
@@ -114,12 +134,14 @@ export default function SyllabusNode({ topic, onUpdate, onFocus }: SyllabusNodeP
             isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
           )}
         >
-          {topic.subtopics?.map((subtopic) => (
+          {topic.subtopics?.map((subtopic, index) => (
             <SyllabusNode
               key={subtopic.id}
               topic={subtopic}
               onUpdate={onUpdate}
               onFocus={onFocus}
+              level={level + 1}
+              isLastChild={index === topic.subtopics.length - 1}
             />
           ))}
         </div>

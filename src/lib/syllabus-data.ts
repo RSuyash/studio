@@ -26,10 +26,26 @@ export const initialSyllabusData: SyllabusTopic[] = [
         subtopics: [
           {
             id: 'prelims-gs1-current-events',
-            title: 'Current Affairs (National & International)',
-            description: 'Key government rulings, economic indicators, climate agreements, S&T developments, and international relations.',
+            title: 'Current Affairs',
+            description: 'Current events of national and international importance, covering polity, economy, environment, science & tech, and international relations.',
             tags: ['dynamic', 'high-priority'],
             mastery: 'none',
+            subtopics: [
+              {
+                id: 'prelims-ca-national',
+                title: 'National',
+                description: 'Polity: Supreme Court rulings, constitutional amendments, government bills. Economy: Budget, Economic Survey, inflation, GDP, indices. Environment: National schemes (CAMPA, Green India). Science & Tech: ISRO missions, new technologies.',
+                tags: ['polity', 'economy', 'environment', 'sci-tech'],
+                mastery: 'none',
+              },
+              {
+                id: 'prelims-ca-international',
+                title: 'International',
+                description: 'IR: Major international treaties, India’s bilateral/multilateral relations. Reports/Indices: HDI, GHI, EPI, WEF indices. Environment: Global climate agreements (e.g., COPs, IPCC).',
+                tags: ['ir', 'reports-indices', 'global-events'],
+                mastery: 'none',
+              },
+            ]
           },
           {
             id: 'prelims-gs1-history',

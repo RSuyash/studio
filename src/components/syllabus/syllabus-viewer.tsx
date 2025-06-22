@@ -93,7 +93,7 @@ export default function SyllabusViewer() {
     });
   }, []);
 
-  const allTags = React.useMemo(() => Array.from(getAllTagsFromTree(initialSyllabusData)).sort(), [initialSyllabusData]);
+  const allTags = React.useMemo(() => Array.from(getAllTagsFromTree(initialSyllabusData)).sort(), []);
   const filteredData = React.useMemo(() => filterSyllabus(syllabusData, selectedTags), [syllabusData, selectedTags]);
 
   const filterPanel = (
@@ -109,12 +109,14 @@ export default function SyllabusViewer() {
       {portalContainer ? ReactDOM.createPortal(filterPanel, portalContainer) : null}
       <div className="space-y-4">
         {filteredData.length > 0 ? (
-          filteredData.map((topic) => (
+          filteredData.map((topic, index) => (
             <SyllabusNode
               key={topic.id}
               topic={topic}
               onUpdate={handleUpdateTopic}
               onFocus={handleFocusTopic}
+              level={0}
+              isLastChild={index === filteredData.length - 1}
             />
           ))
         ) : (
