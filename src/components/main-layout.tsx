@@ -28,8 +28,9 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import ResourcesView from '@/components/resources/resources-view';
+import ExamExplorerView from './exam-explorer/exam-explorer-view';
 
-type View = 'dashboard' | 'syllabus' | 'resources';
+export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer';
 
 const SubjectMasteryChart = dynamic(
   () => import('@/components/dashboard/subject-mastery-chart'),
@@ -146,6 +147,16 @@ const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void 
                             <CardDescription>Quick access to your learning tools.</CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
+                             <div className="flex items-center justify-between rounded-lg border p-4">
+                                <div className="flex items-center gap-4">
+                                    <Icons.ClipboardList className="h-6 w-6 text-primary" />
+                                    <div>
+                                        <p className="font-semibold">Exam Explorer</p>
+                                        <p className="text-sm text-muted-foreground">Get an overview of exams.</p>
+                                    </div>
+                                </div>
+                                <Button size="sm" onClick={() => setActiveView('exam-explorer')}>Open</Button>
+                            </div>
                             <div className="flex items-center justify-between rounded-lg border p-4">
                                 <div className="flex items-center gap-4">
                                     <Icons.BookOpen className="h-6 w-6 text-primary" />
@@ -165,26 +176,6 @@ const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void 
                                     </div>
                                 </div>
                                 <Button size="sm" onClick={() => setActiveView('resources')}>Open</Button>
-                            </div>
-                            <div className="flex items-center justify-between rounded-lg border p-4 opacity-50">
-                                 <div className="flex items-center gap-4">
-                                    <Icons.Sparkles className="h-6 w-6" />
-                                    <div>
-                                        <p className="font-semibold">Mock Test Generator</p>
-                                        <p className="text-sm text-muted-foreground">Coming soon.</p>
-                                    </div>
-                                </div>
-                                <Button size="sm" disabled>Open</Button>
-                            </div>
-                            <div className="flex items-center justify-between rounded-lg border p-4 opacity-50">
-                                 <div className="flex items-center gap-4">
-                                    <Icons.Layers className="h-6 w-6" />
-                                    <div>
-                                        <p className="font-semibold">Flashcard Maker</p>
-                                        <p className="text-sm text-muted-foreground">Coming soon.</p>
-                                    </div>
-                                </div>
-                                <Button size="sm" disabled>Open</Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -223,6 +214,7 @@ export default function MainLayout() {
 
   const menuItems = [
     { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
+    { view: 'exam-explorer', label: 'Exam Explorer', icon: Icons.ClipboardList },
     { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen },
     { view: 'resources', label: 'My Resources', icon: Icons.Library },
   ];
@@ -288,6 +280,7 @@ export default function MainLayout() {
       </Sidebar>
       <SidebarInset>
         {activeView === 'dashboard' && <DashboardView setActiveView={setActiveView} />}
+        {activeView === 'exam-explorer' && <ExamExplorerView setActiveView={setActiveView} />}
         {activeView === 'syllabus' && <SyllabusView syllabusData={syllabusData} onUpdate={handleUpdateTopic} />}
         {activeView === 'resources' && <ResourcesView syllabusData={syllabusData} onUpdate={handleUpdateTopic} />}
       </SidebarInset>
