@@ -1,24 +1,30 @@
 import * as admin from 'firebase-admin';
-import * as fs from 'fs';
-import * as path from 'path';
 
 // This structure prevents the SDK from being initialized multiple times.
 if (!admin.apps.length) {
-  try {
-    // Construct an absolute path to the service account key file.
-    // process.cwd() gives the project root directory in Next.js.
-    const keyPath = path.join(process.cwd(), 'scripts', 'serviceAccountKey.json');
-    const serviceAccountString = fs.readFileSync(keyPath, 'utf8');
-    const serviceAccount = JSON.parse(serviceAccountString);
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 
+  if (!projectId || !privateKey || !clientEmail) {
+    throw new Error(
+      'Firebase credentials are not set in the environment. Please ensure FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, and FIREBASE_CLIENT_EMAIL are set in your .env file.'
+    );
+  }
+
+  try {
     admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
+      credential: admin.credential.cert({
+        projectId,
+        // The private key from the .env file needs newlines to be correctly formatted.
+        privateKey: privateKey.replace(/\\n/g, '\n'),
+        clientEmail,
+      }),
     });
     console.log('Firebase Admin SDK initialized successfully.');
   } catch (error: any) {
     console.error('Error initializing Firebase Admin SDK:', error);
-    // Throw a more specific error to help with debugging.
-    throw new Error('Could not initialize Firebase Admin SDK. Please ensure serviceAccountKey.json is present in the /scripts directory and is valid.');
+    throw new Error('Could not initialize Firebase Admin SDK. Please check your credentials in the .env file.');
   }
 }
 
