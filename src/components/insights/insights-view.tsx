@@ -9,7 +9,7 @@ import { Button } from '../ui/button';
 import { type View } from '../main-layout';
 import { upscCseExam } from '@/lib/exam-data';
 import { initialSyllabusData, type SyllabusTopic } from '@/lib/syllabus-data';
-import { FileText, BookOpen, ListTree } from 'lucide-react';
+import { FileText, BookOpen, ListTree, Users } from 'lucide-react';
 
 const countSyllabusEntries = (topics: SyllabusTopic[]): number => {
   let count = 0;
@@ -54,6 +54,12 @@ export default function InsightsView({ setActiveView }: { setActiveView: (view: 
         value: totalSyllabusTopics,
         icon: ListTree,
         description: 'Detailed topics & sub-topics combined.'
+      },
+      {
+        title: 'Personality Test',
+        value: 1,
+        icon: Users,
+        description: 'The final stage for merit ranking.'
       }
     ];
   }, []);
@@ -69,7 +75,7 @@ export default function InsightsView({ setActiveView }: { setActiveView: (view: 
           
            <div>
             <h2 className="mb-4 text-2xl font-headline font-bold">Exam at a Glance</h2>
-             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {stats.map((stat) => {
                 const Icon = stat.icon;
                 return (
