@@ -5,7 +5,7 @@ import * as ReactDOM from "react-dom";
 import { initialSyllabusData, type SyllabusTopic, type MasteryLevel } from "@/lib/syllabus-data";
 import FocusModeDialog from "./focus-mode-dialog";
 import FilterPanel from "./filter-panel";
-import { Card, CardTitle, CardDescription } from '@/components/ui/card';
+import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Icons } from "@/components/icons";
 
 // Helper function to find a topic by ID in the tree
@@ -83,36 +82,28 @@ const filterSyllabus = (
   }, []);
 };
 
-
-const BreadcrumbColumn = ({ topic, onClick }: { topic: SyllabusTopic; onClick: () => void }) => {
-  const Icon = topic.icon ? Icons[topic.icon as keyof typeof Icons] || Icons.Folder : Icons.Folder;
-  return (
-    <div className="flex h-full w-16 flex-shrink-0 flex-col items-center border-r bg-muted/30 p-2">
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="mb-4 h-12 w-12 rounded-lg bg-background shadow-sm"
-              onClick={onClick}
-            >
-              <Icon className="h-6 w-6" />
+const SyllabusBreadcrumb = ({ topics, onClickHome, onClickTopic }: { topics: SyllabusTopic[], onClickHome: () => void, onClickTopic: (index: number) => void }) => {
+    const HomeIcon = Icons['Home'];
+    return (
+        <div className="flex flex-wrap items-center gap-1 border-b bg-muted/30 p-2 md:gap-2">
+            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={onClickHome}>
+                <HomeIcon className="h-4 w-4" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>{topic.title}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <Separator />
-    </div>
-  );
-};
+            {topics.map((topic, index) => (
+                <React.Fragment key={topic.id}>
+                    <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    <Button variant="ghost" className="h-8 px-2 text-left" onClick={() => onClickTopic(index + 1)}>
+                        {topic.title}
+                    </Button>
+                </React.Fragment>
+            ))}
+        </div>
+    )
+}
 
 const TopicColumn = ({ topics, title, onSelect }: { topics: SyllabusTopic[], title: string, onSelect: (id: string) => void }) => {
   return (
-    <div className="h-full w-80 flex-shrink-0 border-r">
+    <div className="h-full w-full flex-shrink-0 md:w-80 md:border-r">
       <div className="p-4">
         <h2 className="mb-4 text-lg font-bold tracking-tight text-primary">{title}</h2>
       </div>
@@ -158,7 +149,7 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
     };
     
     return (
-        <ScrollArea className="flex-1">
+        <ScrollArea className="hidden flex-1 md:block">
             <div className="p-6">
                 <div className="space-y-6">
                     <div className="flex items-start justify-between gap-4">
@@ -249,7 +240,7 @@ const SyllabusExplorer = ({ data, onUpdate, onFocus }: { data: SyllabusTopic[], 
   const activeTopics = activeColumnParent ? activeColumnParent.subtopics || [] : data;
   const activeColumnTitle = activeColumnParent ? activeColumnParent.title : "UPSC Syllabus";
   const detailTopic = activeColumnParent;
-
+  
   const handleSelect = (topicId: string) => {
     setSelectedPath(prev => [...prev, topicId]);
   };
@@ -258,40 +249,37 @@ const SyllabusExplorer = ({ data, onUpdate, onFocus }: { data: SyllabusTopic[], 
     setSelectedPath(prev => prev.slice(0, level));
   };
   
+  const hasSubtopics = activeTopics && activeTopics.length > 0;
+  
   return (
-    <div className="flex h-[calc(100vh-8rem)] w-full overflow-hidden rounded-lg border bg-card text-card-foreground shadow-inner">
-      {/* Home breadcrumb */}
-      {selectedPath.length > 0 && (
-        <BreadcrumbColumn 
-          topic={{id: 'root', title: 'Home', description: '', tags: [], mastery: 'none', icon: 'Home'}} 
-          onClick={() => handleBreadcrumbClick(0)} 
-        />
-      )}
-      
-      {/* Path breadcrumbs */}
-      {breadcrumbTopics.map((topic, index) => (
-          <BreadcrumbColumn key={topic.id} topic={topic} onClick={() => handleBreadcrumbClick(index + 1)} />
-      ))}
-      
-      {/* Active Column */}
-      {(activeTopics.length > 0) && (
-        <TopicColumn
-            topics={activeTopics}
-            title={activeColumnTitle}
-            onSelect={handleSelect}
-        />
-      )}
-      
-      {/* Detail Pane or Welcome message */}
-      {detailTopic ? (
-        <DetailPane topic={detailTopic} onUpdate={onUpdate} onFocus={onFocus} />
-      ) : (
-        <div className="flex flex-1 flex-col items-center justify-center p-8 text-center text-muted-foreground">
-          <Icons.Library className="h-16 w-16 mb-4 text-primary/50" />
-          <h3 className="text-xl font-semibold">Welcome to Nexus Cortex</h3>
-          <p className="max-w-md text-sm">Select a topic from the syllabus on the left to begin your journey. Each selection will reveal more details and sub-topics.</p>
-        </div>
-      )}
+    <div className="flex h-[calc(100vh-8rem)] w-full flex-col overflow-hidden rounded-lg border bg-card text-card-foreground shadow-inner">
+      <SyllabusBreadcrumb 
+        topics={breadcrumbTopics}
+        onClickHome={() => handleBreadcrumbClick(0)}
+        onClickTopic={handleBreadcrumbClick}
+      />
+       <div className="flex flex-1 overflow-hidden">
+        {hasSubtopics ? (
+          <>
+            <TopicColumn
+              topics={activeTopics}
+              title={activeColumnTitle}
+              onSelect={handleSelect}
+            />
+            <Separator orientation="vertical" className="h-full" />
+          </>
+        ) : null}
+        
+        {detailTopic ? (
+          <DetailPane topic={detailTopic} onUpdate={onUpdate} onFocus={onFocus} />
+        ) : (
+          <div className="flex flex-1 flex-col items-center justify-center p-8 text-center text-muted-foreground">
+            <Icons.Library className="h-16 w-16 mb-4 text-primary/50" />
+            <h3 className="text-xl font-semibold">Welcome to Nexus Cortex</h3>
+            <p className="max-w-md text-sm">Select a topic from the syllabus on the left to begin your journey. Each selection will reveal more details and sub-topics.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
