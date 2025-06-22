@@ -5,7 +5,33 @@ import * as React from 'react';
 import { type SyllabusTopic, type Resource } from '@/lib/syllabus-data';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Link, Library, ChevronRight } from 'lucide-react';
+import { Link, Library, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface TopicWithResources extends SyllabusTopic {
   path: string;
@@ -31,8 +57,58 @@ const findTopicsWithResources = (
   return results;
 };
 
-export default function ResourcesView({ syllabusData }: { syllabusData: SyllabusTopic[] }) {
+export default function ResourcesView({
+  syllabusData,
+  onUpdate,
+}: {
+  syllabusData: SyllabusTopic[];
+  onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void;
+}) {
+  const [editingResource, setEditingResource] = React.useState<{ resource: Resource; topicId: string } | null>(null);
+  const [resourceToDelete, setResourceToDelete] = React.useState<{ resource: Resource; topicId: string } | null>(null);
+  const [editTitle, setEditTitle] = React.useState('');
+  const [editUrl, setEditUrl] = React.useState('');
+  
   const topicsWithResources = React.useMemo(() => findTopicsWithResources(syllabusData), [syllabusData]);
+  
+  React.useEffect(() => {
+    if (editingResource) {
+      setEditTitle(editingResource.resource.title);
+      setEditUrl(editingResource.resource.url);
+    }
+  }, [editingResource]);
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingResource || !editTitle || !editUrl) return;
+
+    const { resource, topicId } = editingResource;
+    const parentTopic = findTopicsWithResources(syllabusData).find(t => t.id === topicId);
+    if (!parentTopic) return;
+    
+    let url = editUrl;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = `https://${url}`;
+    }
+
+    const updatedResource = { ...resource, title: editTitle, url };
+    const updatedResources = parentTopic.resources?.map(r => r.id === resource.id ? updatedResource : r);
+
+    onUpdate(topicId, { resources: updatedResources });
+    setEditingResource(null);
+  };
+  
+  const handleConfirmDelete = () => {
+    if (!resourceToDelete) return;
+    
+    const { resource, topicId } = resourceToDelete;
+    const parentTopic = findTopicsWithResources(syllabusData).find(t => t.id === topicId);
+    if (!parentTopic) return;
+    
+    const updatedResources = parentTopic.resources?.filter(r => r.id !== resource.id);
+    onUpdate(topicId, { resources: updatedResources });
+    setResourceToDelete(null);
+  };
 
   return (
     <>
@@ -60,17 +136,27 @@ export default function ResourcesView({ syllabusData }: { syllabusData: Syllabus
                     <AccordionContent>
                       <div className="space-y-2 pt-2">
                         {topic.resources?.map((resource: Resource) => (
-                           <a
-                                key={resource.id}
-                                href={resource.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-3 rounded-md border p-3 transition-colors hover:bg-muted/50"
-                            >
+                           <div key={resource.id} className="group flex items-center gap-3 rounded-md border p-3 transition-colors hover:bg-muted/50">
                                 <Link className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                                <span className="flex-1 truncate text-sm font-medium">{resource.title}</span>
-                                <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                            </a>
+                                <a href={resource.url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate text-sm font-medium hover:underline">
+                                    {resource.title}
+                                </a>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onSelect={() => setEditingResource({ resource, topicId: topic.id })}>
+                                            <Edit className="mr-2 h-4 w-4" /> Edit
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onSelect={() => setResourceToDelete({ resource, topicId: topic.id })} className="text-destructive focus:text-destructive">
+                                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
                         ))}
                       </div>
                     </AccordionContent>
@@ -89,6 +175,44 @@ export default function ResourcesView({ syllabusData }: { syllabusData: Syllabus
           </div>
         )}
       </main>
+
+       {/* Edit Resource Dialog */}
+      <Dialog open={!!editingResource} onOpenChange={(isOpen) => !isOpen && setEditingResource(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Resource</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-resource-title">Title</Label>
+              <Input id="edit-resource-title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-resource-url">URL</Label>
+              <Input id="edit-resource-url" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} />
+            </div>
+            <DialogFooter>
+              <Button type="submit">Save Changes</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!resourceToDelete} onOpenChange={(isOpen) => !isOpen && setResourceToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the resource "{resourceToDelete?.resource.title}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

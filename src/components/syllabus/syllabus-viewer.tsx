@@ -10,7 +10,7 @@ import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
-import { Maximize, ChevronRight, Tag, Link, Plus } from 'lucide-react';
+import { Maximize, ChevronRight, Tag, Link, Plus, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -20,6 +20,29 @@ import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/components/icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const MindMapView = dynamic(() => import("./mind-map-view"), {
   ssr: false,
@@ -123,12 +146,25 @@ const TopicColumn = ({ topics, title, onSelect }: { topics: SyllabusTopic[], tit
 
 
 const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void, onFocus: (topic: SyllabusTopic) => void }) => {
+    // State for adding new items
     const [newTag, setNewTag] = React.useState('');
     const [tagPopoverOpen, setTagPopoverOpen] = React.useState(false);
-
     const [newResourceTitle, setNewResourceTitle] = React.useState('');
     const [newResourceUrl, setNewResourceUrl] = React.useState('');
     const [resourcePopoverOpen, setResourcePopoverOpen] = React.useState(false);
+    
+    // State for editing/deleting resources
+    const [editingResource, setEditingResource] = React.useState<Resource | null>(null);
+    const [resourceToDelete, setResourceToDelete] = React.useState<Resource | null>(null);
+    const [editTitle, setEditTitle] = React.useState('');
+    const [editUrl, setEditUrl] = React.useState('');
+    
+    React.useEffect(() => {
+        if (editingResource) {
+            setEditTitle(editingResource.title);
+            setEditUrl(editingResource.url);
+        }
+    }, [editingResource]);
 
     const handleMasteryChange = (level: MasteryLevel) => {
         onUpdate(topic.id, { mastery: level });
@@ -161,6 +197,29 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
             setNewResourceUrl('');
             setResourcePopoverOpen(false);
         }
+    };
+
+    const handleEditResourceSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingResource || !editTitle || !editUrl) return;
+        
+        let url = editUrl;
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = `https://${url}`;
+        }
+        
+        const updatedResource: Resource = { ...editingResource, title: editTitle, url };
+        const updatedResources = (topic.resources || []).map(r => r.id === updatedResource.id ? updatedResource : r);
+        
+        onUpdate(topic.id, { resources: updatedResources });
+        setEditingResource(null);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!resourceToDelete) return;
+        const updatedResources = (topic.resources || []).filter(r => r.id !== resourceToDelete.id);
+        onUpdate(topic.id, { resources: updatedResources });
+        setResourceToDelete(null);
     };
     
     return (
@@ -216,17 +275,27 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
                         <div className="space-y-2">
                             {(topic.resources && topic.resources.length > 0) ? (
                                 topic.resources.map((resource) => (
-                                    <a
-                                        key={resource.id}
-                                        href={resource.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-3 rounded-md border p-3 transition-colors hover:bg-muted/50"
-                                    >
+                                    <div key={resource.id} className="group flex items-center gap-3 rounded-md border p-3 transition-colors">
                                         <Link className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                                        <span className="flex-1 truncate text-sm font-medium">{resource.title}</span>
-                                        <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                                    </a>
+                                        <a href={resource.url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate text-sm font-medium hover:underline">
+                                            {resource.title}
+                                        </a>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onSelect={() => setEditingResource(resource)}>
+                                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onSelect={() => setResourceToDelete(resource)} className="text-destructive focus:text-destructive">
+                                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
                                 ))
                             ) : (
                                 <p className="text-sm text-muted-foreground">No resources added for this topic yet.</p>
@@ -261,6 +330,43 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
 
                 </div>
             </div>
+            {/* Edit Resource Dialog */}
+            <Dialog open={!!editingResource} onOpenChange={(isOpen) => !isOpen && setEditingResource(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Resource</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleEditResourceSubmit} className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="edit-resource-title">Title</Label>
+                            <Input id="edit-resource-title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="edit-resource-url">URL</Label>
+                            <Input id="edit-resource-url" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} />
+                        </div>
+                        <DialogFooter>
+                            <Button type="submit">Save Changes</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+            
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={!!resourceToDelete} onOpenChange={(isOpen) => !isOpen && setResourceToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                           This action cannot be undone. This will permanently delete the resource "{resourceToDelete?.title}".
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </ScrollArea>
     );
 };

@@ -289,7 +289,7 @@ export default function MainLayout() {
       <SidebarInset>
         {activeView === 'dashboard' && <DashboardView setActiveView={setActiveView} />}
         {activeView === 'syllabus' && <SyllabusView syllabusData={syllabusData} onUpdate={handleUpdateTopic} />}
-        {activeView === 'resources' && <ResourcesView syllabusData={syllabusData} />}
+        {activeView === 'resources' && <ResourcesView syllabusData={syllabusData} onUpdate={handleUpdateTopic} />}
       </SidebarInset>
     </SidebarProvider>
   )
