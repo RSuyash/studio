@@ -9,6 +9,10 @@ import {
   Library,
   Folder,
   LayoutDashboard,
+  Target,
+  CalendarDays,
+  Sparkles,
+  Layers,
 } from 'lucide-react';
 
 export type Icon = LucideIcon;
@@ -23,4 +27,8 @@ export const Icons = {
   Library,
   Folder,
   LayoutDashboard,
+  Target,
+  CalendarDays,
+  Sparkles,
+  Layers,
 };
