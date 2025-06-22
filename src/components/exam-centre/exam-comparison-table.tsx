@@ -1,6 +1,5 @@
-'use client';
+'use server';
 
-import * as React from 'react';
 import {
   Table,
   TableBody,
@@ -9,41 +8,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
-import { fetchDataFromFirestore } from '@/services/dataService';
+import { fetchDataFromFirestoreOnServer } from '@/services/dataService';
 
-export default function ExamComparisonTable() {
-  const [data, setData] = React.useState<ExamComparisonData[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const fetchedData = await fetchDataFromFirestore('examComparisons');
-        setData(fetchedData as ExamComparisonData[]);
-      } catch (err) {
-        console.error("Error fetching exam comparison data:", err);
-        setError("Failed to load exam comparison data. Please ensure your Firebase configuration is correct and the migration script has been run.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+export default async function ExamComparisonTable() {
+  let data: ExamComparisonData[] = [];
+  let error: string | null = null;
 
-  if (loading) {
-    return (
-      <div className="space-y-2">
-        {[...Array(5)].map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full" />
-        ))}
-      </div>
-    );
+  try {
+    const fetchedData = await fetchDataFromFirestoreOnServer('examComparisons');
+    // Simple sort to ensure a consistent order
+    data = (fetchedData as ExamComparisonData[]).sort((a, b) => a.exam.localeCompare(b.exam));
+  } catch (err) {
+    console.error("Error fetching exam comparison data:", err);
+    error = "Failed to load exam comparison data. Please ensure your Firebase configuration is correct, the migration script has been run, and Firestore security rules allow server-side reads.";
   }
-
+  
   if (error) {
     return (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-destructive/50 bg-destructive/10 p-8 text-center">
@@ -74,7 +55,7 @@ export default function ExamComparisonTable() {
             </TableRow>
           )) : (
             <TableRow>
-              <TableCell colSpan={4} className="text-center">No data found. Please run the migration script.</TableCell>
+              <TableCell colSpan={4} className="text-center">No data found. Please run the `npm run migrate:comparison` script.</TableCell>
             </TableRow>
           )}
         </TableBody>

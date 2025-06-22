@@ -1,9 +1,10 @@
 import * as admin from 'firebase-admin';
+import * as path from 'path';
 import { initialSyllabusData, SyllabusTopic } from '../src/lib/syllabus-data'; // Adjust the import path if necessary
 
 // Initialize Firebase Admin SDK
 // Ensure you have downloaded your service account key and placed it in your project
-const serviceAccount = require('./serviceAccountKey.json'); // Adjust the path to your service account key
+const serviceAccount = require(path.resolve(__dirname, '../serviceAccountKey.json')); // Adjust the path to your service account key
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -17,7 +18,7 @@ const migrateSyllabusData = async () => {
   console.log('Starting syllabus data migration...');
 
   const syllabusCollectionRef = db.collection('syllabus');
-  const batch = db.batch();
+  let batch = db.batch();
   let batchCount = 0;
 
   const processTopic = async (topic: SyllabusTopic, parentDocRef?: admin.firestore.DocumentReference) => {
@@ -40,13 +41,12 @@ const migrateSyllabusData = async () => {
     if (batchCount === 500) {
       console.log('Committing batch...');
       await batch.commit();
+      batch = db.batch();
       batchCount = 0;
       // Start a new batch
       // Note: In a real-world large migration, you'd need to handle creating a new batch object
       // and potentially new batchCount variable scope or pass it around.
-      // For simplicity here, we'll assume a single large batch or handle it outside.
-      // A more robust solution would involve splitting data into chunks.
-      // For this example, we'll just log and continue (assuming data isn't excessively large).
+      // For simplicity here, we'll just log and continue (assuming data isn't excessively large).
       console.warn('Batch limit reached. Data might not be fully migrated in one run without batch handling logic.');
     }
 

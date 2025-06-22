@@ -1,14 +1,16 @@
 import * as admin from 'firebase-admin';
+import * as path from 'path';
 import { upscCseExam, Exam, Stage, Paper } from '../src/lib/exam-data'; // Assuming the path is correct
 
 // Initialize Firebase Admin SDK
 // Replace './serviceAccountKey.json' with the actual path to your service account key file
 try {
   admin.initializeApp({
-    credential: admin.credential.cert('./serviceAccountKey.json'),
+    credential: admin.credential.cert(path.resolve(__dirname, '../serviceAccountKey.json')),
   });
   console.log('Firebase Admin SDK initialized successfully.');
 } catch (error: any) {
+  // Check if the error is due to the app already being initialized
   if (error.code === 'app/duplicate-app') {
     console.log('Firebase Admin SDK already initialized.');
   } else {

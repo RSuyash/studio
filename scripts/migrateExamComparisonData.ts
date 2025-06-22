@@ -1,9 +1,10 @@
 import * as admin from 'firebase-admin';
+import * as path from 'path';
 import { examComparisonData } from '../src/lib/exam-comparison-data';
 
 // Initialize Firebase Admin SDK
 // Replace './serviceAccountKey.json' with the actual path to your service account key file
-const serviceAccount = require('./serviceAccountKey.json');
+const serviceAccount = require(path.resolve(__dirname, '../serviceAccountKey.json'));
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -21,11 +22,17 @@ const migrateExamComparisonData = async () => {
 
   console.log(`Starting migration of ${examComparisonData.length} exam comparison records...`);
 
+  const sanitizeDocumentId = (id: string): string => {
+    // Remove characters not allowed in Firestore document IDs and convert to lowercase
+    return id.replace(/[^a-zA-Z0-9-_]/g, '').toLowerCase();
+  };
+
   try {
     examComparisonData.forEach(item => {
       // Use the 'exam' field as the document ID for easy querying if it's unique
       // Otherwise, Firestore will auto-generate an ID
-      const docRef = collectionRef.doc(item.exam.replace(/\s+/g, '-').toLowerCase()); // Example: use a slugified exam name as ID
+      const sanitizedExamId = sanitizeDocumentId(item.exam);
+      const docRef = collectionRef.doc(sanitizedExamId); // Use sanitized exam name as ID
       batch.set(docRef, item);
       writeCount++;
 
