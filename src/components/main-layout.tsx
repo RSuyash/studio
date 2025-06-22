@@ -135,6 +135,16 @@ const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void 
                             </div>
                             <div className="flex items-center justify-between rounded-lg border p-4 opacity-50">
                                  <div className="flex items-center gap-4">
+                                    <Icons.Library className="h-6 w-6" />
+                                    <div>
+                                        <p className="font-semibold">My Resources</p>
+                                        <p className="text-sm text-muted-foreground">Coming soon.</p>
+                                    </div>
+                                </div>
+                                <Button size="sm" disabled>Open</Button>
+                            </div>
+                            <div className="flex items-center justify-between rounded-lg border p-4 opacity-50">
+                                 <div className="flex items-center gap-4">
                                     <Icons.Sparkles className="h-6 w-6" />
                                     <div>
                                         <p className="font-semibold">Mock Test Generator</p>
@@ -215,6 +225,12 @@ export default function MainLayout() {
           <SidebarSeparator />
           <SidebarGroup className="p-2">
             <SidebarGroupLabel>Tools</SidebarGroupLabel>
+            <SidebarMenuItem>
+              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
+                <Icons.Library className="size-4" />
+                <span className="group-data-[collapsible=icon]:hidden">My Resources</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
                 <Icons.Sparkles className="size-4" />

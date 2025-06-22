@@ -3,14 +3,14 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { initialSyllabusData, type SyllabusTopic, type MasteryLevel } from "@/lib/syllabus-data";
+import { initialSyllabusData, type SyllabusTopic, type MasteryLevel, type Resource } from "@/lib/syllabus-data";
 import FocusModeDialog from "./focus-mode-dialog";
 import FilterPanel from "./filter-panel";
 import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
-import { Maximize, ChevronRight, Tag } from 'lucide-react';
+import { Maximize, ChevronRight, Tag, Link, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -114,7 +114,7 @@ const TopicColumn = ({ topics, title, onSelect }: { topics: SyllabusTopic[], tit
   return (
     <div className="h-full w-full flex-shrink-0 md:w-80 md:border-r">
       <div className="p-4">
-        <h2 className="mb-4 font-headline text-lg font-bold tracking-tight text-primary">{title}</h2>
+        <h2 className="font-headline text-lg font-bold tracking-tight text-primary">{title}</h2>
       </div>
       <Separator />
       <ScrollArea className="h-[calc(100%-5rem)]">
@@ -144,6 +144,11 @@ const TopicColumn = ({ topics, title, onSelect }: { topics: SyllabusTopic[], tit
 
 const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void, onFocus: (topic: SyllabusTopic) => void }) => {
     const [newTag, setNewTag] = React.useState('');
+    const [tagPopoverOpen, setTagPopoverOpen] = React.useState(false);
+
+    const [newResourceTitle, setNewResourceTitle] = React.useState('');
+    const [newResourceUrl, setNewResourceUrl] = React.useState('');
+    const [resourcePopoverOpen, setResourcePopoverOpen] = React.useState(false);
 
     const handleMasteryChange = (level: MasteryLevel) => {
         onUpdate(topic.id, { mastery: level });
@@ -154,6 +159,27 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
         if (newTag && !topic.tags.includes(newTag.toLowerCase())) {
             onUpdate(topic.id, { tags: [...topic.tags, newTag.toLowerCase().trim()] });
             setNewTag('');
+            setTagPopoverOpen(false);
+        }
+    };
+    
+    const handleAddResource = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (newResourceTitle && newResourceUrl) {
+            let url = newResourceUrl;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = `https://${url}`;
+            }
+            const newResource: Resource = {
+                id: `res-${Date.now()}`,
+                title: newResourceTitle,
+                url: url,
+            };
+            const updatedResources = [...(topic.resources || []), newResource];
+            onUpdate(topic.id, { resources: updatedResources });
+            setNewResourceTitle('');
+            setNewResourceUrl('');
+            setResourcePopoverOpen(false);
         }
     };
     
@@ -180,7 +206,7 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
                             ) : (
                                 <p className="text-sm text-muted-foreground">No tags for this topic.</p>
                             )}
-                            <Popover onOpenChange={(isOpen) => !isOpen && setNewTag('')}>
+                            <Popover open={tagPopoverOpen} onOpenChange={(isOpen) => { setTagPopoverOpen(isOpen); if (!isOpen) setNewTag(''); }}>
                                 <PopoverTrigger asChild>
                                     <Button variant="outline" size="icon" className="h-6 w-6">
                                         <Tag className="h-3 w-3" />
@@ -202,6 +228,57 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
                             </Popover>
                         </div>
                     </div>
+
+                    <Separator />
+
+                    <div>
+                        <h4 className="mb-2 text-sm font-semibold text-muted-foreground">Resources</h4>
+                        <div className="space-y-2">
+                            {(topic.resources && topic.resources.length > 0) ? (
+                                topic.resources.map((resource) => (
+                                    <a
+                                        key={resource.id}
+                                        href={resource.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 rounded-md border p-3 transition-colors hover:bg-muted/50"
+                                    >
+                                        <Link className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                                        <span className="flex-1 truncate text-sm font-medium">{resource.title}</span>
+                                        <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                                    </a>
+                                ))
+                            ) : (
+                                <p className="text-sm text-muted-foreground">No resources added for this topic yet.</p>
+                            )}
+                        </div>
+                         <Popover open={resourcePopoverOpen} onOpenChange={(isOpen) => { setResourcePopoverOpen(isOpen); if(!isOpen) { setNewResourceTitle(''); setNewResourceUrl(''); } }}>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" size="sm" className="mt-4">
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Add Resource
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
+                                <form onSubmit={handleAddResource} className="grid gap-4">
+                                    <div className="space-y-2">
+                                        <h4 className="font-medium leading-none">Add Resource</h4>
+                                        <p className="text-sm text-muted-foreground">Add a link to a helpful resource.</p>
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="resource-title">Title</Label>
+                                        <Input id="resource-title" value={newResourceTitle} onChange={(e) => setNewResourceTitle(e.target.value)} placeholder="e.g., 'NCERT Chapter PDF'" />
+                                    </div>
+                                     <div className="grid gap-2">
+                                        <Label htmlFor="resource-url">URL</Label>
+                                        <Input id="resource-url" value={newResourceUrl} onChange={(e) => setNewResourceUrl(e.target.value)} placeholder="example.com" />
+                                    </div>
+                                    <Button type="submit" size="sm">Add Resource</Button>
+                                </form>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+
                 </div>
             </div>
         </ScrollArea>
