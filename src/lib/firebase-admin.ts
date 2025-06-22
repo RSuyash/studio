@@ -1,4 +1,9 @@
 import * as admin from 'firebase-admin';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// This ensures that credentials are loaded for both the app and migration scripts.
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 let db: admin.firestore.Firestore | null = null;
 

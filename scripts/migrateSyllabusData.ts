@@ -1,11 +1,6 @@
 import type * as admin from 'firebase-admin';
-import * as path from 'path';
-import * as dotenv from 'dotenv';
 import { initialSyllabusData, type SyllabusTopic } from '../src/lib/syllabus-data';
 import { getAdminDb } from '../src/lib/firebase-admin';
-
-// Load environment variables from .env file at the project root
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const db = getAdminDb();
 
