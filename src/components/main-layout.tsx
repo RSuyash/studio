@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from 'react'
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/sidebar'
 import { Icons } from '@/components/icons'
 import { initialSyllabusData, type SyllabusTopic } from "@/lib/syllabus-data";
+import { mpscSyllabusData } from "@/lib/mpsc-syllabus-data";
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -30,6 +32,7 @@ import MpscInsightsView from './insights/mpsc-insights-view';
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
 
 export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'mpsc-insights';
+export type SyllabusType = 'upsc' | 'mpsc';
 
 interface MainLayoutProps {
   comparisonData: ExamComparisonData[];
@@ -38,35 +41,51 @@ interface MainLayoutProps {
 
 export default function MainLayout({ comparisonData, comparisonDataError }: MainLayoutProps) {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
-  const [syllabusData, setSyllabusData] = React.useState(initialSyllabusData);
+  const [activeSyllabus, setActiveSyllabus] = React.useState<SyllabusType>('upsc');
+
+  const [upscData, setUpscData] = React.useState(initialSyllabusData);
+  const [mpscData, setMpscData] = React.useState(mpscSyllabusData);
 
   const menuItems = [
     { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
     { view: 'exam-centre', label: 'Exam Centre', icon: Icons.Layers },
-    { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen },
+    { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen, syllabus: 'upsc' },
     { view: 'resources', label: 'My Resources', icon: Icons.Library },
   ];
+  
+  const handleViewChange = (view: View, syllabus?: SyllabusType) => {
+    setActiveView(view);
+    if (syllabus) {
+        setActiveSyllabus(syllabus);
+    }
+  };
 
   const renderActiveView = () => {
+    const syllabusForResourceView = activeSyllabus === 'upsc' ? upscData : mpscData;
+    const syllabusSetterForResourceView = activeSyllabus === 'upsc' ? setUpscData : setMpscData;
+
     switch (activeView) {
         case 'dashboard':
-            return <DashboardView setActiveView={setActiveView} />;
+            return <DashboardView setActiveView={handleViewChange} />;
         case 'exam-explorer':
-            return <ExamExplorerView setActiveView={setActiveView} />;
+            return <ExamExplorerView setActiveView={handleViewChange} />;
         case 'mpsc-explorer':
-            return <MpscExplorerView setActiveView={setActiveView} />;
+            return <MpscExplorerView setActiveView={handleViewChange} />;
         case 'insights':
-            return <InsightsView setActiveView={setActiveView} />;
+            return <InsightsView setActiveView={handleViewChange} />;
         case 'mpsc-insights':
             return <MpscInsightsView />;
         case 'exam-centre':
-            return <ExamCentreView setActiveView={setActiveView} comparisonData={comparisonData} comparisonDataError={comparisonDataError} />;
-        case 'syllabus':
-            return <SyllabusViewer syllabusData={syllabusData} setSyllabusData={setSyllabusData} />;
+            return <ExamCentreView setActiveView={handleViewChange} comparisonData={comparisonData} comparisonDataError={comparisonDataError} />;
+        case 'syllabus': {
+            const data = activeSyllabus === 'upsc' ? upscData : mpscData;
+            const setData = activeSyllabus === 'upsc' ? setUpscData : setMpscData;
+            return <SyllabusViewer syllabusData={data} setSyllabusData={setData} activeSyllabus={activeSyllabus} setActiveSyllabus={setActiveSyllabus} />;
+        }
         case 'resources':
-            return <ResourcesView syllabusData={syllabusData} setSyllabusData={setSyllabusData} />;
+             return <ResourcesView syllabusData={syllabusForResourceView} setSyllabusData={syllabusSetterForResourceView} />;
         default:
-            return <DashboardView setActiveView={setActiveView} />;
+            return <DashboardView setActiveView={handleViewChange} />;
     }
   }
 
@@ -87,7 +106,7 @@ export default function MainLayout({ comparisonData, comparisonDataError }: Main
               <SidebarMenuItem key={item.view}>
                 <SidebarMenuButton
                   isActive={activeView === item.view}
-                  onClick={() => setActiveView(item.view as View)}
+                  onClick={() => handleViewChange(item.view as View, item.syllabus as SyllabusType | undefined)}
                   className="w-full"
                   tooltip={item.label}
                 >

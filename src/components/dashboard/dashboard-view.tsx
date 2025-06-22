@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Icons } from '@/components/icons';
-import type { View } from '../main-layout';
+import type { View, SyllabusType } from '../main-layout';
 import { useToast } from '@/hooks/use-toast';
 import { explainSyllabusTopic, type ExplainTopicOutput } from '@/ai/flows/explain-topic-flow';
 import { LoaderCircle, Sparkles, BookOpen, Library, ChevronRight } from 'lucide-react';
@@ -22,7 +22,7 @@ const SubjectMasteryChart = dynamic(
   }
 )
 
-export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void }) => {
+export const DashboardView = ({ setActiveView }: { setActiveView: (view: View, syllabus?: SyllabusType) => void }) => {
     const [isGenerating, setIsGenerating] = React.useState(false);
     const [explanation, setExplanation] = React.useState<ExplainTopicOutput | null>(null);
     const { toast } = useToast();

@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import ExamComparisonTable from './exam-comparison-table';
-import type { View } from '../main-layout';
+import type { View, SyllabusType } from '../main-layout';
 import { Landmark, FileText, Shield, Layers, Building, Banknote } from 'lucide-react';
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
 
@@ -18,7 +19,7 @@ const otherExams = [
 ]
 
 interface ExamCentreViewProps {
-  setActiveView: (view: View) => void;
+  setActiveView: (view: View, syllabus?: SyllabusType) => void;
   comparisonData: ExamComparisonData[];
   comparisonDataError: string | null;
 }
@@ -47,7 +48,7 @@ export default function ExamCentreView({ setActiveView, comparisonData, comparis
                 <CardContent className="flex-grow" />
                 <CardFooter className="flex flex-col gap-2 sm:flex-row">
                    <Button className="w-full" onClick={() => setActiveView('exam-explorer')}>Structure</Button>
-                   <Button className="w-full" variant="outline" onClick={() => setActiveView('syllabus')}>Syllabus</Button>
+                   <Button className="w-full" variant="outline" onClick={() => setActiveView('syllabus', 'upsc')}>Syllabus</Button>
                    <Button className="w-full" variant="outline" onClick={() => setActiveView('insights')}>Insights</Button>
                 </CardFooter>
               </Card>
@@ -63,6 +64,7 @@ export default function ExamCentreView({ setActiveView, comparisonData, comparis
                 <CardContent className="flex-grow" />
                 <CardFooter className="flex flex-col gap-2 sm:flex-row">
                    <Button className="w-full" onClick={() => setActiveView('mpsc-explorer')}>Structure</Button>
+                   <Button className="w-full" variant="outline" onClick={() => setActiveView('syllabus', 'mpsc')}>Syllabus</Button>
                    <Button className="w-full" variant="outline" onClick={() => setActiveView('mpsc-insights')}>Insights</Button>
                 </CardFooter>
               </Card>

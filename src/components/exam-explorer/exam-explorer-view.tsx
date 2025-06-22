@@ -7,11 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { upscCseExam, type Exam } from '@/lib/exam-data';
 import StageCard from './stage-card';
 import { ScrollArea } from '../ui/scroll-area';
-import { type View } from '../main-layout';
+import { type View, type SyllabusType } from '../main-layout';
 import { Icons } from '../icons';
 
 
-export default function ExamExplorerView({ setActiveView }: { setActiveView: (view: View) => void }) {
+export default function ExamExplorerView({ setActiveView }: { setActiveView: (view: View, syllabus?: SyllabusType) => void }) {
   const exam: Exam = upscCseExam;
 
   return (
@@ -29,7 +29,7 @@ export default function ExamExplorerView({ setActiveView }: { setActiveView: (vi
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
                <div className="flex justify-start">
-                 <Button onClick={() => setActiveView('syllabus')}>
+                 <Button onClick={() => setActiveView('syllabus', 'upsc')}>
                    View Detailed Syllabus
                  </Button>
                </div>

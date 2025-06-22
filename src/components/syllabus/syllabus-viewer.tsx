@@ -3,29 +3,50 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { initialSyllabusData, type SyllabusTopic } from "@/lib/syllabus-data";
+import { type SyllabusTopic } from "@/lib/syllabus-data";
 import FocusModeDialog from "./focus-mode-dialog";
 import FilterPanel from "./filter-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { updateTopicInTree, getAllTagsFromTree, filterSyllabus } from "@/lib/resource-utils";
 import { SyllabusExplorer } from "./syllabus-explorer";
-import { SidebarTrigger, useSidebar } from "../ui/sidebar";
+import { SidebarTrigger } from "../ui/sidebar";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { BookOpen, SlidersHorizontal } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { SyllabusType } from "../main-layout";
 
 const MindMapView = dynamic(() => import("./mind-map-view"), {
   ssr: false,
   loading: () => <Skeleton className="h-[75vh] w-full rounded-lg border bg-card" />,
 });
 
-const SyllabusHeader = ({ onFilterToggle }: { onFilterToggle: () => void }) => (
+const SyllabusHeader = ({ 
+  onFilterToggle, 
+  activeSyllabus, 
+  onSyllabusChange 
+}: { 
+  onFilterToggle: () => void; 
+  activeSyllabus: SyllabusType; 
+  onSyllabusChange: (value: SyllabusType) => void;
+}) => (
     <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center gap-4">
             <SidebarTrigger />
             <BookOpen className="h-6 w-6" />
-            <h2 className="text-lg font-semibold">Syllabus Explorer</h2>
+            <div className="flex items-center gap-4">
+                <h2 className="text-lg font-semibold">Syllabus Explorer</h2>
+                 <Select value={activeSyllabus} onValueChange={onSyllabusChange}>
+                  <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select Exam" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="upsc">UPSC CSE</SelectItem>
+                      <SelectItem value="mpsc">MPSC Rajyaseva</SelectItem>
+                  </SelectContent>
+              </Select>
+            </div>
         </div>
         <Button variant="outline" size="icon" className="lg:hidden" onClick={onFilterToggle}>
             <SlidersHorizontal className="h-4 w-4" />
@@ -33,7 +54,17 @@ const SyllabusHeader = ({ onFilterToggle }: { onFilterToggle: () => void }) => (
     </header>
 )
 
-export default function SyllabusViewer({ syllabusData, setSyllabusData }: { syllabusData: SyllabusTopic[], setSyllabusData: React.Dispatch<React.SetStateAction<SyllabusTopic[]>> }) {
+export default function SyllabusViewer({ 
+  syllabusData, 
+  setSyllabusData, 
+  activeSyllabus, 
+  setActiveSyllabus 
+}: { 
+  syllabusData: SyllabusTopic[], 
+  setSyllabusData: React.Dispatch<React.SetStateAction<SyllabusTopic[]>>,
+  activeSyllabus: SyllabusType,
+  setActiveSyllabus: (syllabus: SyllabusType) => void,
+}) {
   const [focusTopic, setFocusTopic] = React.useState<SyllabusTopic | null>(null);
   const [selectedTags, setSelectedTags] = React.useState(new Set<string>());
   const [mobileFilterOpen, setMobileFilterOpen] = React.useState(false);
@@ -61,9 +92,14 @@ export default function SyllabusViewer({ syllabusData, setSyllabusData }: { syll
     });
   }, []);
 
-  const allTags = React.useMemo(() => Array.from(getAllTagsFromTree(initialSyllabusData)).sort(), []);
+  const allTags = React.useMemo(() => Array.from(getAllTagsFromTree(syllabusData)).sort(), [syllabusData]);
   const filteredData = React.useMemo(() => filterSyllabus(syllabusData, selectedTags), [syllabusData, selectedTags]);
   
+  // Reset filters when syllabus changes
+  React.useEffect(() => {
+    setSelectedTags(new Set<string>());
+  }, [activeSyllabus]);
+
   const filterPanelContent = (
       <FilterPanel 
         allTags={allTags}
@@ -74,7 +110,11 @@ export default function SyllabusViewer({ syllabusData, setSyllabusData }: { syll
   
   return (
     <>
-      <SyllabusHeader onFilterToggle={() => setMobileFilterOpen(true)} />
+      <SyllabusHeader 
+        onFilterToggle={() => setMobileFilterOpen(true)}
+        activeSyllabus={activeSyllabus}
+        onSyllabusChange={setActiveSyllabus}
+      />
       <main className="flex h-[calc(100vh-3.5rem)] items-start">
         <aside className="sticky top-0 hidden h-full w-64 flex-shrink-0 border-r lg:block">
             {filterPanelContent}

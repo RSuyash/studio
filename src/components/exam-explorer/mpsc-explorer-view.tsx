@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -7,10 +8,10 @@ import { mpscRajyasevaExam } from '@/lib/mpsc-exam-data';
 import type { Exam } from '@/lib/exam-data';
 import StageCard from './stage-card';
 import { ScrollArea } from '../ui/scroll-area';
-import { type View } from '../main-layout';
+import { type View, type SyllabusType } from '../main-layout';
 import { Icons } from '../icons';
 
-export default function MpscExplorerView({ setActiveView }: { setActiveView: (view: View) => void }) {
+export default function MpscExplorerView({ setActiveView }: { setActiveView: (view: View, syllabus?: SyllabusType) => void }) {
   const exam: Exam = mpscRajyasevaExam;
 
   return (
@@ -28,8 +29,8 @@ export default function MpscExplorerView({ setActiveView }: { setActiveView: (vi
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
                <div className="flex justify-start">
-                 <Button onClick={() => setActiveView('syllabus')} disabled>
-                   View Detailed Syllabus (Coming Soon)
+                 <Button onClick={() => setActiveView('syllabus', 'mpsc')}>
+                   View Detailed Syllabus
                  </Button>
                </div>
             </CardContent>
