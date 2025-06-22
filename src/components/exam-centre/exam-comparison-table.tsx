@@ -1,5 +1,3 @@
-'use server';
-
 import {
   Table,
   TableBody,
@@ -9,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
-import { fetchDataFromFirestoreOnServer } from '@/services/dataService';
+import { fetchDataFromFirestoreOnServer } from '@/services/server/dataService';
 
 
 export default async function ExamComparisonTable() {
