@@ -36,10 +36,9 @@ export type SyllabusType = 'upsc' | 'mpsc';
 
 interface MainLayoutProps {
   comparisonData: ExamComparisonData[];
-  comparisonDataError: string | null;
 }
 
-export default function MainLayout({ comparisonData, comparisonDataError }: MainLayoutProps) {
+export default function MainLayout({ comparisonData }: MainLayoutProps) {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
   const [activeSyllabus, setActiveSyllabus] = React.useState<SyllabusType>('upsc');
 
@@ -76,7 +75,7 @@ export default function MainLayout({ comparisonData, comparisonDataError }: Main
         case 'mpsc-insights':
             return <MpscInsightsView />;
         case 'exam-centre':
-            return <ExamCentreView setActiveView={handleViewChange} comparisonData={comparisonData} comparisonDataError={comparisonDataError} />;
+            return <ExamCentreView setActiveView={handleViewChange} comparisonData={comparisonData} />;
         case 'syllabus': {
             const data = activeSyllabus === 'upsc' ? upscData : mpscData;
             const setData = activeSyllabus === 'upsc' ? setUpscData : setMpscData;

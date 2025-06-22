@@ -5,11 +5,10 @@ import { examComparisonData, type ExamComparisonData } from "@/lib/exam-comparis
 export default function Home() {
   // Data is now sourced directly from a local TypeScript file.
   const comparisonData = examComparisonData.sort((a, b) => a.exam.localeCompare(b.exam));
-  const comparisonDataError = null; // No more server fetching, so no error is possible here.
 
   return (
     <>
-      <MainLayout comparisonData={comparisonData} comparisonDataError={comparisonDataError} />
+      <MainLayout comparisonData={comparisonData} />
       <Toaster />
     </>
   );

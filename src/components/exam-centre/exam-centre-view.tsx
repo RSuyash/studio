@@ -21,10 +21,9 @@ const otherExams = [
 interface ExamCentreViewProps {
   setActiveView: (view: View, syllabus?: SyllabusType) => void;
   comparisonData: ExamComparisonData[];
-  comparisonDataError: string | null;
 }
 
-export default function ExamCentreView({ setActiveView, comparisonData, comparisonDataError }: ExamCentreViewProps) {
+export default function ExamCentreView({ setActiveView, comparisonData }: ExamCentreViewProps) {
   return (
     <>
       <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
@@ -102,7 +101,7 @@ export default function ExamCentreView({ setActiveView, comparisonData, comparis
                 Percentages are approximate, representing the fraction of syllabus content common with UPSC General Studies.
               </p>
               <div className="mt-4">
-                 <ExamComparisonTable data={comparisonData} error={comparisonDataError} />
+                 <ExamComparisonTable data={comparisonData} />
               </div>
             </CardContent>
           </Card>
