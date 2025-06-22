@@ -1,3 +1,12 @@
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '../config/.env') });
+
+// Rest of your migration script code
+import { getAdminDb } from '@/lib/firebase-admin';
+
+// ... rest of your script ...
 
 import type { SyllabusTopic } from './syllabus-data';
 
