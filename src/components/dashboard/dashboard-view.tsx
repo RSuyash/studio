@@ -10,6 +10,9 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Icons } from '@/components/icons';
 import type { View } from '../main-layout';
+import { useToast } from '@/hooks/use-toast';
+import { explainSyllabusTopic, type ExplainTopicOutput } from '@/ai/flows/explain-topic-flow';
+import { LoaderCircle, Sparkles, BookOpen, Library, ClipboardList } from 'lucide-react';
 
 const SubjectMasteryChart = dynamic(
   () => import('@/components/dashboard/subject-mastery-chart'),
@@ -20,6 +23,36 @@ const SubjectMasteryChart = dynamic(
 )
 
 export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void }) => {
+    const [isGenerating, setIsGenerating] = React.useState(false);
+    const [explanation, setExplanation] = React.useState<ExplainTopicOutput | null>(null);
+    const { toast } = useToast();
+
+    const handleGenerateTip = async () => {
+        setIsGenerating(true);
+        setExplanation(null);
+        try {
+            const result = await explainSyllabusTopic({
+                title: 'Random UPSC CSE Topic',
+                description: 'Suggest a random, interesting, and non-obvious interlinkage between two different topics in the UPSC CSE syllabus. For example, connecting a topic from GS-1 History to a concept in GS-4 Ethics.',
+            });
+            if (result.explanation) {
+                setExplanation(result);
+            } else {
+                throw new Error('Failed to get a tip.');
+            }
+        } catch (error) {
+            console.error("Failed to generate tip:", error);
+            toast({
+                variant: "destructive",
+                title: "AI Error",
+                description: "Could not generate a study tip. Please try again.",
+            });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+
     return (
         <>
             <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
@@ -107,7 +140,7 @@ export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) =
                         <CardContent className="grid gap-4">
                              <div className="flex items-center justify-between rounded-lg border p-4">
                                 <div className="flex items-center gap-4">
-                                    <Icons.ClipboardList className="h-6 w-6 text-primary" />
+                                    <ClipboardList className="h-6 w-6 text-primary" />
                                     <div>
                                         <p className="font-semibold">Exam Explorer</p>
                                         <p className="text-sm text-muted-foreground">Get an overview of exams.</p>
@@ -117,7 +150,7 @@ export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) =
                             </div>
                             <div className="flex items-center justify-between rounded-lg border p-4">
                                 <div className="flex items-center gap-4">
-                                    <Icons.BookOpen className="h-6 w-6 text-primary" />
+                                    <BookOpen className="h-6 w-6 text-primary" />
                                     <div>
                                         <p className="font-semibold">Syllabus Explorer</p>
                                         <p className="text-sm text-muted-foreground">Dive into the syllabus.</p>
@@ -127,7 +160,7 @@ export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) =
                             </div>
                             <div className="flex items-center justify-between rounded-lg border p-4">
                                  <div className="flex items-center gap-4">
-                                    <Icons.Library className="h-6 w-6 text-primary" />
+                                    <Library className="h-6 w-6 text-primary" />
                                     <div>
                                         <p className="font-semibold">My Resources</p>
                                         <p className="text-sm text-muted-foreground">Browse your saved links.</p>
@@ -138,6 +171,39 @@ export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) =
                         </CardContent>
                     </Card>
                 </div>
+
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Sparkles className="text-primary" /> AI Study Tip
+                        </CardTitle>
+                        <CardDescription>Get a unique, AI-generated tip to help you find new connections in the syllabus.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {isGenerating && (
+                            <div className="flex items-center space-x-2 text-muted-foreground">
+                                <LoaderCircle className="h-4 w-4 animate-spin" />
+                                <span>Generating...</span>
+                            </div>
+                        )}
+                        {explanation && (
+                             <blockquote className="mt-2 border-l-2 pl-6 italic">
+                                "{explanation.explanation}"
+                            </blockquote>
+                        )}
+                    </CardContent>
+                    <CardFooter>
+                        <Button onClick={handleGenerateTip} disabled={isGenerating}>
+                             {isGenerating ? (
+                                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <Sparkles className="mr-2 h-4 w-4" />
+                            )}
+                            Generate New Tip
+                        </Button>
+                    </CardFooter>
+                </Card>
+
             </main>
         </>
     )
