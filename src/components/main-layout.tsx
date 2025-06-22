@@ -108,6 +108,8 @@ export default function MainLayout() {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
+          {/* Portal target for sidebar content from other components */}
+          <div id="sidebar-content-portal" />
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
