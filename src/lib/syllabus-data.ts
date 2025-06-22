@@ -13,34 +13,93 @@ export const initialSyllabusData: SyllabusTopic[] = [
   {
     id: 'preliminary-exam',
     title: 'Stage I: Preliminary Examination',
-    description: 'An objective-type qualifying stage with two papers. Marks are not counted for the final ranking, but candidates must clear the cutoff for GS Paper I and score 33% in CSAT.',
+    description: 'This stage consists of two compulsory objective-type papers. Paper I (GS) determines the cut-off, while Paper II (CSAT) is qualifying (33%). There is negative marking for incorrect answers.',
     tags: ['objective', 'qualifying'],
     mastery: 'none',
     subtopics: [
       {
         id: 'prelims-gs1',
         title: 'Paper I: General Studies (GS)',
-        description: 'Syllabus includes: Current events, History of India, Geography, Indian Polity, Economy, Environment, and General Science. This paper determines the cutoff for Mains qualification.',
+        description: 'Decides the cut-off for the Main exam. Syllabus covers a wide range of subjects from current events to general science. Marks: 200, Questions: 100.',
         tags: ['gs', 'merit-cutoff'],
         mastery: 'none',
         subtopics: [
-          { id: 'prelims-gs1-current-events', title: 'Current Events', description: 'Current events of national and international importance.', tags: [], mastery: 'none' },
-          { id: 'prelims-gs1-history', title: 'History', description: 'History of India and Indian National Movement.', tags: [], mastery: 'none' },
-          { id: 'prelims-gs1-geography', title: 'Geography', description: 'Indian and World Geography – Physical, Social, Economic.', tags: [], mastery: 'none' },
-          { id: 'prelims-gs1-polity', title: 'Polity and Governance', description: 'Constitution, Political System, Panchayati Raj, Public Policy, Rights Issues.', tags: [], mastery: 'none' },
-          { id: 'prelims-gs1-economy', title: 'Economic & Social Development', description: 'Sustainable Development, Poverty, Inclusion, Demographics, Social Sector initiatives.', tags: [], mastery: 'none' },
-          { id: 'prelims-gs1-environment', title: 'Environment & Ecology', description: 'General issues on Environmental Ecology, Biodiversity, and Climate Change.', tags: [], mastery: 'none' },
-          { id: 'prelims-gs1-science', title: 'General Science', description: 'General Science.', tags: [], mastery: 'none' },
-        ]
+          {
+            id: 'prelims-gs1-current-events',
+            title: 'Current Affairs (National & International)',
+            description: 'Key government rulings, economic indicators, climate agreements, S&T developments, and international relations.',
+            tags: ['dynamic', 'high-priority'],
+            mastery: 'none',
+          },
+          {
+            id: 'prelims-gs1-history',
+            title: 'History of India and Indian National Movement',
+            description: 'Covers Ancient, Medieval, and Modern Indian history, with a special focus on the national freedom struggle.',
+            tags: ['history', 'static'],
+            mastery: 'none',
+            subtopics: [
+              { id: 'prelims-history-ancient', title: 'Ancient History', description: 'Prehistoric cultures, Indus Valley Civilization, Vedic Period, Mauryan & Gupta Empires.', tags: [], mastery: 'none' },
+              { id: 'prelims-history-medieval', title: 'Medieval History', description: 'Delhi Sultanate, Mughal Empire, Bhakti & Sufi movements, Vijayanagar Empire.', tags: [], mastery: 'none' },
+              { id: 'prelims-history-modern', title: 'Modern History', description: 'European advent, 1857 Revolt, social reforms, Gandhian era, and key legislations.', tags: [], mastery: 'none' },
+            ],
+          },
+          {
+            id: 'prelims-gs1-geography',
+            title: 'Indian and World Geography',
+            description: 'Physical, Social, and Economic Geography of India and the World.',
+            tags: ['geography', 'static'],
+            mastery: 'none',
+            subtopics: [
+                { id: 'prelims-geography-physical', title: 'Physical Geography', description: 'Geomorphology (landforms, volcanoes), Climatology, and Oceanography.', tags: [], mastery: 'none' },
+                { id: 'prelims-geography-indian', title: 'Indian Geography', description: 'Physiography, river systems, climate, soils, vegetation, agriculture, and mineral resources.', tags: [], mastery: 'none' },
+                { id: 'prelims-geography-world', title: 'World Geography (Basics)', description: 'Continents, Oceans, and major global physical features.', tags: [], mastery: 'none' },
+            ]
+          },
+          {
+            id: 'prelims-gs1-polity',
+            title: 'Indian Polity and Governance',
+            description: 'Constitution, government structure (Union & State), judiciary, local governance, and public policy.',
+            tags: ['polity', 'governance'],
+            mastery: 'none',
+          },
+          {
+            id: 'prelims-gs1-economy',
+            title: 'Economic and Social Development',
+            description: 'Economic concepts, planning, banking, fiscal/monetary policy, poverty, and government schemes.',
+            tags: ['economy', 'development'],
+            mastery: 'none',
+          },
+          {
+            id: 'prelims-gs1-environment',
+            title: 'Environment & Ecology',
+            description: 'Ecosystems, biodiversity conservation, pollution, climate change agreements, and environmental laws.',
+            tags: ['environment', 'ecology'],
+            mastery: 'none',
+          },
+          {
+            id: 'prelims-gs1-science',
+            title: 'General Science',
+            description: 'Basics of Physics, Chemistry, Biology (up to Class X level) and key developments in S&T.',
+            tags: ['science', 'technology'],
+            mastery: 'none',
+          },
+        ],
       },
       {
         id: 'prelims-csat',
         title: 'Paper II: CSAT (Civil Services Aptitude Test)',
-        description: 'A qualifying paper requiring 33% marks (66/200). Syllabus includes: Comprehension, Logical Reasoning, Decision Making, General Mental Ability, Basic Numeracy, and Data Interpretation.',
+        description: 'A qualifying paper requiring 33% marks (66/200). Tests aptitude and reasoning skills. Marks: 200, Questions: 80.',
         tags: ['csat', 'aptitude', 'qualifying'],
         mastery: 'none',
-      }
-    ]
+        subtopics: [
+            { id: 'prelims-csat-comprehension', title: 'Comprehension', description: 'Reading passages with factual and inference-based questions.', tags: [], mastery: 'none' },
+            { id: 'prelims-csat-reasoning', title: 'Logical Reasoning & Analytical Ability', description: 'Syllogisms, blood relations, puzzles, seating arrangements.', tags: [], mastery: 'none' },
+            { id: 'prelims-csat-numeracy', title: 'Basic Numeracy (Class X level)', description: 'Number systems, percentages, time & work, averages.', tags: [], mastery: 'none' },
+            { id: 'prelims-csat-di', title: 'Data Interpretation', description: 'Interpreting charts, graphs, and tables (Class X level).', tags: [], mastery: 'none' },
+            { id: 'prelims-csat-decision-making', title: 'Decision Making & Problem Solving', description: 'Questions on ethical dilemmas and practical problem-solving. No negative marking for these.', tags: [], mastery: 'none' },
+        ]
+      },
+    ],
   },
   {
     id: 'main-exam',
@@ -98,7 +157,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
         tags: ['optional', 'specialized'],
         mastery: 'none',
       },
-    ]
+    ],
   },
   {
     id: 'interview',
@@ -106,5 +165,5 @@ export const initialSyllabusData: SyllabusTopic[] = [
     description: 'The final stage to assess suitability for a career in public service. It evaluates mental alertness, critical thinking, leadership, and integrity. Total marks: 275.',
     tags: ['interview', 'personality-test', 'final-stage'],
     mastery: 'none',
-  }
+  },
 ];
