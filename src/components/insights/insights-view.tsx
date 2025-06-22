@@ -28,16 +28,20 @@ const countSyllabusEntries = (topics: SyllabusTopic[]): number => {
 
 export default function InsightsView({ setActiveView }: { setActiveView: (view: View) => void }) {
   const stats = React.useMemo(() => {
-    const totalPapers = upscCseExam.stages.reduce((acc, stage) => acc + (stage.papers?.length ?? 0), 0);
+    // The user wants to count written papers separately from the interview.
+    const writtenPapers = upscCseExam.stages
+      .filter(stage => !stage.title.includes('Interview')) // Exclude the interview stage
+      .reduce((acc, stage) => acc + (stage.papers?.length ?? 0), 0);
+
     const coreSubjects = 7; // GS Mains (4), Essay (1), Optional (1), GS Prelims (1)
     const totalSyllabusTopics = countSyllabusEntries(initialSyllabusData);
     
     return [
       {
-        title: 'Total Papers',
-        value: totalPapers,
+        title: 'Written Papers',
+        value: writtenPapers,
         icon: FileText,
-        description: 'Across Prelims, Mains & Interview.'
+        description: '2 in Prelims + 9 in Mains.'
       },
       {
         title: 'Core Merit Subjects',
