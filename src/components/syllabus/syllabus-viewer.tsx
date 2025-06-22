@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { initialSyllabusData, type SyllabusTopic, type MasteryLevel } from "@/lib/syllabus-data";
 import FocusModeDialog from "./focus-mode-dialog";
 import FilterPanel from "./filter-panel";
@@ -18,6 +19,13 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/components/icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const MindMapView = dynamic(() => import("./mind-map-view"), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[75vh] w-full rounded-lg border bg-card" />,
+});
+
 
 // Helper function to find a topic by ID in the tree
 const findTopicById = (topics: SyllabusTopic[], id: string): SyllabusTopic | null => {
@@ -330,7 +338,7 @@ export default function SyllabusViewer() {
           <Tabs defaultValue="explorer" className="w-full">
             <TabsList className="mb-4">
               <TabsTrigger value="explorer">Explorer</TabsTrigger>
-              <TabsTrigger value="mindmap" disabled>
+              <TabsTrigger value="mindmap">
                 Mind Map
               </TabsTrigger>
               <TabsTrigger value="timeline" disabled>
@@ -350,6 +358,9 @@ export default function SyllabusViewer() {
                   <p className="text-sm text-muted-foreground">Try selecting different tags or clearing the filter.</p>
                 </div>
               )}
+            </TabsContent>
+            <TabsContent value="mindmap">
+              <MindMapView data={syllabusData} />
             </TabsContent>
           </Tabs>
         </div>
