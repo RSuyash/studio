@@ -151,7 +151,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-essay',
         title: 'Paper I: Essay',
-        description: 'Candidates write essays on multiple topics, testing their ability to organize ideas and write concisely. Marks: 250.',
+        description: 'Candidates write two essays on a variety of topics, testing their ability to organize ideas and write concisely. Marks: 250.',
         tags: ['essay', 'merit'],
         mastery: 'none',
         subtopics: [
@@ -248,5 +248,58 @@ export const initialSyllabusData: SyllabusTopic[] = [
     description: 'The final stage to assess suitability for a career in public service. It evaluates mental alertness, critical thinking, leadership, and integrity. Total marks: 275.',
     tags: ['interview', 'personality-test', 'final-stage'],
     mastery: 'none',
+    subtopics: [
+      {
+        id: 'interview-purpose',
+        title: 'Purpose of the Personality Test',
+        description: "Evaluates: Mental alertness, critical thinking, analytical ability, balance of judgment, leadership potential, integrity, honesty, communication skills, depth of interest, intellectual curiosity, and suitability for public service. It is not primarily a knowledge test.",
+        tags: ['evaluation-criteria'],
+        mastery: 'none',
+      },
+      {
+        id: 'interview-areas',
+        title: 'Areas Generally Covered',
+        description: 'Key areas from which questions are typically drawn during the interview.',
+        tags: ['daf', 'current-affairs', 'situational'],
+        mastery: 'none',
+        subtopics: [
+          {
+            id: 'interview-daf',
+            title: 'Detailed Application Form (DAF)',
+            description: "Your hobbies, academic background, optional subject, home district, service preference, and work experience. Most questions are drawn from here.",
+            tags: [],
+            mastery: 'none'
+          },
+          {
+            id: 'interview-current-affairs',
+            title: 'Current Affairs',
+            description: "Domestic and international issues, government schemes, policy debates, administrative challenges, and the role of science & tech in policy.",
+            tags: [],
+            mastery: 'none'
+          },
+          {
+            id: 'interview-situational',
+            title: 'Situational and Opinion-Based Questions',
+            description: "Hypothetical administrative challenges (e.g., handling a riot), moral dilemmas, ethical decision-making, and balancing law with empathy.",
+            tags: [],
+            mastery: 'none'
+          },
+          {
+            id: 'interview-background',
+            title: 'Background-Specific Questions',
+            description: "Questions related to your academic or regional background (e.g., tech in governance for science graduates, rural economy for candidates from rural areas).",
+            tags: [],
+            mastery: 'none'
+          }
+        ]
+      },
+      {
+        id: 'interview-prep',
+        title: 'Preparation & Key Attributes',
+        description: "Preparation: Read your DAF, stay updated with news (Hindu/IE, PIB), practice mock interviews, and work on communication skills. Key Attributes to show: Clarity, Honesty, Confidence, Empathy, and Analytical ability.",
+        tags: ['preparation', 'attributes'],
+        mastery: 'none',
+      },
+    ]
   },
 ];
