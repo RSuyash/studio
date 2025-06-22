@@ -143,3 +143,26 @@ export const getSubjectForResource = (resource: ResourceWithTopicInfo, topics: S
     
     return 'Other';
 };
+
+// Maps user-friendly subject names to the most appropriate high-level topic ID.
+export const bookSubjectTopicMap: Record<string, string> = {
+  'History & Culture': 'mains-gs1-art-culture',
+  'Modern History': 'mains-gs1-modern-history',
+  'Geography': 'prelims-gs1-geography',
+  'Indian Society': 'mains-gs1-society',
+  'Polity & Governance': 'prelims-gs1-polity',
+  'Social Justice & IR': 'mains-gs2',
+  'Economy': 'prelims-gs1-economy',
+  'Environment & Ecology': 'prelims-gs1-environment',
+  'Science & Technology': 'prelims-gs1-science',
+  'Internal Security & DM': 'mains-gs3',
+  'Ethics': 'mains-gs4',
+  'Optional Subject': 'mains-optional',
+};
+
+export const bookSubjects = Object.keys(bookSubjectTopicMap).sort();
+
+// Create a reverse map for editing purposes (topicId -> subject).
+export const topicIdToBookSubjectMap = Object.fromEntries(
+  Object.entries(bookSubjectTopicMap).map(([subject, topicId]) => [topicId, subject])
+);

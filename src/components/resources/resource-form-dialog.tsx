@@ -32,7 +32,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { type SyllabusTopic } from '@/lib/syllabus-data';
-import { findTopicById, findPathToTopic, type ResourceWithTopicInfo } from '@/lib/resource-utils';
+import { findTopicById, findPathToTopic, type ResourceWithTopicInfo, bookSubjects, bookSubjectTopicMap, topicIdToBookSubjectMap } from '@/lib/resource-utils';
 import { categoryInfoMap } from './resource-card';
 
 const resourceSchema = z.object({
@@ -40,7 +40,7 @@ const resourceSchema = z.object({
   url: z.string().url({ message: 'Please enter a valid URL.' }),
   description: z.string().optional(),
   category: z.enum(['book-ncert', 'book-reference', 'lecture-playlist', 'lecture-video']),
-  topicId: z.string().min(1, { message: 'Please select a final syllabus topic.' }),
+  topicId: z.string().min(1, { message: 'Please select a subject or a final syllabus topic.' }),
   class: z.string().optional(),
 });
 
@@ -76,8 +76,10 @@ export default function ResourceFormDialog({
     });
 
     const [selectedPath, setSelectedPath] = React.useState<string[]>([]);
+    const [selectedSubject, setSelectedSubject] = React.useState<string>('');
     const formId = React.useId();
     const watchedCategory = form.watch('category');
+    const isBook = watchedCategory === 'book-ncert' || watchedCategory === 'book-reference';
 
     React.useEffect(() => {
         if (isOpen) {
@@ -90,8 +92,13 @@ export default function ResourceFormDialog({
                     topicId: resourceToEdit.topicId,
                     class: resourceToEdit.class || '',
                 });
-                const path = findPathToTopic(syllabusData, resourceToEdit.topicId);
-                setSelectedPath(path || []);
+                 if (resourceToEdit.category === 'book-ncert' || resourceToEdit.category === 'book-reference') {
+                    const subject = topicIdToBookSubjectMap[resourceToEdit.topicId];
+                    setSelectedSubject(subject || '');
+                } else {
+                    const path = findPathToTopic(syllabusData, resourceToEdit.topicId);
+                    setSelectedPath(path || []);
+                }
             } else {
                 form.reset({
                     title: '',
@@ -102,6 +109,7 @@ export default function ResourceFormDialog({
                     class: '',
                 });
                 setSelectedPath([]);
+                setSelectedSubject('');
             }
         }
     }, [resourceToEdit, form, isOpen, syllabusData]);
@@ -263,7 +271,34 @@ export default function ResourceFormDialog({
                                 name="topicId"
                                 render={({ field }) => (
                                     <div className="space-y-2">
-                                        {renderCascadingSelects()}
+                                        {isBook ? (
+                                            <FormItem>
+                                                <FormLabel>Subject</FormLabel>
+                                                <Select 
+                                                    value={selectedSubject}
+                                                    onValueChange={(subject) => {
+                                                        setSelectedSubject(subject);
+                                                        const topicId = bookSubjectTopicMap[subject];
+                                                        field.onChange(topicId);
+                                                    }}
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select a subject..." />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                         {bookSubjects.map(subject => (
+                                                            <SelectItem key={subject} value={subject}>
+                                                                {subject}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormItem>
+                                        ) : (
+                                            renderCascadingSelects()
+                                        )}
                                         <input type="hidden" {...field} />
                                         <FormMessage />
                                     </div>
