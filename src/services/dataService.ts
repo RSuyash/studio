@@ -1,4 +1,4 @@
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, type DocumentData, type QueryDocumentSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 interface FirestoreDocument {
@@ -13,7 +13,7 @@ interface FirestoreDocument {
 export const fetchDataFromFirestore = async (collectionName: string): Promise<FirestoreDocument[]> => {
   const querySnapshot = await getDocs(collection(db, collectionName));
   const data: FirestoreDocument[] = [];
-  querySnapshot.forEach((doc) => {
+  querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
     data.push({ id: doc.id, ...doc.data() });
   });
   return data;
