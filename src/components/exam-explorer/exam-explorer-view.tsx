@@ -7,8 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { upscCseExam, type Exam } from '@/lib/exam-data';
 import StageCard from './stage-card';
 import { ScrollArea } from '../ui/scroll-area';
-import { ClipboardList } from 'lucide-react';
 import { type View } from '../main-layout';
+import { Icons } from '../icons';
 
 
 export default function ExamExplorerView({ setActiveView }: { setActiveView: (view: View) => void }) {
@@ -17,7 +17,7 @@ export default function ExamExplorerView({ setActiveView }: { setActiveView: (vi
   return (
     <>
        <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
-        <ClipboardList className="h-6 w-6" />
+        <Icons.Landmark className="h-6 w-6" />
         <h2 className="text-lg font-semibold">{exam.title}</h2>
       </header>
        <ScrollArea className="h-[calc(100vh-3.5rem)]">

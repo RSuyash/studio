@@ -12,7 +12,7 @@ import { Icons } from '@/components/icons';
 import type { View } from '../main-layout';
 import { useToast } from '@/hooks/use-toast';
 import { explainSyllabusTopic, type ExplainTopicOutput } from '@/ai/flows/explain-topic-flow';
-import { LoaderCircle, Sparkles, BookOpen, Library, ClipboardList } from 'lucide-react';
+import { LoaderCircle, Sparkles, BookOpen, Library, ChevronRight } from 'lucide-react';
 
 const SubjectMasteryChart = dynamic(
   () => import('@/components/dashboard/subject-mastery-chart'),
@@ -138,16 +138,6 @@ export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) =
                             <CardDescription>Quick access to your learning tools.</CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
-                             <div className="flex items-center justify-between rounded-lg border p-4">
-                                <div className="flex items-center gap-4">
-                                    <ClipboardList className="h-6 w-6 text-primary" />
-                                    <div>
-                                        <p className="font-semibold">Exam Explorer</p>
-                                        <p className="text-sm text-muted-foreground">Get an overview of exams.</p>
-                                    </div>
-                                </div>
-                                <Button size="sm" onClick={() => setActiveView('exam-explorer')}>Open</Button>
-                            </div>
                             <div className="flex items-center justify-between rounded-lg border p-4">
                                 <div className="flex items-center gap-4">
                                     <BookOpen className="h-6 w-6 text-primary" />
@@ -171,6 +161,21 @@ export const DashboardView = ({ setActiveView }: { setActiveView: (view: View) =
                         </CardContent>
                     </Card>
                 </div>
+
+                <Card className="cursor-pointer transition-colors hover:bg-muted/50" onClick={() => setActiveView('exam-explorer')}>
+                    <CardHeader className="flex flex-row items-center gap-4">
+                        <div className="rounded-full bg-primary/10 p-3">
+                            <Icons.Landmark className="h-8 w-8 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                            <CardTitle>UPSC Exam Insights</CardTitle>
+                            <CardDescription>An interactive breakdown of the CSE stages, papers, marks, and syllabus.</CardDescription>
+                        </div>
+                        <Button variant="ghost" size="icon" asChild>
+                           <ChevronRight className="h-6 w-6 text-muted-foreground" />
+                        </Button>
+                    </CardHeader>
+                </Card>
 
                  <Card>
                     <CardHeader>
