@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from 'react'
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import dynamic from 'next/dynamic'
 
 import {
   SidebarProvider,
@@ -24,32 +24,18 @@ import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart"
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type View = 'dashboard' | 'syllabus';
 
-const chartData = [
-  { subject: "History", progress: 75 },
-  { subject: "Geography", progress: 50 },
-  { subject: "Polity", progress: 80 },
-  { subject: "Economy", progress: 60 },
-  { subject: "Ethics", progress: 90 },
-  { subject: "Science", progress: 45 },
-];
-
-const chartConfig = {
-  progress: {
-    label: "Progress",
-    color: "hsl(var(--primary))",
-  },
-} satisfies ChartConfig;
-
+const SubjectMasteryChart = dynamic(
+  () => import('@/components/dashboard/subject-mastery-chart'),
+  { 
+    ssr: false,
+    loading: () => <Skeleton className="h-[300px] w-full" />
+  }
+)
 
 const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void }) => {
     return (
@@ -127,30 +113,7 @@ const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void 
                             <CardDescription>Your progress across key GS subjects.</CardDescription>
                         </CardHeader>
                         <CardContent className="pl-2">
-                            <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                               <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ left: 10, right: 10 }}>
-                                    <YAxis
-                                        dataKey="subject"
-                                        type="category"
-                                        tickLine={false}
-                                        tickMargin={10}
-                                        axisLine={false}
-                                        tickFormatter={(value) => value.slice(0, 10)}
-                                        className="fill-muted-foreground text-xs"
-                                    />
-                                    <XAxis dataKey="progress" type="number" hide />
-                                    <ChartTooltip
-                                        cursor={false}
-                                        content={<ChartTooltipContent indicator="line" />}
-                                    />
-                                    <Bar
-                                        dataKey="progress"
-                                        layout="vertical"
-                                        fill="var(--color-progress)"
-                                        radius={5}
-                                    />
-                                </BarChart>
-                            </ChartContainer>
+                            <SubjectMasteryChart />
                         </CardContent>
                     </Card>
 
