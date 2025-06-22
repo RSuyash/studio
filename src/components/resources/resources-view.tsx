@@ -360,6 +360,7 @@ function ResourceFormDialog({
     });
 
     const [selectedPath, setSelectedPath] = React.useState<string[]>([]);
+    const formId = React.useId();
 
     React.useEffect(() => {
         if (isOpen) {
@@ -443,95 +444,96 @@ function ResourceFormDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[525px]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-[525px] max-h-[90vh] flex flex-col p-0">
+                <DialogHeader className="p-6 pb-4">
                     <DialogTitle>{resourceToEdit ? 'Edit Resource' : 'Add New Resource'}</DialogTitle>
                     <DialogDescription>
                         {resourceToEdit ? 'Update the details of your resource.' : 'Fill in the details for your new resource.'}
                     </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Title</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g., 'Indian Polity by M. Laxmikanth'" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="url"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>URL</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="https://example.com" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Description (Optional)</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="A short note about this resource..." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="category"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Category</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <div className="flex-1 overflow-y-auto px-6">
+                    <Form {...form}>
+                        <form id={formId} onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
+                            <FormField
+                                control={form.control}
+                                name="title"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Title</FormLabel>
                                         <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select a category" />
-                                            </SelectTrigger>
+                                            <Input placeholder="e.g., 'Indian Polity by M. Laxmikanth'" {...field} />
                                         </FormControl>
-                                        <SelectContent>
-                                            {Object.entries(categoryInfo).map(([key, {title}]) => (
-                                                <SelectItem key={key} value={key}>{title}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="topicId"
-                            render={({ field }) => (
-                                <div className="space-y-2">
-                                    {renderCascadingSelects()}
-                                    <input type="hidden" {...field} />
-                                    <FormMessage />
-                                </div>
-                            )}
-                        />
-
-                        <DialogFooter>
-                            <Button type="submit">
-                                {resourceToEdit ? 'Save Changes' : 'Add Resource'}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="url"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>URL</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="https://example.com" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Description (Optional)</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder="A short note about this resource..." {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="category"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Category</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a category" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {Object.entries(categoryInfo).map(([key, {title}]) => (
+                                                    <SelectItem key={key} value={key}>{title}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="topicId"
+                                render={({ field }) => (
+                                    <div className="space-y-2">
+                                        {renderCascadingSelects()}
+                                        <input type="hidden" {...field} />
+                                        <FormMessage />
+                                    </div>
+                                )}
+                            />
+                        </form>
+                    </Form>
+                </div>
+                <DialogFooter className="border-t p-6">
+                    <Button type="submit" form={formId}>
+                        {resourceToEdit ? 'Save Changes' : 'Add Resource'}
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     )
