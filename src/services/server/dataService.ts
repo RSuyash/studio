@@ -13,16 +13,18 @@ interface FirestoreDocument {
 const initializeAdminApp = () => {
     if (admin.apps.length === 0) {
       try {
-        // This uses the service account key from the root directory.
-        // It's loaded via require() which is available in the Node.js environment on the server.
+        // Use a static relative path for the service account key.
+        // This is necessary because the Next.js bundler for Server Components
+        // does not correctly handle dynamic `require` paths (e.g., using `process.cwd()`).
         const serviceAccount = require('../../../serviceAccountKey.json');
+
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount)
         });
       } catch (error: any) {
-        console.error('Firebase admin initialization error:', error);
+        console.error('Firebase admin initialization error:', error.stack);
         // Throw an error to make it clear that server-side operations will fail.
-        throw new Error('Could not initialize Firebase Admin SDK. Please ensure serviceAccountKey.json is present in the root directory.');
+        throw new Error('Could not initialize Firebase Admin SDK. Please ensure serviceAccountKey.json is present in the root directory and is valid.');
       }
     }
     return admin.firestore();
