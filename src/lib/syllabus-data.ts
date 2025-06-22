@@ -155,7 +155,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
         tags: ['essay', 'merit'],
         mastery: 'none',
         subtopics: [
-          { id: 'mains-essay-structure', title: 'Structure & Evaluation', description: 'Two sections, with one essay choice from each (125 marks each). Evaluated on relevance, organization, clarity, and analytical depth.', tags: [], mastery: 'none' },
+          { id: 'mains-essay-structure', title: 'Structure & Evaluation', description: 'Two sections, with one essay choice from each (125 marks each). Evaluated on relevance, organization, clarity, analytical depth, and concise expression.', tags: [], mastery: 'none' },
           { id: 'mains-essay-strategy', title: 'Strategy & Topics', description: 'Topics are broad, often philosophical or interdisciplinary. Practice structuring arguments with contemporary relevance and historical/philosophical depth.', tags: [], mastery: 'none' },
         ],
       },
@@ -207,26 +207,35 @@ export const initialSyllabusData: SyllabusTopic[] = [
         description: 'Covers Ethics, Integrity, and Aptitude, often using case studies. Marks: 250.',
         tags: ['gs-4', 'ethics', 'aptitude'],
         mastery: 'none',
+        subtopics: [
+            { id: 'mains-gs4-ethics-interface', title: 'Ethics and Human Interface', description: 'Essence, determinants, and consequences of Ethics in human actions; dimensions of ethics; ethics in private and public relationships. Human Values from leaders, reformers and administrators.', tags: [], mastery: 'none'},
+            { id: 'mains-gs4-attitude', title: 'Attitude', description: 'Content, structure, function; its influence and relation with thought and behavior; moral and political attitudes; social influence and persuasion.', tags: [], mastery: 'none'},
+            { id: 'mains-gs4-aptitude', title: 'Aptitude & Foundational Values', description: 'Integrity, impartiality, non-partisanship, objectivity, dedication to public service, empathy, tolerance, and compassion. Emotional intelligence (EI) concepts and their utility.', tags: [], mastery: 'none'},
+            { id: 'mains-gs4-thinkers', title: 'Moral Thinkers & Philosophers', description: 'Contributions from Indian and World thinkers like Gandhi, Kant, Aristotle, etc.', tags: [], mastery: 'none'},
+            { id: 'mains-gs4-public-service', title: 'Public/Civil Service Values', description: 'Ethical concerns and dilemmas in government and private institutions; laws, rules, and conscience as sources of guidance; accountability and ethical governance.', tags: [], mastery: 'none'},
+            { id: 'mains-gs4-probity', title: 'Probity in Governance', description: 'Concept of public service; philosophical basis of governance and probity; RTI, codes of ethics/conduct; work culture, and challenges of corruption.', tags: [], mastery: 'none'},
+            { id: 'mains-gs4-casestudies', title: 'Case Studies', description: 'Analysis of realistic or hypothetical scenarios to test ethical decision-making.', tags: [], mastery: 'none'},
+        ]
       },
       {
         id: 'mains-optional',
         title: 'Papers VI & VII: Optional Subject',
-        description: 'Candidates choose one subject from a list. This tests in-depth knowledge and understanding of the chosen discipline.',
+        description: 'Candidates choose one subject from a list for two papers. This tests in-depth, graduate-level knowledge of the chosen discipline.',
         tags: ['optional', 'specialized', 'merit'],
         mastery: 'none',
         subtopics: [
           {
-            id: 'mains-optional-1',
-            title: 'Optional Paper 1',
-            description: 'The first of two papers on the chosen optional subject. Each paper is 250 marks. Syllabus varies by subject.',
-            tags: ['paper-1'],
+            id: 'mains-optional-structure',
+            title: 'Paper Structure (I & II)',
+            description: 'The optional subject consists of two papers (Paper I & Paper II), each worth 250 marks. Paper I typically covers theoretical foundations, while Paper II focuses on India-specific applications or case studies.',
+            tags: ['paper-1', 'paper-2'],
             mastery: 'none',
           },
           {
-            id: 'mains-optional-2',
-            title: 'Optional Paper 2',
-            description: 'The second of two papers on the chosen optional subject. Each paper is 250 marks. Syllabus varies by subject.',
-            tags: ['paper-2'],
+            id: 'mains-optional-subjects',
+            title: 'Common Optional Subjects',
+            description: 'Popular choices include: Anthropology, Geography, History, Political Science, Sociology, Public Administration, Philosophy, Law, Economics, and various literature subjects.',
+            tags: ['subjects-list'],
             mastery: 'none',
           },
         ]
