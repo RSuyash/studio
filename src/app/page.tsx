@@ -1,21 +1,11 @@
 import MainLayout from "@/components/main-layout";
 import { Toaster } from "@/components/ui/toaster";
-import { fetchDataFromFirestoreOnServer } from "@/services/server/dataService";
-import type { ExamComparisonData } from "@/lib/exam-comparison-data";
+import { examComparisonData, type ExamComparisonData } from "@/lib/exam-comparison-data";
 
-export default async function Home() {
-  let comparisonData: ExamComparisonData[] = [];
-  let comparisonDataError: string | null = null;
-  
-  try {
-    const fetchedData = await fetchDataFromFirestoreOnServer('examComparisons');
-    // Simple sort to ensure a consistent order
-    comparisonData = (fetchedData as ExamComparisonData[]).sort((a, b) => a.exam.localeCompare(b.exam));
-  } catch (err: any) {
-    console.error("Error fetching exam comparison data on server:", err);
-    // Use the specific error message from the service layer for better diagnostics.
-    comparisonDataError = err.message;
-  }
+export default function Home() {
+  // Data is now sourced directly from a local TypeScript file.
+  const comparisonData = examComparisonData.sort((a, b) => a.exam.localeCompare(b.exam));
+  const comparisonDataError = null; // No more server fetching, so no error is possible here.
 
   return (
     <>
