@@ -1,9 +1,10 @@
 
+
 "use client";
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { initialSyllabusData, type SyllabusTopic, type MasteryLevel, type Resource } from "@/lib/syllabus-data";
+import { initialSyllabusData, type SyllabusTopic, type MasteryLevel, type Resource, type ResourceCategory } from "@/lib/syllabus-data";
 import FocusModeDialog from "./focus-mode-dialog";
 import FilterPanel from "./filter-panel";
 import { CardTitle, CardDescription } from '@/components/ui/card';
@@ -43,6 +44,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const MindMapView = dynamic(() => import("./mind-map-view"), {
   ssr: false,
@@ -61,6 +63,27 @@ const findTopicById = (topics: SyllabusTopic[], id: string): SyllabusTopic | nul
   }
   return null;
 };
+
+// Helper function to update a topic in the nested structure
+const updateTopicInTree = (
+  topics: SyllabusTopic[],
+  id: string,
+  updates: Partial<SyllabusTopic>
+): SyllabusTopic[] => {
+  return topics.map((topic) => {
+    if (topic.id === id) {
+      return { ...topic, ...updates };
+    }
+    if (topic.subtopics) {
+      return {
+        ...topic,
+        subtopics: updateTopicInTree(topic.subtopics, id, updates),
+      };
+    }
+    return topic;
+  });
+};
+
 
 // Recursive function to get all unique tags from the tree
 const getAllTagsFromTree = (topics: SyllabusTopic[]): Set<string> => {
@@ -149,20 +172,25 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
     // State for adding new items
     const [newTag, setNewTag] = React.useState('');
     const [tagPopoverOpen, setTagPopoverOpen] = React.useState(false);
+    
+    // Resource form state
+    const [resourcePopoverOpen, setResourcePopoverOpen] = React.useState(false);
     const [newResourceTitle, setNewResourceTitle] = React.useState('');
     const [newResourceUrl, setNewResourceUrl] = React.useState('');
-    const [resourcePopoverOpen, setResourcePopoverOpen] = React.useState(false);
-    
+    const [newResourceCategory, setNewResourceCategory] = React.useState<ResourceCategory>('book-reference');
+
     // State for editing/deleting resources
     const [editingResource, setEditingResource] = React.useState<Resource | null>(null);
     const [resourceToDelete, setResourceToDelete] = React.useState<Resource | null>(null);
     const [editTitle, setEditTitle] = React.useState('');
     const [editUrl, setEditUrl] = React.useState('');
+    const [editCategory, setEditCategory] = React.useState<ResourceCategory>('book-reference');
     
     React.useEffect(() => {
         if (editingResource) {
             setEditTitle(editingResource.title);
             setEditUrl(editingResource.url);
+            setEditCategory(editingResource.category);
         }
     }, [editingResource]);
 
@@ -190,6 +218,7 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
                 id: `res-${Date.now()}`,
                 title: newResourceTitle,
                 url: url,
+                category: newResourceCategory,
             };
             const updatedResources = [...(topic.resources || []), newResource];
             onUpdate(topic.id, { resources: updatedResources });
@@ -208,7 +237,7 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
             url = `https://${url}`;
         }
         
-        const updatedResource: Resource = { ...editingResource, title: editTitle, url };
+        const updatedResource: Resource = { ...editingResource, title: editTitle, url, category: editCategory };
         const updatedResources = (topic.resources || []).map(r => r.id === updatedResource.id ? updatedResource : r);
         
         onUpdate(topic.id, { resources: updatedResources });
@@ -322,6 +351,18 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
                                         <Label htmlFor="resource-url">URL</Label>
                                         <Input id="resource-url" value={newResourceUrl} onChange={(e) => setNewResourceUrl(e.target.value)} placeholder="example.com" />
                                     </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="resource-category">Category</Label>
+                                        <Select onValueChange={(v) => setNewResourceCategory(v as ResourceCategory)} defaultValue={newResourceCategory}>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="book-reference">Reference Book</SelectItem>
+                                                <SelectItem value="book-ncert">NCERT Book</SelectItem>
+                                                <SelectItem value="lecture-playlist">YouTube Playlist</SelectItem>
+                                                <SelectItem value="lecture-video">YouTube Video</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                     <Button type="submit" size="sm">Add Resource</Button>
                                 </form>
                             </PopoverContent>
@@ -344,6 +385,18 @@ const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpda
                         <div className="grid gap-2">
                             <Label htmlFor="edit-resource-url">URL</Label>
                             <Input id="edit-resource-url" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} />
+                        </div>
+                         <div className="grid gap-2">
+                            <Label htmlFor="edit-resource-category">Category</Label>
+                            <Select onValueChange={(v) => setEditCategory(v as ResourceCategory)} value={editCategory}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="book-reference">Reference Book</SelectItem>
+                                    <SelectItem value="book-ncert">NCERT Book</SelectItem>
+                                    <SelectItem value="lecture-playlist">YouTube Playlist</SelectItem>
+                                    <SelectItem value="lecture-video">YouTube Video</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <DialogFooter>
                             <Button type="submit">Save Changes</Button>
@@ -456,13 +509,20 @@ const SyllabusExplorer = ({ data, onUpdate, onFocus }: { data: SyllabusTopic[], 
   );
 };
 
-export default function SyllabusViewer({ syllabusData, onUpdate }: { syllabusData: SyllabusTopic[], onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void }) {
+export default function SyllabusViewer({ syllabusData, setSyllabusData }: { syllabusData: SyllabusTopic[], setSyllabusData: React.Dispatch<React.SetStateAction<SyllabusTopic[]>> }) {
   const [focusTopic, setFocusTopic] = React.useState<SyllabusTopic | null>(null);
   const [selectedTags, setSelectedTags] = React.useState(new Set<string>());
 
   const handleFocusTopic = React.useCallback((topic: SyllabusTopic) => {
     setFocusTopic(topic);
   }, []);
+  
+  const handleUpdateTopic = React.useCallback(
+    (id: string, updates: Partial<SyllabusTopic>) => {
+      setSyllabusData((currentData) => updateTopicInTree(currentData, id, updates));
+    },
+    [setSyllabusData]
+  );
 
   const handleTagToggle = React.useCallback((tag: string) => {
     setSelectedTags(prev => {
@@ -504,7 +564,7 @@ export default function SyllabusViewer({ syllabusData, onUpdate }: { syllabusDat
               {filteredData.length > 0 ? (
                 <SyllabusExplorer
                   data={filteredData}
-                  onUpdate={onUpdate}
+                  onUpdate={handleUpdateTopic}
                   onFocus={handleFocusTopic}
                 />
               ) : (
@@ -528,3 +588,4 @@ export default function SyllabusViewer({ syllabusData, onUpdate }: { syllabusDat
     </>
   );
 }
+

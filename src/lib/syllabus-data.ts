@@ -1,8 +1,12 @@
 
+export type ResourceCategory = 'book-ncert' | 'book-reference' | 'lecture-playlist' | 'lecture-video';
+
 export interface Resource {
   id: string;
   title: string;
   url: string;
+  category: ResourceCategory;
+  description?: string;
 }
 
 export type MasteryLevel = 'none' | 'novice' | 'advanced' | 'expert';

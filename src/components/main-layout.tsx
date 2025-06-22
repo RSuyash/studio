@@ -20,7 +20,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar'
 import { Icons } from '@/components/icons'
-import { initialSyllabusData, type SyllabusTopic, type MasteryLevel } from "@/lib/syllabus-data";
+import { initialSyllabusData, type SyllabusTopic } from "@/lib/syllabus-data";
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress"
@@ -40,25 +40,97 @@ const SubjectMasteryChart = dynamic(
   }
 )
 
-// Recursive function to update a topic in the nested structure
-const updateTopicInTree = (
-  topics: SyllabusTopic[],
-  id: string,
-  updates: Partial<SyllabusTopic>
-): SyllabusTopic[] => {
-  return topics.map((topic) => {
-    if (topic.id === id) {
-      return { ...topic, ...updates };
+export default function MainLayout() {
+  const [activeView, setActiveView] = React.useState<View>('dashboard');
+  const [syllabusData, setSyllabusData] = React.useState(initialSyllabusData);
+
+  const menuItems = [
+    { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
+    { view: 'exam-explorer', label: 'Exam Explorer', icon: Icons.ClipboardList },
+    { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen },
+    { view: 'resources', label: 'My Resources', icon: Icons.Library },
+  ];
+
+  const renderActiveView = () => {
+    switch (activeView) {
+        case 'dashboard':
+            return <DashboardView setActiveView={setActiveView} />;
+        case 'exam-explorer':
+            return <ExamExplorerView setActiveView={setActiveView} />;
+        case 'syllabus':
+            return <SyllabusViewer syllabusData={syllabusData} setSyllabusData={setSyllabusData} />;
+        case 'resources':
+            return <ResourcesView syllabusData={syllabusData} setSyllabusData={setSyllabusData} />;
+        default:
+            return <DashboardView setActiveView={setActiveView} />;
     }
-    if (topic.subtopics) {
-      return {
-        ...topic,
-        subtopics: updateTopicInTree(topic.subtopics, id, updates),
-      };
-    }
-    return topic;
-  });
-};
+  }
+
+  return (
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader>
+          <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Icons.Logo className="size-5" />
+            </div>
+            <h1 className="font-headline text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">Nexus Cortex</h1>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {menuItems.map((item) => (
+              <SidebarMenuItem key={item.view}>
+                <SidebarMenuButton
+                  isActive={activeView === item.view}
+                  onClick={() => setActiveView(item.view as View)}
+                  className="w-full"
+                  tooltip={item.label}
+                >
+                  <item.icon className="size-4" />
+                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+          <SidebarSeparator />
+          <SidebarGroup className="p-2">
+            <SidebarGroupLabel>Tools</SidebarGroupLabel>
+            <SidebarMenuItem>
+              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
+                <Icons.Sparkles className="size-4" />
+                <span className="group-data-[collapsible=icon]:hidden">Mock Test Generator</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
+                <Icons.Layers className="size-4" />
+                <span className="group-data-[collapsible=icon]:hidden">Flashcard Maker</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-1">
+            <Avatar className="h-9 w-9">
+                <AvatarFallback>UA</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">
+                <p className="truncate text-sm font-semibold">UPSC Aspirant</p>
+                <p className="truncate text-xs text-sidebar-foreground/70">Test User</p>
+            </div>
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:hidden">
+                <Icons.Settings className="size-4" />
+            </Button>
+          </div>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        {renderActiveView()}
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
 
 
 const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void }) => {
@@ -183,107 +255,4 @@ const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void 
             </main>
         </>
     )
-}
-
-const SyllabusView = ({ syllabusData, onUpdate }: { syllabusData: SyllabusTopic[], onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void }) => {
-    return (
-        <>
-            <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
-                <SidebarTrigger />
-                <div className="flex-1">
-                    <h2 className="text-lg font-semibold">Syllabus Explorer</h2>
-                </div>
-            </header>
-            <main className="flex-1 p-4 md:p-6">
-                <SyllabusViewer syllabusData={syllabusData} onUpdate={onUpdate} />
-            </main>
-        </>
-    )
-}
-
-export default function MainLayout() {
-  const [activeView, setActiveView] = React.useState<View>('dashboard');
-  const [syllabusData, setSyllabusData] = React.useState(initialSyllabusData);
-
-  const handleUpdateTopic = React.useCallback(
-    (id: string, updates: Partial<SyllabusTopic>) => {
-      setSyllabusData((currentData) => updateTopicInTree(currentData, id, updates));
-    },
-    []
-  );
-
-  const menuItems = [
-    { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
-    { view: 'exam-explorer', label: 'Exam Explorer', icon: Icons.ClipboardList },
-    { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen },
-    { view: 'resources', label: 'My Resources', icon: Icons.Library },
-  ];
-
-  return (
-    <SidebarProvider>
-      <Sidebar collapsible="icon">
-        <SidebarHeader>
-          <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Icons.Logo className="size-5" />
-            </div>
-            <h1 className="font-headline text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">Nexus Cortex</h1>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.view}>
-                <SidebarMenuButton
-                  isActive={activeView === item.view}
-                  onClick={() => setActiveView(item.view as View)}
-                  className="w-full"
-                  tooltip={item.label}
-                >
-                  <item.icon className="size-4" />
-                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-          <SidebarSeparator />
-          <SidebarGroup className="p-2">
-            <SidebarGroupLabel>Tools</SidebarGroupLabel>
-            <SidebarMenuItem>
-              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
-                <Icons.Sparkles className="size-4" />
-                <span className="group-data-[collapsible=icon]:hidden">Mock Test Generator</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
-                <Icons.Layers className="size-4" />
-                <span className="group-data-[collapsible=icon]:hidden">Flashcard Maker</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarGroup>
-        </SidebarContent>
-        <SidebarFooter>
-          <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-1">
-            <Avatar className="h-9 w-9">
-                <AvatarFallback>UA</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">
-                <p className="truncate text-sm font-semibold">UPSC Aspirant</p>
-                <p className="truncate text-xs text-sidebar-foreground/70">Test User</p>
-            </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:hidden">
-                <Icons.Settings className="size-4" />
-            </Button>
-          </div>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        {activeView === 'dashboard' && <DashboardView setActiveView={setActiveView} />}
-        {activeView === 'exam-explorer' && <ExamExplorerView setActiveView={setActiveView} />}
-        {activeView === 'syllabus' && <SyllabusView syllabusData={syllabusData} onUpdate={handleUpdateTopic} />}
-        {activeView === 'resources' && <ResourcesView syllabusData={syllabusData} onUpdate={handleUpdateTopic} />}
-      </SidebarInset>
-    </SidebarProvider>
-  )
 }
