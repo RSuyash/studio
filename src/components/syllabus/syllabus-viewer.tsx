@@ -5,16 +5,19 @@ import * as ReactDOM from "react-dom";
 import { initialSyllabusData, type SyllabusTopic, type MasteryLevel } from "@/lib/syllabus-data";
 import FocusModeDialog from "./focus-mode-dialog";
 import FilterPanel from "./filter-panel";
-import { CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
 import { Maximize, ChevronRight, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Icons } from "@/components/icons";
 
 // Helper function to find a topic by ID in the tree
 const findTopicById = (topics: SyllabusTopic[], id: string): SyllabusTopic | null => {
@@ -80,160 +83,218 @@ const filterSyllabus = (
   }, []);
 };
 
-const SyllabusColumnItem = ({ topic, isSelected, onSelect }: { topic: SyllabusTopic, isSelected: boolean, onSelect: () => void }) => {
-    const hasSubtopics = topic.subtopics && topic.subtopics.length > 0;
-  
-    return (
-      <button
-        onClick={onSelect}
-        className={cn(
-          'flex w-full items-center justify-between rounded-md p-3 text-left text-sm transition-colors',
-          isSelected ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-muted/50'
-        )}
-      >
-        <span className="flex-1 truncate pr-2">{topic.title}</span>
-        {hasSubtopics && <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />}
-      </button>
-    );
-}
 
-const SyllabusExplorer = ({ data, onUpdate, onFocus }: { data: SyllabusTopic[], onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void, onFocus: (topic: SyllabusTopic) => void }) => {
-    const [selectedPath, setSelectedPath] = React.useState<string[]>([]);
+const BreadcrumbColumn = ({ topic, onClick }: { topic: SyllabusTopic; onClick: () => void }) => {
+  const Icon = topic.icon ? Icons[topic.icon as keyof typeof Icons] || Icons.Folder : Icons.Folder;
+  return (
+    <div className="flex h-full w-16 flex-shrink-0 flex-col items-center border-r bg-muted/30 p-2">
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mb-4 h-12 w-12 rounded-lg bg-background shadow-sm"
+              onClick={onClick}
+            >
+              <Icon className="h-6 w-6" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>{topic.title}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <Separator />
+    </div>
+  );
+};
+
+const TopicColumn = ({ topics, title, onSelect }: { topics: SyllabusTopic[], title: string, onSelect: (id: string) => void }) => {
+  return (
+    <div className="h-full w-80 flex-shrink-0 border-r">
+      <div className="p-4">
+        <h2 className="mb-4 text-lg font-bold tracking-tight text-primary">{title}</h2>
+      </div>
+      <Separator />
+      <ScrollArea className="h-[calc(100%-5rem)]">
+        <div className="p-2">
+          {topics.map(topic => {
+            const hasSubtopics = topic.subtopics && topic.subtopics.length > 0;
+            return (
+              <button
+                key={topic.id}
+                onClick={() => onSelect(topic.id)}
+                className={cn(
+                  'flex w-full items-center justify-between rounded-md p-3 text-left text-sm transition-colors',
+                  'hover:bg-muted/50'
+                )}
+              >
+                <span className="flex-1 truncate pr-2">{topic.title}</span>
+                {hasSubtopics && <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />}
+              </button>
+            )
+          })}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+};
+
+
+const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void, onFocus: (topic: SyllabusTopic) => void }) => {
     const [newTag, setNewTag] = React.useState('');
 
-    // Reset path if filtered data changes and path is no longer valid
-    React.useEffect(() => {
-        if (selectedPath.length > 0 && data.length > 0 && !findTopicById(data, selectedPath[0])) {
-            setSelectedPath([]);
-        }
-    }, [data, selectedPath]);
-  
-    const columns = React.useMemo(() => {
-      if (data.length === 0) return [];
-      const cols: SyllabusTopic[][] = [data];
-      let currentTopics = data;
-  
-      for (const id of selectedPath) {
-        const selectedTopic = findTopicById(currentTopics, id);
-        if (selectedTopic && selectedTopic.subtopics && selectedTopic.subtopics.length > 0) {
-          cols.push(selectedTopic.subtopics);
-          currentTopics = selectedTopic.subtopics;
-        } else {
-          break; 
-        }
-      }
-      return cols;
-    }, [data, selectedPath]);
-  
-    const activeTopic = React.useMemo(() => {
-      if (selectedPath.length === 0 || data.length === 0) return null;
-      return findTopicById(data, selectedPath[selectedPath.length - 1]);
-    }, [data, selectedPath]);
-    
-    const handleSelectTopic = (topicId: string, level: number) => {
-      const newPath = selectedPath.slice(0, level);
-      newPath.push(topicId);
-      setSelectedPath(newPath);
-    };
-    
     const handleMasteryChange = (level: MasteryLevel) => {
-      if (activeTopic) {
-          onUpdate(activeTopic.id, { mastery: level });
-      }
+        onUpdate(topic.id, { mastery: level });
     };
 
     const handleAddTag = (e: React.FormEvent) => {
         e.preventDefault();
-        if (activeTopic && newTag && !activeTopic.tags.includes(newTag.toLowerCase())) {
-          onUpdate(activeTopic.id, { tags: [...activeTopic.tags, newTag.toLowerCase().trim()] });
-          setNewTag('');
+        if (newTag && !topic.tags.includes(newTag.toLowerCase())) {
+            onUpdate(topic.id, { tags: [...topic.tags, newTag.toLowerCase().trim()] });
+            setNewTag('');
         }
-      };
-  
+    };
+    
     return (
-      <div className="flex h-[calc(100vh-8rem)] w-full overflow-hidden rounded-lg border bg-card text-card-foreground shadow-inner">
-        <ScrollArea className="flex-shrink-0 border-r">
-           <div className="flex h-full">
-            {columns.map((columnTopics, level) => (
-              <div key={level} className="h-full w-72 flex-shrink-0 border-r last:border-r-0">
-                <ScrollArea className="h-full">
-                  <div className="p-2">
-                    {columnTopics.map((topic) => (
-                      <SyllabusColumnItem
-                        key={topic.id}
-                        topic={topic}
-                        isSelected={selectedPath[level] === topic.id}
-                        onSelect={() => handleSelectTopic(topic.id, level)}
-                       />
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-
         <ScrollArea className="flex-1">
             <div className="p-6">
-                {activeTopic ? (
                 <div className="space-y-6">
                     <div className="flex items-start justify-between gap-4">
-                        <CardTitle className="font-headline text-2xl text-primary">{activeTopic.title}</CardTitle>
+                        <CardTitle className="font-headline text-2xl text-primary">{topic.title}</CardTitle>
                         <div className="flex gap-2 flex-shrink-0">
-                            <MasteryControl currentLevel={activeTopic.mastery} onLevelChange={handleMasteryChange} />
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onFocus(activeTopic)}>
-                            <Maximize className="h-4 w-4" />
+                            <MasteryControl currentLevel={topic.mastery} onLevelChange={handleMasteryChange} />
+                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onFocus(topic)}>
+                                <Maximize className="h-4 w-4" />
                             </Button>
                         </div>
                     </div>
-                    <CardDescription>{activeTopic.description}</CardDescription>
+                    <CardDescription>{topic.description}</CardDescription>
                     
                     <div>
-                    <h4 className="mb-2 text-sm font-semibold text-muted-foreground">Tags</h4>
-                    <div className="flex flex-wrap items-center gap-2">
-                        {activeTopic.tags.length > 0 ? (
-                        activeTopic.tags.map((tag) => <Badge key={tag} variant="secondary" className="capitalize">{tag}</Badge>)
-                        ) : (
-                        <p className="text-sm text-muted-foreground">No tags for this topic.</p>
-                        )}
-                        <Popover onOpenChange={(isOpen) => !isOpen && setNewTag('')}>
-                            <PopoverTrigger asChild>
-                            <Button variant="outline" size="icon" className="h-6 w-6">
-                                <Tag className="h-3 w-3" />
-                            </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-60">
-                                <form onSubmit={handleAddTag} className="grid gap-4">
-                                <div className="space-y-2">
-                                    <h4 className="font-medium leading-none">Add Tag</h4>
-                                    <p className="text-sm text-muted-foreground">
-                                    Add a new tag to this topic.
-                                    </p>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="new-tag" className="sr-only">New Tag</Label>
-                                    <Input id="new-tag" value={newTag} onChange={(e) => setNewTag(e.target.value)} placeholder="e.g. 'core-concept'"/>
-                                    <Button type="submit" size="sm">Add Tag</Button>
-                                </div>
-                                </form>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
+                        <h4 className="mb-2 text-sm font-semibold text-muted-foreground">Tags</h4>
+                        <div className="flex flex-wrap items-center gap-2">
+                            {topic.tags.length > 0 ? (
+                                topic.tags.map((tag) => <Badge key={tag} variant="secondary" className="capitalize">{tag}</Badge>)
+                            ) : (
+                                <p className="text-sm text-muted-foreground">No tags for this topic.</p>
+                            )}
+                            <Popover onOpenChange={(isOpen) => !isOpen && setNewTag('')}>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" size="icon" className="h-6 w-6">
+                                        <Tag className="h-3 w-3" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-60">
+                                    <form onSubmit={handleAddTag} className="grid gap-4">
+                                        <div className="space-y-2">
+                                            <h4 className="font-medium leading-none">Add Tag</h4>
+                                            <p className="text-sm text-muted-foreground">Add a new tag to this topic.</p>
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="new-tag" className="sr-only">New Tag</Label>
+                                            <Input id="new-tag" value={newTag} onChange={(e) => setNewTag(e.target.value)} placeholder="e.g. 'core-concept'"/>
+                                            <Button type="submit" size="sm">Add Tag</Button>
+                                        </div>
+                                    </form>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                     </div>
                 </div>
-                ) : (
-                <div className="flex h-full min-h-[50vh] flex-col items-center justify-center text-center text-muted-foreground">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-12 w-12 mb-4"><path d="m15 12-8.5 8.5"/><path d="M12 15l8.5 8.5"/><path d="M12 12v9"/><path d="M12 3v1"/></svg>
-                    <h3 className="text-lg font-semibold">Select a topic to view details</h3>
-                    <p className="text-sm">Choose from the list on the left to start exploring.</p>
-                </div>
-                )}
             </div>
         </ScrollArea>
-      </div>
     );
-}
+};
+
+const SyllabusExplorer = ({ data, onUpdate, onFocus }: { data: SyllabusTopic[], onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void, onFocus: (topic: SyllabusTopic) => void }) => {
+  const [selectedPath, setSelectedPath] = React.useState<string[]>([]);
+  
+  React.useEffect(() => {
+    if (data.length > 0 && selectedPath.length > 0) {
+        let validPath = true;
+        let currentTopics = data;
+        for (const topicId of selectedPath) {
+            const found = findTopicById(currentTopics, topicId);
+            if (found) {
+                currentTopics = found.subtopics || [];
+            } else {
+                validPath = false;
+                break;
+            }
+        }
+        if (!validPath) {
+            setSelectedPath([]);
+        }
+    }
+  }, [data, selectedPath]);
+  
+  const breadcrumbTopics: SyllabusTopic[] = React.useMemo(() => {
+    const topics: SyllabusTopic[] = [];
+    let currentLevelTopics = data;
+    for (const topicId of selectedPath) {
+      const foundTopic = findTopicById(currentLevelTopics, topicId);
+      if (foundTopic) {
+        topics.push(foundTopic);
+        currentLevelTopics = foundTopic.subtopics || [];
+      } else {
+        break; 
+      }
+    }
+    return topics;
+  }, [data, selectedPath]);
+
+  const activeColumnParent = breadcrumbTopics[breadcrumbTopics.length - 1];
+  const activeTopics = activeColumnParent ? activeColumnParent.subtopics || [] : data;
+  const activeColumnTitle = activeColumnParent ? activeColumnParent.title : "UPSC Syllabus";
+  const detailTopic = activeColumnParent;
+
+  const handleSelect = (topicId: string) => {
+    setSelectedPath(prev => [...prev, topicId]);
+  };
+  
+  const handleBreadcrumbClick = (level: number) => {
+    setSelectedPath(prev => prev.slice(0, level));
+  };
+  
+  return (
+    <div className="flex h-[calc(100vh-8rem)] w-full overflow-hidden rounded-lg border bg-card text-card-foreground shadow-inner">
+      {/* Home breadcrumb */}
+      {selectedPath.length > 0 && (
+        <BreadcrumbColumn 
+          topic={{id: 'root', title: 'Home', description: '', tags: [], mastery: 'none', icon: 'Home'}} 
+          onClick={() => handleBreadcrumbClick(0)} 
+        />
+      )}
+      
+      {/* Path breadcrumbs */}
+      {breadcrumbTopics.map((topic, index) => (
+          <BreadcrumbColumn key={topic.id} topic={topic} onClick={() => handleBreadcrumbClick(index + 1)} />
+      ))}
+      
+      {/* Active Column */}
+      {(activeTopics.length > 0) && (
+        <TopicColumn
+            topics={activeTopics}
+            title={activeColumnTitle}
+            onSelect={handleSelect}
+        />
+      )}
+      
+      {/* Detail Pane or Welcome message */}
+      {detailTopic ? (
+        <DetailPane topic={detailTopic} onUpdate={onUpdate} onFocus={onFocus} />
+      ) : (
+        <div className="flex flex-1 flex-col items-center justify-center p-8 text-center text-muted-foreground">
+          <Icons.Library className="h-16 w-16 mb-4 text-primary/50" />
+          <h3 className="text-xl font-semibold">Welcome to Nexus Cortex</h3>
+          <p className="max-w-md text-sm">Select a topic from the syllabus on the left to begin your journey. Each selection will reveal more details and sub-topics.</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function SyllabusViewer() {
   const [syllabusData, setSyllabusData] = React.useState(initialSyllabusData);
@@ -242,7 +303,6 @@ export default function SyllabusViewer() {
   const [portalContainer, setPortalContainer] = React.useState<Element | null>(null);
 
   React.useEffect(() => {
-    // Find portal container after mount on client
     setPortalContainer(document.getElementById('sidebar-content-portal'));
   }, []);
 

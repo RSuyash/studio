@@ -8,12 +8,14 @@ export interface SyllabusTopic {
   tags: string[];
   mastery: MasteryLevel;
   subtopics?: SyllabusTopic[];
+  icon?: string;
 }
 
 export const initialSyllabusData: SyllabusTopic[] = [
   {
     id: 'preliminary-exam',
     title: 'Stage I: Preliminary Examination',
+    icon: 'ClipboardList',
     description: 'This stage consists of two compulsory objective-type papers. Paper I (GS) determines the cut-off, while Paper II (CSAT) is qualifying (33%). There is negative marking for incorrect answers.',
     tags: ['objective', 'qualifying'],
     mastery: 'none',
@@ -121,6 +123,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
   {
     id: 'main-exam',
     title: 'Stage II: Main Examination',
+    icon: 'PencilLine',
     description: 'A descriptive exam consisting of 9 papers. Two papers are qualifying, and the other seven are counted for the final merit ranking. Total merit marks: 1750.',
     tags: ['descriptive', 'merit-based'],
     mastery: 'none',
@@ -433,6 +436,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
   {
     id: 'interview',
     title: 'Stage III: Personality Test / Interview',
+    icon: 'Users',
     description: 'The final stage to assess suitability for a career in public service. It evaluates mental alertness, critical thinking, leadership, and integrity. Total marks: 275.',
     tags: ['interview', 'personality-test', 'final-stage'],
     mastery: 'none',
