@@ -55,7 +55,7 @@ const DashboardView = ({ setActiveView }: { setActiveView: (view: View) => void 
     return (
         <>
             <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
-                <SidebarTrigger className="md:hidden" />
+                <SidebarTrigger />
                 <div className="flex-1">
                     <h2 className="text-lg font-semibold">Dashboard</h2>
                 </div>
@@ -202,7 +202,7 @@ const SyllabusView = () => {
     return (
         <>
             <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
-                <SidebarTrigger className="md:hidden" />
+                <SidebarTrigger />
                 <div className="flex-1">
                     <h2 className="text-lg font-semibold">Syllabus Explorer</h2>
                 </div>
@@ -224,14 +224,13 @@ export default function MainLayout() {
 
   return (
     <SidebarProvider>
-      <Sidebar>
-        <SidebarTrigger />
+      <Sidebar collapsible="icon">
         <SidebarHeader>
-          <div className="flex items-center gap-2">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Icons.Logo className="size-5" />
             </div>
-            <h1 className="font-headline text-xl font-bold text-primary">Nexus Cortex</h1>
+            <h1 className="font-headline text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">Nexus Cortex</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -242,9 +241,10 @@ export default function MainLayout() {
                   isActive={activeView === item.view}
                   onClick={() => setActiveView(item.view as View)}
                   className="w-full"
+                  tooltip={item.label}
                 >
                   <item.icon className="size-4" />
-                  <span>{item.label}</span>
+                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -255,27 +255,27 @@ export default function MainLayout() {
             <SidebarMenuItem>
               <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
                 <Icons.Sparkles className="size-4" />
-                <span>Mock Test Generator</span>
+                <span className="group-data-[collapsible=icon]:hidden">Mock Test Generator</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
                 <Icons.Layers className="size-4" />
-                <span>Flashcard Maker</span>
+                <span className="group-data-[collapsible=icon]:hidden">Flashcard Maker</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <div className="flex items-center gap-3 p-2">
+          <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-1">
             <Avatar className="h-9 w-9">
                 <AvatarFallback>UA</AvatarFallback>
             </Avatar>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">
                 <p className="truncate text-sm font-semibold">UPSC Aspirant</p>
                 <p className="truncate text-xs text-sidebar-foreground/70">Test User</p>
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:hidden">
                 <Icons.Settings className="size-4" />
             </Button>
           </div>
