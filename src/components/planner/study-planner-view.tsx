@@ -10,20 +10,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import type { SyllabusTopic } from '@/lib/types';
 import { generateStudyPlan, type GenerateStudyPlanOutput } from '@/ai/flows/create-study-plan-flow';
 import { serializeSyllabusWithMastery } from '@/lib/resource-utils';
-import { BrainCircuit, CheckCircle, BookOpen, Repeat, Pencil } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { BrainCircuit, CheckCircle, BookOpen, Repeat, Pencil, Clock, ListChecks } from 'lucide-react';
+import { MultiSelect } from '@/components/ui/multi-select';
+import StatCard from '../insights/stat-card';
 
 const plannerFormSchema = z.object({
-  focusAreas: z.string().min(3, 'Please enter at least one focus area.'),
+  focusAreas: z.array(z.string()).min(1, 'Please select at least one focus area.'),
   timeframe: z.string({ required_error: 'Please select a timeframe.' }),
   hoursPerWeek: z.coerce.number().min(1, 'Please enter at least 1 hour.').max(100, 'Please enter a realistic number of hours.'),
 });
@@ -37,15 +36,40 @@ const activityIcons: Record<string, React.ElementType> = {
   Test: CheckCircle,
 };
 
+interface PlanStats {
+    totalHours: string;
+    totalTasks: number;
+    studyTasks: number;
+    revisionTasks: number;
+    practiceTasks: number;
+    testTasks: number;
+}
+
+const parseDuration = (durationStr: string): number => {
+    if (!durationStr) return 0;
+    const parts = durationStr.toLowerCase().split(' ');
+    const value = parseFloat(parts[0]);
+    if (isNaN(value)) return 0;
+
+    if (parts[1].startsWith('hr')) {
+        return value * 60;
+    }
+    if (parts[1].startsWith('min')) {
+        return value;
+    }
+    return 0;
+};
+
 export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData: SyllabusTopic[] }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [studyPlan, setStudyPlan] = React.useState<GenerateStudyPlanOutput | null>(null);
+  const [planStats, setPlanStats] = React.useState<PlanStats | null>(null);
   const { toast } = useToast();
 
   const form = useForm<PlannerFormValues>({
     resolver: zodResolver(plannerFormSchema),
     defaultValues: {
-      focusAreas: '',
+      focusAreas: [],
       timeframe: '1 Week',
       hoursPerWeek: 20,
     },
@@ -55,13 +79,52 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
     return serializeSyllabusWithMastery(allSyllabusData);
   }, [allSyllabusData]);
 
+  const focusAreaOptions = React.useMemo(() => {
+    return allSyllabusData.map(topic => ({
+      value: topic.title,
+      label: topic.title,
+    }));
+  }, [allSyllabusData]);
+  
+  React.useEffect(() => {
+    if (!studyPlan) {
+        setPlanStats(null);
+        return;
+    }
+
+    let totalMinutes = 0;
+    let studyTasks = 0, revisionTasks = 0, practiceTasks = 0, testTasks = 0;
+    
+    studyPlan.plan.forEach(dailyPlan => {
+        dailyPlan.tasks.forEach(task => {
+            totalMinutes += parseDuration(task.duration);
+            switch(task.activity) {
+                case 'Study': studyTasks++; break;
+                case 'Revise': revisionTasks++; break;
+                case 'Practice': practiceTasks++; break;
+                case 'Test': testTasks++; break;
+            }
+        });
+    });
+
+    setPlanStats({
+        totalHours: (totalMinutes / 60).toFixed(1),
+        totalTasks: studyPlan.plan.flatMap(p => p.tasks).length,
+        studyTasks,
+        revisionTasks,
+        practiceTasks,
+        testTasks
+    });
+
+  }, [studyPlan]);
+
+
   const onSubmit = async (values: PlannerFormValues) => {
     setIsLoading(true);
     setStudyPlan(null);
     try {
-      const focusAreasArray = values.focusAreas.split(',').map(s => s.trim()).filter(Boolean);
       const result = await generateStudyPlan({
-        focusAreas: focusAreasArray,
+        focusAreas: values.focusAreas,
         timeframe: values.timeframe,
         hoursPerWeek: values.hoursPerWeek,
         syllabusContext,
@@ -103,11 +166,12 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Focus Areas</FormLabel>
-                            <Textarea
-                              {...field}
-                              placeholder="e.g., Modern History, Indian Polity, GS-IV Ethics"
-                              className="min-h-[100px]"
-                            />
+                             <MultiSelect
+                                options={focusAreaOptions}
+                                selected={field.value}
+                                onChange={field.onChange}
+                                placeholder="Select focus areas..."
+                             />
                             <FormMessage />
                           </FormItem>
                         )}
@@ -201,6 +265,19 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
                       <AlertTitle className="font-semibold text-primary">AI Plan Summary</AlertTitle>
                       <AlertDescription className="text-foreground/90">{studyPlan.summary}</AlertDescription>
                     </Alert>
+
+                     {planStats && (
+                        <div>
+                             <h3 className="text-lg font-semibold mb-4">Plan Analytics</h3>
+                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                 <StatCard Icon={Clock} title="Total Hours" value={planStats.totalHours} description="Total planned study time"/>
+                                 <StatCard Icon={ListChecks} title="Total Tasks" value={planStats.totalTasks} description="Total number of activities"/>
+                                 <StatCard Icon={BookOpen} title="Study Tasks" value={planStats.studyTasks} description={`Study: ${planStats.studyTasks} | Revise: ${planStats.revisionTasks}`}/>
+                                 <StatCard Icon={Pencil} title="Practice Tasks" value={planStats.practiceTasks} description={`Practice: ${planStats.practiceTasks} | Test: ${planStats.testTasks}`}/>
+                             </div>
+                        </div>
+                     )}
+
 
                     {studyPlan.plan.map((dailyPlan, index) => (
                       <Card key={index}>

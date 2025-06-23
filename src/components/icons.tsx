@@ -21,6 +21,7 @@ import {
   BookMarked,
   HelpCircle,
   ListTodo,
+  ListChecks,
 } from 'lucide-react';
 
 export type Icon = LucideIcon;
@@ -47,4 +48,5 @@ export const Icons = {
   BookMarked,
   HelpCircle,
   ListTodo,
+  ListChecks,
 };
