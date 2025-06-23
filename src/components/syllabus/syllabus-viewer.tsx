@@ -4,18 +4,18 @@
 import * as React from "react";
 import dynamic from "next/dynamic";
 import type { SyllabusTopic } from "@/lib/types";
-import FocusModeDialog from "./focus-mode-dialog";
 import FilterPanel from "./filter-panel";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { updateTopicInTree, getAllTagsFromTree, filterSyllabus } from "@/lib/resource-utils";
+import { updateTopicInTree, getAllTagsFromTree, filterSyllabus, findTopicById } from "@/lib/resource-utils";
 import { SyllabusExplorer } from "./syllabus-explorer";
+import { DetailPane } from "./detail-pane";
 import { SidebarTrigger } from "../ui/sidebar";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { BookOpen, SlidersHorizontal } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { SyllabusType } from "../main-layout";
+import { Icons } from "../icons";
 
 const MindMapView = dynamic(() => import("./mind-map-view"), {
   ssr: false,
@@ -31,28 +31,29 @@ const SyllabusHeader = ({
   activeSyllabus: SyllabusType; 
   onSyllabusChange: (value: SyllabusType) => void;
 }) => (
-    <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:px-6">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center gap-4">
             <SidebarTrigger />
-            <BookOpen className="h-6 w-6" />
             <div className="flex items-center gap-4">
                 <h2 className="text-lg font-semibold">Syllabus Explorer</h2>
-                 <Select value={activeSyllabus} onValueChange={onSyllabusChange}>
-                  <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select Exam" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="upsc">UPSC CSE</SelectItem>
-                      <SelectItem value="mpsc">MPSC Rajyaseva</SelectItem>
-                  </SelectContent>
-              </Select>
             </div>
         </div>
-        <Button variant="outline" size="icon" className="lg:hidden" onClick={onFilterToggle}>
-            <SlidersHorizontal className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+           <Select value={activeSyllabus} onValueChange={onSyllabusChange}>
+              <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Exam" />
+              </SelectTrigger>
+              <SelectContent>
+                  <SelectItem value="upsc">UPSC CSE</SelectItem>
+                  <SelectItem value="mpsc">MPSC Rajyaseva</SelectItem>
+              </SelectContent>
+          </Select>
+          <Button variant="outline" size="icon" onClick={onFilterToggle}>
+              <SlidersHorizontal className="h-4 w-4" />
+          </Button>
+        </div>
     </header>
-)
+);
 
 export default function SyllabusViewer({ 
   syllabusData, 
@@ -65,13 +66,9 @@ export default function SyllabusViewer({
   activeSyllabus: SyllabusType,
   setActiveSyllabus: (syllabus: SyllabusType) => void,
 }) {
-  const [focusTopic, setFocusTopic] = React.useState<SyllabusTopic | null>(null);
+  const [selectedTopicId, setSelectedTopicId] = React.useState<string | null>(null);
   const [selectedTags, setSelectedTags] = React.useState(new Set<string>());
   const [mobileFilterOpen, setMobileFilterOpen] = React.useState(false);
-
-  const handleFocusTopic = React.useCallback((topic: SyllabusTopic) => {
-    setFocusTopic(topic);
-  }, []);
   
   const handleUpdateTopic = React.useCallback(
     (id: string, updates: Partial<SyllabusTopic>) => {
@@ -95,10 +92,19 @@ export default function SyllabusViewer({
   const allTags = React.useMemo(() => Array.from(getAllTagsFromTree(syllabusData)).sort(), [syllabusData]);
   const filteredData = React.useMemo(() => filterSyllabus(syllabusData, selectedTags), [syllabusData, selectedTags]);
   
-  // Reset filters when syllabus changes
+  // When switching syllabus or filtering, reset selection if the selected topic is no longer visible
+  React.useEffect(() => {
+      if (selectedTopicId && !findTopicById(filteredData, selectedTopicId)) {
+          setSelectedTopicId(null);
+      }
+  }, [filteredData, selectedTopicId]);
+
+  // Reset selection and filters when syllabus source changes
   React.useEffect(() => {
     setSelectedTags(new Set<string>());
+    setSelectedTopicId(null);
   }, [activeSyllabus]);
+
 
   const filterPanelContent = (
       <FilterPanel 
@@ -109,45 +115,29 @@ export default function SyllabusViewer({
   );
   
   return (
-    <>
+    <div className="flex h-screen flex-col">
       <SyllabusHeader 
         onFilterToggle={() => setMobileFilterOpen(true)}
         activeSyllabus={activeSyllabus}
-        onSyllabusChange={setActiveSyllabus}
+        onSyllabusChange={(syllabus) => {
+          setActiveSyllabus(syllabus);
+        }}
       />
-      <main className="flex h-[calc(100vh-3.5rem)] items-start">
-        <aside className="sticky top-0 hidden h-full w-64 flex-shrink-0 border-r lg:block">
-            {filterPanelContent}
-        </aside>
-        <div className="min-w-0 flex-1 p-4 md:p-6 h-full overflow-y-auto">
-          <Tabs defaultValue="explorer" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="explorer">Explorer</TabsTrigger>
-              <TabsTrigger value="mindmap">
-                Mind Map
-              </TabsTrigger>
-              <TabsTrigger value="timeline" disabled>
-                Timeline
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="explorer" className="h-[calc(100%-3rem)]">
-              {filteredData.length > 0 ? (
-                <SyllabusExplorer
-                  data={filteredData}
-                  onUpdate={handleUpdateTopic}
-                  onFocus={handleFocusTopic}
-                />
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-card p-12 text-center">
-                  <h3 className="text-lg font-semibold">No topics match your filter.</h3>
-                  <p className="text-sm text-muted-foreground">Try selecting different tags or clearing the filter.</p>
-                </div>
-              )}
-            </TabsContent>
-            <TabsContent value="mindmap">
-              <MindMapView data={syllabusData} />
-            </TabsContent>
-          </Tabs>
+      <main className="flex min-h-0 flex-1">
+        <div className="hidden h-full w-full max-w-xs border-r lg:block">
+          <SyllabusExplorer
+            data={filteredData}
+            selectedTopicId={selectedTopicId}
+            onSelectTopic={setSelectedTopicId}
+            title={activeSyllabus === 'upsc' ? "UPSC Syllabus" : "MPSC Syllabus"}
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <DetailPane 
+            syllabusData={syllabusData}
+            selectedTopicId={selectedTopicId}
+            onUpdate={handleUpdateTopic}
+          />
         </div>
       </main>
 
@@ -159,14 +149,22 @@ export default function SyllabusViewer({
             <div className="py-4">
                 {filterPanelContent}
             </div>
+             <SheetHeader className="mt-4 border-t pt-4">
+                <SheetTitle>Explore Syllabus</SheetTitle>
+            </SheetHeader>
+             <div className="py-4">
+                <SyllabusExplorer
+                  data={filteredData}
+                  selectedTopicId={selectedTopicId}
+                  onSelectTopic={(id) => {
+                    setSelectedTopicId(id);
+                    setMobileFilterOpen(false); // Close sheet on selection
+                  }}
+                  title={activeSyllabus === 'upsc' ? "UPSC Syllabus" : "MPSC Syllabus"}
+                />
+            </div>
         </SheetContent>
       </Sheet>
-
-      <FocusModeDialog
-        isOpen={!!focusTopic}
-        topic={focusTopic}
-        onClose={() => setFocusTopic(null)}
-      />
-    </>
+    </div>
   );
 }

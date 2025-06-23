@@ -3,95 +3,103 @@
 
 import * as React from "react";
 import type { SyllabusTopic } from "@/lib/types";
-import { Separator } from "@/components/ui/separator";
-import { Icons } from "@/components/icons";
-import { findTopicById } from "@/lib/resource-utils";
-import { SyllabusBreadcrumb } from "./syllabus-breadcrumb";
-import { TopicColumn } from "./topic-column";
-import { DetailPane } from "./detail-pane";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CheckCircle, ChevronRight, Circle, Info } from 'lucide-react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
+interface SyllabusExplorerProps {
+    data: SyllabusTopic[];
+    selectedTopicId: string | null;
+    onSelectTopic: (id: string) => void;
+    title: string;
+}
 
-export const SyllabusExplorer = ({ data, onUpdate, onFocus }: { data: SyllabusTopic[], onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void, onFocus: (topic: SyllabusTopic) => void }) => {
-  const [selectedPath, setSelectedPath] = React.useState<string[]>([]);
-  
-  React.useEffect(() => {
-    if (data.length > 0 && selectedPath.length > 0) {
-        let validPath = true;
-        let currentTopics = data;
-        for (const topicId of selectedPath) {
-            const found = findTopicById(currentTopics, topicId);
-            if (found) {
-                currentTopics = found.subtopics || [];
-            } else {
-                validPath = false;
-                break;
-            }
-        }
-        if (!validPath) {
-            setSelectedPath([]);
-        }
-    }
-  }, [data, selectedPath]);
-  
-  const breadcrumbTopics: SyllabusTopic[] = React.useMemo(() => {
-    const topics: SyllabusTopic[] = [];
-    let currentLevelTopics = data;
-    for (const topicId of selectedPath) {
-      const foundTopic = findTopicById(currentLevelTopics, topicId);
-      if (foundTopic) {
-        topics.push(foundTopic);
-        currentLevelTopics = foundTopic.subtopics || [];
-      } else {
-        break; 
-      }
-    }
-    return topics;
-  }, [data, selectedPath]);
+const TopicNode: React.FC<{
+  topic: SyllabusTopic;
+  level: number;
+  selectedTopicId: string | null;
+  onSelectTopic: (id: string) => void;
+}> = ({ topic, level, selectedTopicId, onSelectTopic }) => {
+  const [isExpanded, setIsExpanded] = React.useState(level < 1); // Expand top levels by default
+  const hasSubtopics = topic.subtopics && topic.subtopics.length > 0;
+  const isActive = selectedTopicId === topic.id;
 
-  const activeColumnParent = breadcrumbTopics[breadcrumbTopics.length - 1];
-  const activeTopics = activeColumnParent ? activeColumnParent.subtopics || [] : data;
-  const activeColumnTitle = activeColumnParent ? activeColumnParent.title : "UPSC Syllabus";
-  const detailTopic = activeColumnParent;
-  
-  const handleSelect = (topicId: string) => {
-    setSelectedPath(prev => [...prev, topicId]);
+  const Icon = topic.mastery === 'expert' ? CheckCircle : topic.mastery === 'advanced' ? Info : Circle;
+
+  const handleSelect = () => {
+    onSelectTopic(topic.id);
   };
-  
-  const handleBreadcrumbClick = (level: number) => {
-    setSelectedPath(prev => prev.slice(0, level));
-  };
-  
-  const hasSubtopics = activeTopics && activeTopics.length > 0;
-  
+
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border bg-card text-card-foreground shadow-inner">
-      <SyllabusBreadcrumb 
-        topics={breadcrumbTopics}
-        onClickHome={() => handleBreadcrumbClick(0)}
-        onClickTopic={handleBreadcrumbClick}
-      />
-       <div className="flex flex-1 overflow-hidden">
-        {hasSubtopics ? (
-          <>
-            <TopicColumn
-              topics={activeTopics}
-              title={activeColumnTitle}
-              onSelect={handleSelect}
+    <div>
+        <div className={cn(
+            "group flex items-center gap-2 rounded-md pr-2",
+            isActive && "bg-primary/10"
+        )}>
+            <Button
+                variant="ghost"
+                onClick={handleSelect}
+                className={cn(
+                  "flex-1 justify-start truncate whitespace-nowrap text-left font-normal",
+                  isActive && "font-semibold text-primary",
+                )}
+                style={{ paddingLeft: `${level * 1.5 + 0.75}rem` }}
+            >
+                <Icon className={cn("mr-2 h-4 w-4 shrink-0", 
+                  topic.mastery === 'expert' ? 'text-green-500' : 'text-muted-foreground'
+                )} />
+                {topic.title}
+            </Button>
+            {hasSubtopics && (
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setIsExpanded(!isExpanded)}>
+                    <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", isExpanded && "rotate-90")} />
+                </Button>
+            )}
+        </div>
+      {isExpanded && hasSubtopics && (
+        <div className="flex flex-col">
+          {topic.subtopics.map(subtopic => (
+            <TopicNode 
+              key={subtopic.id} 
+              topic={subtopic} 
+              level={level + 1} 
+              selectedTopicId={selectedTopicId}
+              onSelectTopic={onSelectTopic}
             />
-            <Separator orientation="vertical" className="h-full" />
-          </>
-        ) : null}
-        
-        {detailTopic ? (
-          <DetailPane topic={detailTopic} onUpdate={onUpdate} onFocus={onFocus} />
-        ) : (
-          <div className="flex flex-1 flex-col items-center justify-center p-8 text-center text-muted-foreground">
-            <Icons.Library className="h-16 w-16 mb-4 text-primary/50" />
-            <h3 className="font-headline text-xl font-semibold">Welcome to Nexus Cortex</h3>
-            <p className="max-w-md text-sm">Select a topic from the syllabus on the left to begin your journey. Each selection will reveal more details and sub-topics.</p>
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+export const SyllabusExplorer: React.FC<SyllabusExplorerProps> = ({ data, selectedTopicId, onSelectTopic, title }) => {
+  return (
+    <div className="flex h-full flex-col">
+       <div className="flex h-14 items-center px-4">
+            <h3 className="text-lg font-medium">{title}</h3>
+       </div>
+      <ScrollArea className="flex-1">
+        <div className="p-2">
+            {data.map(topic => (
+                <TopicNode 
+                    key={topic.id}
+                    topic={topic}
+                    level={0}
+                    selectedTopicId={selectedTopicId}
+                    onSelectTopic={onSelectTopic}
+                />
+            ))}
+        </div>
+      </ScrollArea>
     </div>
   );
 };

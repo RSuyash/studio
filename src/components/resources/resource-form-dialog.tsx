@@ -32,7 +32,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { SyllabusTopic, ResourceWithTopicInfo } from '@/lib/types';
-import { findTopicById, findPathToTopic, bookSubjects, bookSubjectTopicMap, topicIdToBookSubjectMap } from '@/lib/resource-utils';
+import { findTopicById, findPathToTopicId, bookSubjects, bookSubjectTopicMap, topicIdToBookSubjectMap } from '@/lib/resource-utils';
 import { categoryInfoMap } from './resource-card';
 
 const resourceSchema = z.object({
@@ -96,7 +96,7 @@ export default function ResourceFormDialog({
                     const subject = topicIdToBookSubjectMap[resourceToEdit.topicId];
                     setSelectedSubject(subject || '');
                 } else {
-                    const path = findPathToTopic(syllabusData, resourceToEdit.topicId);
+                    const path = findPathToTopicId(syllabusData, resourceToEdit.topicId);
                     setSelectedPath(path || []);
                 }
             } else {

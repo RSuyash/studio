@@ -3,22 +3,14 @@
 
 import * as React from "react";
 import type { SyllabusTopic, MasteryLevel, Resource, ResourceCategory } from "@/lib/types";
-import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
-import { Maximize, Tag, Link, Plus, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { Tag, Link as LinkIcon, Plus, MoreHorizontal, Edit, Trash2, FileText, Library } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,8 +29,54 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { SyllabusBreadcrumb } from "./syllabus-breadcrumb";
+import { findTopicPath } from "@/lib/resource-utils";
 
-export const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic, onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void, onFocus: (topic: SyllabusTopic) => void }) => {
+const ResourceDisplayCard = ({ resource }: { resource: Resource }) => {
+    const isLink = resource.category === 'lecture-playlist' || resource.category === 'lecture-video';
+    const Icon = isLink ? LinkIcon : FileText;
+
+    return (
+        <a href={resource.url} target="_blank" rel="noopener noreferrer" className="block rounded-lg border bg-card text-card-foreground shadow-sm transition-colors hover:bg-muted/50">
+            <div className="flex items-center gap-4 p-4">
+                 <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                    isLink ? "bg-yellow-100 text-yellow-600" : "bg-red-100 text-red-600"
+                 )}>
+                    <Icon className="h-5 w-5" />
+                </div>
+                <div className="flex-1 truncate">
+                    <p className="truncate font-medium">{resource.title}</p>
+                    <p className="truncate text-xs text-muted-foreground">{resource.url}</p>
+                </div>
+            </div>
+        </a>
+    )
+}
+
+const EmptyState = () => (
+    <div className="flex h-full flex-col items-center justify-center p-8 text-center text-muted-foreground">
+        <Library className="h-16 w-16 mb-4 text-primary/20" />
+        <h3 className="text-xl font-semibold text-foreground">Select a Topic</h3>
+        <p className="max-w-md text-sm">Choose a topic from the syllabus on the left to see its details, add resources, and track your mastery level.</p>
+    </div>
+)
+
+export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllabusData: SyllabusTopic[], selectedTopicId: string | null, onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void }) => {
+    
+    const [topic, setTopic] = React.useState<SyllabusTopic | null>(null);
+    const [path, setPath] = React.useState<SyllabusTopic[]>([]);
+
+    React.useEffect(() => {
+        if (selectedTopicId) {
+            const { topic, path } = findTopicPath(syllabusData, selectedTopicId) || {};
+            setTopic(topic || null);
+            setPath(path || []);
+        } else {
+            setTopic(null);
+            setPath([]);
+        }
+    }, [selectedTopicId, syllabusData]);
+
     // State for adding new items
     const [newTag, setNewTag] = React.useState('');
     const [tagPopoverOpen, setTagPopoverOpen] = React.useState(false);
@@ -63,6 +101,10 @@ export const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic,
             setEditCategory(editingResource.category);
         }
     }, [editingResource]);
+
+    if (!topic) {
+        return <EmptyState />;
+    }
 
     const handleMasteryChange = (level: MasteryLevel) => {
         onUpdate(topic.id, { mastery: level });
@@ -122,126 +164,98 @@ export const DetailPane = ({ topic, onUpdate, onFocus }: { topic: SyllabusTopic,
     };
     
     return (
-        <ScrollArea className="hidden flex-1 md:block">
-            <div className="p-6">
-                <div className="space-y-6">
-                    <div className="flex items-start justify-between gap-4">
-                        <CardTitle className="font-headline text-2xl text-primary">{topic.title}</CardTitle>
-                        <div className="flex gap-2 flex-shrink-0">
-                            <MasteryControl currentLevel={topic.mastery} onLevelChange={handleMasteryChange} />
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onFocus(topic)}>
-                                <Maximize className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    </div>
-                    <CardDescription>{topic.description}</CardDescription>
-                    
-                    <div>
-                        <h4 className="mb-2 text-sm font-semibold text-muted-foreground">Tags</h4>
-                        <div className="flex flex-wrap items-center gap-2">
-                            {topic.tags.length > 0 ? (
-                                topic.tags.map((tag) => <Badge key={tag} variant="secondary" className="capitalize">{tag}</Badge>)
-                            ) : (
-                                <p className="text-sm text-muted-foreground">No tags for this topic.</p>
-                            )}
-                            <Popover open={tagPopoverOpen} onOpenChange={(isOpen) => { setTagPopoverOpen(isOpen); if (!isOpen) setNewTag(''); }}>
-                                <PopoverTrigger asChild>
-                                    <Button variant="outline" size="icon" className="h-6 w-6">
-                                        <Tag className="h-3 w-3" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-60">
-                                    <form onSubmit={handleAddTag} className="grid gap-4">
-                                        <div className="space-y-2">
-                                            <h4 className="font-medium leading-none">Add Tag</h4>
-                                            <p className="text-sm text-muted-foreground">Add a new tag to this topic.</p>
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="new-tag" className="sr-only">New Tag</Label>
-                                            <Input id="new-tag" value={newTag} onChange={(e) => setNewTag(e.target.value)} placeholder="e.g. 'core-concept'"/>
-                                            <Button type="submit" size="sm">Add Tag</Button>
-                                        </div>
-                                    </form>
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                    </div>
+        <ScrollArea className="h-full">
+            <div className="space-y-6 p-6">
+                <SyllabusBreadcrumb path={path} />
 
-                    <Separator />
+                <div className="flex items-start justify-between gap-4">
+                    <h1 className="text-3xl font-bold">{topic.title}</h1>
+                    <MasteryControl currentLevel={topic.mastery} onLevelChange={handleMasteryChange} />
+                </div>
 
-                    <div>
-                        <h4 className="mb-2 text-sm font-semibold text-muted-foreground">Resources</h4>
-                        <div className="space-y-2">
-                            {(topic.resources && topic.resources.length > 0) ? (
-                                topic.resources.map((resource) => (
-                                    <div key={resource.id} className="group flex items-center gap-3 rounded-md border p-3 transition-colors">
-                                        <Link className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                                        <a href={resource.url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate text-sm font-medium hover:underline">
-                                            {resource.title}
-                                        </a>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onSelect={() => setEditingResource(resource)}>
-                                                    <Edit className="mr-2 h-4 w-4" /> Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onSelect={() => setResourceToDelete(resource)} className="text-destructive focus:text-destructive">
-                                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-sm text-muted-foreground">No resources added for this topic yet.</p>
-                            )}
-                        </div>
-                         <Popover open={resourcePopoverOpen} onOpenChange={(isOpen) => { setResourcePopoverOpen(isOpen); if(!isOpen) { setNewResourceTitle(''); setNewResourceUrl(''); } }}>
+                <p className="text-muted-foreground">{topic.description}</p>
+                
+                <div>
+                    <h4 className="mb-3 text-sm font-semibold text-muted-foreground">Tags</h4>
+                    <div className="flex flex-wrap items-center gap-2">
+                        {topic.tags.length > 0 ? (
+                            topic.tags.map((tag) => <Badge key={tag} variant="secondary" className="capitalize">{tag}</Badge>)
+                        ) : (
+                            <p className="text-sm text-muted-foreground">No tags have been added to this topic.</p>
+                        )}
+                        <Popover open={tagPopoverOpen} onOpenChange={(isOpen) => { setTagPopoverOpen(isOpen); if (!isOpen) setNewTag(''); }}>
                             <PopoverTrigger asChild>
-                                <Button variant="outline" size="sm" className="mt-4">
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Add Resource
+                                <Button variant="outline" size="icon" className="h-6 w-6">
+                                    <Tag className="h-3 w-3" />
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80">
-                                <form onSubmit={handleAddResource} className="grid gap-4">
+                            <PopoverContent className="w-60">
+                                <form onSubmit={handleAddTag} className="grid gap-4">
                                     <div className="space-y-2">
-                                        <h4 className="font-medium leading-none">Add Resource</h4>
-                                        <p className="text-sm text-muted-foreground">Add a link to a helpful resource.</p>
+                                        <h4 className="font-medium leading-none">Add Tag</h4>
                                     </div>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="resource-title">Title</Label>
-                                        <Input id="resource-title" value={newResourceTitle} onChange={(e) => setNewResourceTitle(e.target.value)} placeholder="e.g., 'NCERT Chapter PDF'" />
+                                        <Label htmlFor="new-tag" className="sr-only">New Tag</Label>
+                                        <Input id="new-tag" value={newTag} onChange={(e) => setNewTag(e.target.value)} placeholder="e.g. 'core-concept'"/>
+                                        <Button type="submit" size="sm">Add Tag</Button>
                                     </div>
-                                     <div className="grid gap-2">
-                                        <Label htmlFor="resource-url">URL</Label>
-                                        <Input id="resource-url" value={newResourceUrl} onChange={(e) => setNewResourceUrl(e.target.value)} placeholder="example.com" />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="resource-category">Category</Label>
-                                        <Select onValueChange={(v) => setNewResourceCategory(v as ResourceCategory)} defaultValue={newResourceCategory}>
-                                            <SelectTrigger><SelectValue /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="book-reference">Reference Book</SelectItem>
-                                                <SelectItem value="book-ncert">NCERT Book</SelectItem>
-                                                <SelectItem value="lecture-playlist">YouTube Playlist</SelectItem>
-                                                <SelectItem value="lecture-video">YouTube Video</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <Button type="submit" size="sm">Add Resource</Button>
                                 </form>
                             </PopoverContent>
                         </Popover>
                     </div>
+                </div>
+                
+                <div>
+                    <h4 className="mb-3 text-sm font-semibold text-muted-foreground">Resources</h4>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        {(topic.resources && topic.resources.length > 0) &&
+                            topic.resources.map((resource) => (
+                                <ResourceDisplayCard key={resource.id} resource={resource} />
+                            ))
+                        }
+                    </div>
 
+                    <Popover open={resourcePopoverOpen} onOpenChange={(isOpen) => { setResourcePopoverOpen(isOpen); if(!isOpen) { setNewResourceTitle(''); setNewResourceUrl(''); } }}>
+                        <PopoverTrigger asChild>
+                           <Button variant="ghost" className="mt-4 w-full justify-start border-2 border-dashed p-4 text-muted-foreground hover:bg-muted/50 hover:text-foreground">
+                                <Plus className="mr-2 h-4 w-4" />
+                                Add Resource
+                           </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                            <form onSubmit={handleAddResource} className="grid gap-4">
+                                <div className="space-y-2">
+                                    <h4 className="font-medium leading-none">Add Resource</h4>
+                                    <p className="text-sm text-muted-foreground">Add a link to a helpful resource.</p>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="resource-title">Title</Label>
+                                    <Input id="resource-title" value={newResourceTitle} onChange={(e) => setNewResourceTitle(e.target.value)} placeholder="e.g., 'NCERT Chapter PDF'" />
+                                </div>
+                                 <div className="grid gap-2">
+                                    <Label htmlFor="resource-url">URL</Label>
+                                    <Input id="resource-url" value={newResourceUrl} onChange={(e) => setNewResourceUrl(e.target.value)} placeholder="example.com" />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="resource-category">Category</Label>
+                                    <Select onValueChange={(v) => setNewResourceCategory(v as ResourceCategory)} defaultValue={newResourceCategory}>
+                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="book-reference">Reference Book</SelectItem>
+                                            <SelectItem value="book-ncert">NCERT Book</SelectItem>
+                                            <SelectItem value="lecture-playlist">YouTube Playlist</SelectItem>
+                                            <SelectItem value="lecture-video">YouTube Video</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <Button type="submit" size="sm">Add Resource</Button>
+                            </form>
+                        </PopoverContent>
+                    </Popover>
                 </div>
             </div>
-            {/* Edit Resource Dialog */}
+
+             {/* Edit Resource Dialog - Kept for functionality */}
             <Dialog open={!!editingResource} onOpenChange={(isOpen) => !isOpen && setEditingResource(null)}>
                 <DialogContent>
                     <DialogHeader>

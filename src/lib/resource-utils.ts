@@ -59,18 +59,41 @@ export const getAllResources = (
 };
 
 
-export const findPathToTopic = (topics: SyllabusTopic[], id: string, currentPath: string[] = []): string[] | null => {
+export const findPathToTopicId = (topics: SyllabusTopic[], id: string, currentPath: string[] = []): string[] | null => {
     for (const topic of topics) {
         const newPath = [...currentPath, topic.id];
         if (topic.id === id) {
             return newPath;
         }
         if (topic.subtopics) {
-            const foundPath = findPathToTopic(topic.subtopics, id, newPath);
+            const foundPath = findPathToTopicId(topic.subtopics, id, newPath);
             if (foundPath) return foundPath;
         }
     }
     return null;
+};
+
+export const findTopicPath = (topics: SyllabusTopic[], topicId: string): { topic: SyllabusTopic, path: SyllabusTopic[] } | null => {
+    const pathIds = findPathToTopicId(topics, topicId);
+    if (!pathIds) return null;
+
+    let currentTopics = topics;
+    const path: SyllabusTopic[] = [];
+    let foundTopic: SyllabusTopic | undefined;
+
+    for (const id of pathIds) {
+        foundTopic = currentTopics.find(t => t.id === id);
+        if (foundTopic) {
+            path.push(foundTopic);
+            currentTopics = foundTopic.subtopics || [];
+        } else {
+            return null; // Should not happen if pathIds is correct
+        }
+    }
+
+    if (!foundTopic) return null;
+
+    return { topic: foundTopic, path };
 };
 
 
@@ -122,7 +145,7 @@ export const subjects = Object.values(subjectTopicMap);
 export const ncertClasses = ['VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 
 export const getSubjectForResource = (resource: ResourceWithTopicInfo, topics: SyllabusTopic[]): string => {
-    const path = findPathToTopic(topics, resource.topicId);
+    const path = findPathToTopicId(topics, resource.topicId);
     if (!path || path.length === 0) {
         return 'Uncategorized';
     }

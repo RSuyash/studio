@@ -22,6 +22,7 @@ import ResourceItem from './resource-item';
 import ResourceCard from './resource-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { SidebarTrigger } from '../ui/sidebar';
 
 const EmptyState = ({ title, description }: { title: string; description: string }) => (
     <div className="flex h-[40vh] flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-card p-12 text-center">
@@ -155,6 +156,7 @@ export default function ResourcesView({
     <>
       <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center gap-4">
+            <SidebarTrigger />
             <Library className="h-6 w-6" />
             <h2 className="text-lg font-semibold">My Resources</h2>
         </div>
@@ -173,7 +175,7 @@ export default function ResourcesView({
             
             <TabsContent value="ncerts" className="pt-4">
               {groupedResources.hasNcerts ? (
-                <Accordion type="multiple" className="w-full">
+                <Accordion type="multiple" className="w-full" defaultValue={ncertClasses.map(c => `class-${c}`)}>
                   {ncertClasses.map(c => {
                     const resourcesForClass = groupedResources.ncertsByClass[c];
                     return resourcesForClass && resourcesForClass.length > 0 ? (
@@ -195,7 +197,7 @@ export default function ResourcesView({
             
             <TabsContent value="standard" className="pt-4">
                {groupedResources.hasStandard ? (
-                  <Accordion type="multiple" className="w-full">
+                  <Accordion type="multiple" className="w-full" defaultValue={subjects}>
                     {subjects.map(subject => {
                         const resourcesForSubject = groupedResources.standardBySubject[subject];
                         return resourcesForSubject && resourcesForSubject.length > 0 ? (
