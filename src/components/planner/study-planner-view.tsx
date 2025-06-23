@@ -10,7 +10,7 @@ import { Icons } from '../icons';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import type { SyllabusTopic } from '@/lib/types';
@@ -22,6 +22,7 @@ import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { findTopicById } from '@/lib/resource-utils';
+import { Card, CardContent } from '../ui/card';
 
 
 const plannerFormSchema = z.object({
@@ -34,23 +35,15 @@ type PlannerFormValues = z.infer<typeof plannerFormSchema>;
 
 type ActivityType = 'Study' | 'Revise' | 'Practice' | 'Test' | 'Weekly Revision' | 'Analyze Test';
 
-const activityIconMap: Record<ActivityType, React.ElementType> = {
-    Study: BookOpen,
-    Revise: Repeat,
-    'Weekly Revision': CalendarDays,
-    Test: ListChecks,
-    'Analyze Test': BrainCircuit,
-    Practice: Pencil,
+const activityInfo: Record<ActivityType, { icon: React.ElementType, color: string }> = {
+    Study: { icon: BookOpen, color: 'border-blue-500' },
+    Revise: { icon: Repeat, color: 'border-green-500' },
+    'Weekly Revision': { icon: CalendarDays, color: 'border-green-500' },
+    Test: { icon: ListChecks, color: 'border-pink-500' },
+    'Analyze Test': { icon: BrainCircuit, color: 'border-pink-500' },
+    Practice: { icon: Pencil, color: 'border-yellow-500' },
 };
 
-const activityColors: Record<ActivityType, string> = {
-    Study: 'border-blue-500',
-    Revise: 'border-green-500',
-    'Weekly Revision': 'border-green-500',
-    Test: 'border-pink-500',
-    'Analyze Test': 'border-pink-500',
-    Practice: 'border-yellow-500',
-};
 
 const suggestedPriorities = [
     { icon: Lightbulb, text: "**Focus on Polity:** Your test accuracy is low (45%)." },
@@ -68,7 +61,6 @@ const parseDurationToHours = (durationStr: string): number => {
     const minutesMatch = lowerCaseStr.match(/([\d.]+)\s*m/);
     if (minutesMatch) hours += parseFloat(minutesMatch[1]) / 60;
     
-    // If no h/m suffix, assume it's hours
     if (!hoursMatch && !minutesMatch) {
       const numberMatch = lowerCaseStr.match(/[\d.]+/);
       if (numberMatch) hours = parseFloat(numberMatch[0]);
@@ -163,17 +155,17 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
           <h2 className="text-lg font-semibold">Strategic Study Planner</h2>
       </header>
 
-      <div className="grid min-h-0 flex-1 md:grid-cols-[1fr_2fr] lg:grid-cols-[2fr_3fr] xl:grid-cols-[1fr_2fr]">
+      <div className="grid min-h-0 flex-1 md:grid-cols-[400px_1fr]">
           <div className="flex flex-col border-r bg-muted/40 p-4 lg:p-6">
               <ScrollArea className="flex-1 pr-4">
                   <Form {...form}>
                       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                          <FormField
+                           <FormField
                               control={form.control}
                               name="focusAreas"
                               render={({ field }) => (
                                   <FormItem>
-                                      <FormLabel>What are your focus areas?</FormLabel>
+                                      <FormLabel className="font-semibold">What are your focus areas?</FormLabel>
                                       <FormControl>
                                           <Textarea
                                               placeholder="e.g., plan for MPSC GS Paper IV and revise UPSC Modern History"
@@ -188,7 +180,7 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
                           />
 
                           <div className="space-y-6">
-                              <h3 className="text-sm font-semibold text-foreground">Set Your Time Commitment</h3>
+                              <h3 className="text-base font-semibold text-foreground">Set Your Time Commitment</h3>
                               <FormField
                                   control={form.control}
                                   name="timeframe"
@@ -231,7 +223,7 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
                           </div>
 
                           <div className="space-y-4">
-                              <h3 className="text-sm font-semibold text-foreground">AI-Suggested Priorities</h3>
+                              <h3 className="text-base font-semibold text-foreground">AI-Suggested Priorities</h3>
                               <div className="space-y-2">
                               {suggestedPriorities.map((priority, i) => (
                                   <Alert key={i} className="bg-primary/5 border-primary/10">
@@ -252,7 +244,7 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
                                       <BrainCircuit className="mr-2 h-4 w-4 animate-spin" />
                                       Generating Plan...
                                   </>
-                              ) : 'Generate Plan'}
+                              ) : 'Generate My Plan'}
                           </Button>
                       </form>
                   </Form>
@@ -290,41 +282,47 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
                       {studyPlan && (
                           <div className="space-y-8">
                               <div>
-                                  <h2 className="text-xl font-bold mb-4">Generated Plan Analytics</h2>
                                   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                                      <div className="flex flex-col items-center rounded-lg border bg-card p-4">
-                                          <Clock className="h-6 w-6 text-primary mb-2" />
-                                          <p className="text-2xl font-bold">{planHours.total}h</p>
-                                          <p className="text-sm text-muted-foreground">Total Hours</p>
-                                      </div>
-                                      <div className="flex flex-col items-center rounded-lg border bg-card p-4">
-                                          <BookOpen className="h-6 w-6 text-blue-500 mb-2" />
-                                          <p className="text-2xl font-bold">{planHours.study}h</p>
-                                          <p className="text-sm text-muted-foreground">Study Time</p>
-                                      </div>
-                                      <div className="flex flex-col items-center rounded-lg border bg-card p-4">
-                                          <Repeat className="h-6 w-6 text-green-500 mb-2" />
-                                          <p className="text-2xl font-bold">{planHours.revise}h</p>
-                                          <p className="text-sm text-muted-foreground">Revision Time</p>
-                                      </div>
-                                       <div className="flex flex-col items-center rounded-lg border bg-card p-4">
-                                          <ListChecks className="h-6 w-6 text-pink-500 mb-2" />
-                                          <p className="text-2xl font-bold">{planHours.test}h</p>
-                                          <p className="text-sm text-muted-foreground">Test/Practice</p>
-                                      </div>
+                                      <Card>
+                                          <CardContent className="flex flex-col items-center p-4">
+                                              <Clock className="h-6 w-6 text-primary mb-2" />
+                                              <p className="text-2xl font-bold">{planHours.total}h</p>
+                                              <p className="text-sm text-muted-foreground">Total Hours</p>
+                                          </CardContent>
+                                      </Card>
+                                      <Card>
+                                          <CardContent className="flex flex-col items-center p-4">
+                                              <BookOpen className="h-6 w-6 text-blue-500 mb-2" />
+                                              <p className="text-2xl font-bold">{planHours.study}h</p>
+                                              <p className="text-sm text-muted-foreground">Study Time</p>
+                                          </CardContent>
+                                      </Card>
+                                      <Card>
+                                          <CardContent className="flex flex-col items-center p-4">
+                                              <Repeat className="h-6 w-6 text-green-500 mb-2" />
+                                              <p className="text-2xl font-bold">{planHours.revise}h</p>
+                                              <p className="text-sm text-muted-foreground">Revision Time</p>
+                                          </CardContent>
+                                      </Card>
+                                       <Card>
+                                          <CardContent className="flex flex-col items-center p-4">
+                                              <ListChecks className="h-6 w-6 text-pink-500 mb-2" />
+                                              <p className="text-2xl font-bold">{planHours.test}h</p>
+                                              <p className="text-sm text-muted-foreground">Test/Practice</p>
+                                          </CardContent>
+                                      </Card>
                                   </div>
                               </div>
 
                               <div>
-                                  <h2 className="text-xl font-bold mb-4">Your Generated Weekly Plan</h2>
+                                  <h2 className="text-2xl font-bold mb-4">Your Generated Weekly Plan</h2>
                                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 lg:gap-4">
                                       {studyPlan.plan.map((dailyPlan, index) => (
                                           <div key={index} className="space-y-3 rounded-lg bg-muted/40 p-2">
                                               <h4 className="text-center font-semibold text-muted-foreground">{dailyPlan.day}</h4>
                                               <div className="space-y-3">
                                               {dailyPlan.tasks.length > 0 ? dailyPlan.tasks.map((task, taskIndex) => {
-                                                  const Icon = activityIconMap[task.activity as ActivityType] || Activity;
-                                                  const colorClass = activityColors[task.activity as ActivityType] || 'border-gray-400';
+                                                  const { icon: Icon, color: colorClass } = activityInfo[task.activity as ActivityType] || { icon: Activity, color: 'border-gray-400' };
                                                   return (
                                                       <button key={taskIndex} onClick={() => handleTaskClick(task.topicId)} className={cn("w-full cursor-pointer p-2 text-left text-xs border-l-4 rounded bg-background shadow-sm hover:bg-muted", colorClass)}>
                                                           <div className="flex items-start gap-2">
