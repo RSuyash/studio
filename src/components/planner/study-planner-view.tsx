@@ -146,7 +146,14 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
   };
   
   const planDurationOptions = [
-      'This Week', 'Next 2 Weeks', 'Next Month', 'Next 3 Months', 'Next 6 Months', 'Next Year'
+      'For Today', 
+      'For Tomorrow',
+      'This Week', 
+      'Next 2 Weeks', 
+      'Next Month', 
+      'Next 3 Months', 
+      'Next 6 Months', 
+      'Next Year'
   ];
 
   return (
