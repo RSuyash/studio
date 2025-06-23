@@ -1,0 +1,18 @@
+{
+  "[project]/src/components/dashboard/subject-mastery-chart.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/components/dashboard/subject-mastery-chart.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_recharts_es6_d73ce9dd._.js",
+      "static/chunks/src_components_dashboard_subject-mastery-chart_tsx_83f70493._.js",
+      "static/chunks/src_components_dashboard_subject-mastery-chart_tsx_58a3f60b._.js"
+    ]
+  },
+  "[project]/src/components/syllabus/mind-map-view.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/src/components/syllabus/mind-map-view.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_20862f66._.js",
+      "static/chunks/src_components_syllabus_mind-map-view_tsx_db367f23._.js",
+      "static/chunks/src_components_syllabus_mind-map-view_tsx_58a3f60b._.js"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "components/dashboard/dashboard-view.tsx -> @/components/dashboard/subject-mastery-chart": {
+    "id": 33174,
+    "files": [
+      "static/chunks/351.75cd340c168a754b.js",
+      "static/chunks/174.7ea0a464859d8368.js"
+    ]
+  },
+  "components/syllabus/syllabus-viewer.tsx -> ./mind-map-view": {
+    "id": 23025,
+    "files": [
+      "static/chunks/c37d3baf.442e4853012102b8.js",
+      "static/chunks/808.d5d4794b5255fb45.js",
+      "static/chunks/25.fd9df9b834d4de08.js"
+    ]
+  }
+}
