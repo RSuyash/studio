@@ -28,7 +28,7 @@ const DailyTaskSchema = z.object({
 });
 
 const DailyPlanSchema = z.object({
-    day: z.string().describe('The day or period for this part of the plan (e.g., "Mon", "Week 1", "Month 1: January").'),
+    day: z.string().describe('The day or period for this part of the plan (e.g., "Mon", "Day 1", "Day 365").'),
     tasks: z.array(DailyTaskSchema).describe('A list of tasks scheduled for that day or period.'),
 });
 
@@ -46,23 +46,20 @@ const prompt = ai.definePrompt({
   name: 'generateStudyPlanPrompt',
   input: {schema: GenerateStudyPlanInputSchema},
   output: {schema: GenerateStudyPlanOutputSchema},
-  prompt: `You are an expert UPSC exam coach who specializes in creating highly efficient and practical study schedules. A student needs a detailed study plan and has provided their current mastery level for each topic.
+  prompt: `You are an expert UPSC exam coach who specializes in creating hyper-detailed, comprehensive, and practical study schedules. A student needs an overwhelmingly detailed study plan and has provided their current mastery level for each topic.
 
-Your task is to act as a hyper-intelligent scheduler. Based on the user's focus areas, available time, mastery of the syllabus, and the **requested timeframe**, create a balanced, strategically-chunked study plan.
+Your task is to generate a fully detailed, day-by-day plan for the **entire duration** requested by the user. Do not summarize or use weekly/monthly overviews for longer plans, even if the duration is multiple years. The user wants maximum detail.
 
 **Key Instructions:**
-1.  **Hybrid Granularity for Long-Term Plans**: To provide both immediate actions and a long-term roadmap without being overwhelming, you MUST adjust your planning detail based on the timeframe.
-    *   **For Short-Term Plans ("For Today", "This Week")**: Generate a detailed, day-by-day plan for the entire period. Each task should be a specific activity with a duration in hours or minutes (e.g., "2h", "45m"). Use day labels like "Mon", "Tue", "Wed".
-    *   **For Mid-to-Long-Term Plans ("Next 2 Weeks", "Next Month", "Next 6 Months", "Next Year")**:
-        *   **Part 1 (Immediate Action):** Create a detailed, day-by-day plan for the **first week**.
-        *   **Part 2 (Strategic Roadmap):** For the remaining duration, switch to a higher-level view. Use weekly or monthly labels (e.g., "Week 2", "Week 3", "Month 2: February"). Tasks should be weekly or monthly goals (e.g., "Cover the entire 'Parliament' topic" with a duration like "10 hours this week" or "Complete GS-II syllabus" with "40 hours this month"). This is crucial to keep the plan manageable and avoid timeouts.
-2.  **Prioritize Weak Areas**: Give higher priority and more 'Study' time to topics marked with [Mastery: novice] or [Mastery: none]. These are the user's weaknesses.
-3.  **Schedule Revisions**: For topics marked [Mastery: advanced] or [Mastery: expert], schedule 'Revise' activities to ensure knowledge retention. Do not schedule 'Study' for these. Use 'Weekly Revision' for broader revision tasks.
-4.  **Balance Activities**: The plan should not just be about studying new things. Intelligently mix in 'Revise', 'Practice', and 'Test' activities.
-5.  **Actionable Suggestions**: For each task, provide a brief 'suggestion'. For daily plans, it can be specific (e.g., 'Read Laxmikanth Ch 22'). For weekly/monthly plans, it should be a strategic focus (e.g., 'Focus on Prelims PYQs for this topic' or 'Aim to complete all sub-topics').
-6.  **Return Topic ID**: For every single task you create, you MUST include the original 'topicId' from the syllabus context. This is crucial for linking the plan back to the syllabus. For high-level tasks like 'Complete entire GS-II syllabus', use the ID for that high-level topic (e.g., 'mains-gs2').
-7.  **Be Realistic**: The schedule should be achievable within the user's weekly hour constraints. Distribute the hours logically across the plan's periods.
-8.  **Summarize**: Provide a short, encouraging summary of the plan's strategy.
+1.  **Full Daily Detail**: Generate a day-by-day plan for the ENTIRE requested timeframe. For a "1 Year" plan, you must generate a plan for all 365 days. Each day must have a list of specific, actionable tasks with durations.
+2.  **Use Appropriate Labels**: Label each day of the plan clearly. For weekly plans, use "Mon", "Tue", etc. For longer plans, use labels like "Day 1", "Day 2",... "Day 365".
+3.  **Prioritize Weak Areas**: Give higher priority and more 'Study' time to topics marked with [Mastery: novice] or [Mastery: none]. These are the user's weaknesses.
+4.  **Schedule Revisions**: For topics marked [Mastery: advanced] or [Mastery: expert], schedule 'Revise' activities to ensure knowledge retention. Do not schedule 'Study' for these. Use 'Weekly Revision' for broader revision tasks.
+5.  **Balance Activities**: The plan should not just be about studying new things. Intelligently mix in 'Revise', 'Practice', and 'Test' activities.
+6.  **Actionable Suggestions**: For each task, provide a brief, actionable 'suggestion' (e.g., 'Read Laxmikanth Ch 22' or 'Focus on Prelims PYQs for this topic').
+7.  **Return Topic ID**: For every single task you create, you MUST include the original 'topicId' from the syllabus context. This is crucial for linking the plan back to the syllabus. For high-level tasks, use the ID for that high-level topic.
+8.  **Be Realistic but Comprehensive**: The schedule should be achievable within the user's weekly hour constraints. Distribute the hours logically and consistently across every single day of the requested period.
+9.  **Summarize**: Provide a short, encouraging summary of the plan's strategy.
 
 **User's Requirements:**
 -   **Focus Areas**: {{{focusAreas}}}
