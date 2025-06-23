@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CheckCircle, ChevronRight, Circle, Info } from 'lucide-react';
 import { Icons } from '@/components/icons';
+import { findPathToTopicId } from "@/lib/resource-utils";
 
 interface SyllabusExplorerProps {
     data: SyllabusTopic[];
@@ -21,13 +22,35 @@ const TopicNode: React.FC<{
   level: number;
   selectedTopicId: string | null;
   onSelectTopic: (id: string) => void;
-}> = ({ topic, level, selectedTopicId, onSelectTopic }) => {
-  const [isExpanded, setIsExpanded] = React.useState(level < 1);
+  allTopicsData: SyllabusTopic[];
+}> = ({ topic, level, selectedTopicId, onSelectTopic, allTopicsData }) => {
   const hasSubtopics = topic.subtopics && topic.subtopics.length > 0;
   const isActive = selectedTopicId === topic.id;
 
+  const isAncestorOfSelected = React.useMemo(() => {
+    if (!selectedTopicId) return false;
+    const path = findPathToTopicId(allTopicsData, selectedTopicId);
+    return path ? path.includes(topic.id) : false;
+  }, [selectedTopicId, topic.id, allTopicsData]);
+
+  const [isExpanded, setIsExpanded] = React.useState(
+    level < 1 || isAncestorOfSelected
+  );
+
+  React.useEffect(() => {
+    if (isAncestorOfSelected) {
+      setIsExpanded(true);
+    }
+  }, [isAncestorOfSelected]);
+
+
   const handleSelect = () => {
     onSelectTopic(topic.id);
+  };
+
+  const handleToggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
   };
 
   const TopicIconComponent = topic.icon ? (Icons[topic.icon as keyof typeof Icons] as React.ElementType) : null;
@@ -59,7 +82,7 @@ const TopicNode: React.FC<{
                 {topic.title}
             </Button>
             {hasSubtopics && (
-                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setIsExpanded(!isExpanded)}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={handleToggleExpand}>
                     <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", isExpanded && "rotate-90")} />
                 </Button>
             )}
@@ -73,6 +96,7 @@ const TopicNode: React.FC<{
               level={level + 1} 
               selectedTopicId={selectedTopicId}
               onSelectTopic={onSelectTopic}
+              allTopicsData={allTopicsData}
             />
           ))}
         </div>
@@ -97,6 +121,7 @@ export const SyllabusExplorer: React.FC<SyllabusExplorerProps> = ({ data, select
                     level={0}
                     selectedTopicId={selectedTopicId}
                     onSelectTopic={onSelectTopic}
+                    allTopicsData={data}
                 />
             ))}
         </div>

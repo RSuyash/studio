@@ -108,11 +108,10 @@ export default function SyllabusViewer({
       }
   }, [filteredData, selectedTopicId, onSelectTopic]);
 
-  // Reset selection and filters when syllabus source changes
+  // Reset filters when syllabus source changes
   React.useEffect(() => {
     setSelectedTags(new Set<string>());
-    onSelectTopic(null);
-  }, [activeSyllabus, onSelectTopic]);
+  }, [activeSyllabus]);
 
 
   const filterPanelContent = (
