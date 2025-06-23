@@ -155,7 +155,7 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-mains-essay',
         title: 'Paper I: Essay',
         icon: 'FileText',
-        description: 'Candidates write two essays (125 marks each), one in Marathi and one in English, on various topics. Total Marks: 250.',
+        description: 'Candidates need to write three essays on various topics. Total Marks: 250.',
         tags: ['essay', 'merit'],
         mastery: 'none',
         resources: [],
@@ -178,28 +178,51 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-mains-gs2',
         title: 'Paper III: General Studies II',
         icon: 'FileText',
-        description: 'Covers Indian Polity, Governance, Law, and HRD. Total Marks: 250. Detailed syllabus to be added.',
+        description: 'Covers Constitution, Polity, Governance, Law, Social Justice, and International Relations. Total Marks: 250.',
         tags: ['gs-2', 'polity', 'governance', 'law'],
         mastery: 'none',
         resources: [],
+        subtopics: [
+          { id: 'mpsc-gs2-polity', title: 'Indian Constitution and Polity', description: 'Constitution making, Preamble, FRs, DPSPs, Union & State government, Judiciary, Federal Structure, Constitutional Bodies.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs2-governance', title: 'Governance and Public Policy', description: 'Good Governance, E-Governance, RTI, Citizen Charters, Role of Civil Services, Social Audit.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs2-justice', title: 'Social Justice and Welfare', description: 'Welfare schemes for vulnerable sections (SC, ST, OBC, women, minorities), Issues of Social Inclusion and Empowerment.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs2-law', title: 'Law and Public Policy', description: 'Important Acts related to Women, Children, Environment, Education, Health, and Cybersecurity. Disaster Laws.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs2-ir', title: 'International Relations', description: 'India’s foreign policy, relations with neighbors (SAARC, ASEAN) and major powers (USA, Russia, China), and role in international institutions (UN, WTO).', tags: [], mastery: 'none', resources: [] }
+        ]
       },
       {
         id: 'mpsc-mains-gs3',
         title: 'Paper IV: General Studies III',
         icon: 'FileText',
-        description: 'Covers Economy, Agriculture, Science, and Technology. Total Marks: 250. Detailed syllabus to be added.',
+        description: 'Covers Indian Economy, Agriculture, Science, Technology, Environment, and Internal Security. Total Marks: 250.',
         tags: ['gs-3', 'economy', 'sci-tech', 'agriculture'],
         mastery: 'none',
         resources: [],
+         subtopics: [
+          { id: 'mpsc-gs3-economy', title: 'Indian Economy and Planning', description: 'Growth, Development, Poverty, Unemployment, Fiscal Policy (Budget, GST), Monetary Policy (RBI, Inflation), Economy of Maharashtra.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs3-agriculture', title: 'Agriculture and Allied Sectors', description: 'Land reforms, Irrigation, Cropping patterns, Agri-Marketing, Food Processing, Government schemes for farmers.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs3-industry', title: 'Industry and Infrastructure', description: 'Industrial Policy, MSMEs, Startups, Make in India, SEZs, Infrastructure (Roads, Energy), PPP Models.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs3-scitech', title: 'Science and Technology', description: 'Role of S&T, Space Technology (ISRO), Biotechnology, Nanotechnology, ICT, Cybersecurity, AI.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs3-environment', title: 'Environment and Ecology', description: 'Conservation, Biodiversity, Climate Change, Pollution, Waste Management, EIA, SDGs.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs3-security', title: 'Internal Security and Disaster Management', description: 'Threats from Extremism & Terrorism, role of security forces, Cybercrime, Money laundering. Disaster Management cycle (NDMA, SDRF).', tags: [], mastery: 'none', resources: [] }
+        ]
       },
       {
         id: 'mpsc-mains-gs4',
         title: 'Paper V: General Studies IV',
         icon: 'FileText',
-        description: 'Covers Ethics, Integrity, and Aptitude. Total Marks: 250. Detailed syllabus to be added.',
+        description: 'Covers Ethics, Integrity, and Aptitude, using case studies to test practical application. Total Marks: 250.',
         tags: ['gs-4', 'ethics', 'aptitude'],
         mastery: 'none',
         resources: [],
+        subtopics: [
+          { id: 'mpsc-gs4-ethics-interface', title: 'Ethics and Human Interface', description: 'Essence, determinants, and consequences of Ethics in human actions. Human Values from leaders, reformers, and administrators.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs4-attitude', title: 'Attitude', description: 'Content, structure, function; its influence with thought and behavior; moral and political attitudes; social influence.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs4-aptitude', title: 'Aptitude & Foundational Values', description: 'Integrity, impartiality, objectivity, dedication to public service, empathy, tolerance, and compassion. Emotional intelligence.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs4-thinkers', title: 'Contributions of Thinkers & Philosophers', description: 'Contributions from Indian and Western moral thinkers.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs4-probity', title: 'Probity in Governance', description: 'Concept of public service, RTI, codes of ethics/conduct, citizen’s charters, challenges of corruption.', tags: [], mastery: 'none', resources: [] },
+          { id: 'mpsc-gs4-casestudies', title: 'Case Studies', description: 'Testing ethical reasoning and moral compass in practical administrative situations.', tags: [], mastery: 'none', resources: [] }
+        ]
       },
     ]
   },

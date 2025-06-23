@@ -81,26 +81,46 @@ export const initialSyllabusData: SyllabusTopic[] = [
           {
             id: 'prelims-gs1-polity',
             title: 'Indian Polity and Governance',
-            description: 'Constitution, government structure (Union & State), judiciary, local governance, and public policy.',
+            description: 'Constitution, Political System, Panchayati Raj, Public Policy, Rights Issues, etc.',
             tags: ['polity', 'governance'],
             mastery: 'none',
             resources: [],
+            subtopics: [
+                { id: 'upsc-polity-constitution', title: 'Constitution', description: 'Preamble, Fundamental Rights & Duties, DPSP, Amendment procedures, Basic Structure.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-polity-union-state', title: 'Union & State Government', description: 'Executive (President, PM, Governor), Legislature (Parliament, State Legislatures), Judiciary (Supreme Court, High Courts).', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-polity-local', title: 'Local Government', description: 'Panchayati Raj (73rd Amendment) and Urban Local Bodies (74th Amendment).', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-polity-bodies', title: 'Constitutional & Statutory Bodies', description: 'ECI, UPSC, Finance Commission, NITI Aayog, NHRC.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-polity-policy', title: 'Public Policy & Rights Issues', description: 'Government policies, rights issues, social sector initiatives.', tags: [], mastery: 'none', resources: [] },
+            ]
           },
           {
             id: 'prelims-gs1-economy',
             title: 'Economic and Social Development',
-            description: 'Economic concepts, planning, banking, fiscal/monetary policy, poverty, and government schemes.',
+            description: 'Sustainable Development, Poverty, Inclusion, Demographics, Social Sector initiatives, etc.',
             tags: ['economy', 'development'],
             mastery: 'none',
             resources: [],
+            subtopics: [
+                { id: 'upsc-eco-concepts', title: 'Basic Concepts', description: 'National Income (GDP, GNP), Inflation, Money & Banking.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-eco-budgeting', title: 'Budgeting & Fiscal Policy', description: 'Government budgeting process, fiscal deficit, taxation.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-eco-planning', title: 'Planning & Development', description: 'Indian planning, poverty, inclusion, demographics.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-eco-sectors', title: 'Sectors of Economy', description: 'Agriculture, Industry, and Services sectors in India.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-eco-external', title: 'External Sector', description: 'Balance of Payments, Foreign Trade, International Organizations (IMF, WB, WTO).', tags: [], mastery: 'none', resources: [] },
+            ]
           },
           {
             id: 'prelims-gs1-environment',
             title: 'Environment & Ecology',
-            description: 'Ecosystems, biodiversity conservation, pollution, climate change agreements, and environmental laws.',
+            description: 'General issues on Environmental Ecology, Biodiversity, and Climate Change.',
             tags: ['environment', 'ecology'],
             mastery: 'none',
             resources: [],
+             subtopics: [
+                { id: 'upsc-env-concepts', title: 'Basic Concepts', description: 'Ecosystem, Food Chain, Ecological Pyramids, Biodiversity.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-env-conservation', title: 'Conservation', description: 'National Parks, Wildlife Sanctuaries, Biosphere Reserves, Ramsar Sites.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-env-climate-change', title: 'Climate Change', description: 'Global warming, Ozone depletion, International conventions (UNFCCC, Kyoto, Paris).', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-env-pollution', title: 'Pollution', description: 'Air, water, soil pollution and related laws in India.', tags: [], mastery: 'none', resources: [] },
+            ]
           },
           {
             id: 'prelims-gs1-science',
@@ -109,6 +129,11 @@ export const initialSyllabusData: SyllabusTopic[] = [
             tags: ['science', 'technology'],
             mastery: 'none',
             resources: [],
+            subtopics: [
+                { id: 'upsc-sci-bio', title: 'Biology', description: 'Cell biology, genetics, human physiology, diseases.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-sci-pnc', title: 'Physics & Chemistry', description: 'Basic concepts from everyday life applications.', tags: [], mastery: 'none', resources: [] },
+                { id: 'upsc-sci-tech', title: 'Science & Technology', description: 'Space tech, defense tech, biotechnology, IT, and recent developments.', tags: [], mastery: 'none', resources: [] },
+            ]
           },
         ],
       },
