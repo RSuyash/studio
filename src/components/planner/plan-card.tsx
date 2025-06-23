@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 
 interface PlanCardProps {
   plan: SavedStudyPlan;
+  onViewPlan: (plan: SavedStudyPlan) => void;
 }
 
 const Stat = ({ icon: Icon, value, label }: { icon: React.ElementType, value: string | number, label: string }) => (
@@ -19,7 +20,7 @@ const Stat = ({ icon: Icon, value, label }: { icon: React.ElementType, value: st
 );
 
 
-export default function PlanCard({ plan }: PlanCardProps) {
+export default function PlanCard({ plan, onViewPlan }: PlanCardProps) {
   const totalDays = plan.plan_data.plan.length;
 
   return (
@@ -46,9 +47,9 @@ export default function PlanCard({ plan }: PlanCardProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full" disabled>
+        <Button className="w-full" onClick={() => onViewPlan(plan)}>
             <Eye className="mr-2 h-4 w-4" />
-            View Plan (Coming Soon)
+            View Plan
         </Button>
       </CardFooter>
     </Card>

@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from 'react'
@@ -30,8 +29,9 @@ import InsightsView from './insights/insights-view';
 import StudyPlannerView from './planner/study-planner-view';
 import MyPlansView from './planner/my-plans-view';
 import { LogOut } from 'lucide-react';
+import PlanViewer from './planner/plan-viewer';
 
-export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'ifos-explorer' | 'study-planner' | 'my-plans';
+export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'ifos-explorer' | 'study-planner' | 'my-plans' | 'plan-viewer';
 export type SyllabusType = 'upsc' | 'mpsc' | 'ifos';
 
 interface MainLayoutProps {
@@ -60,6 +60,7 @@ export default function MainLayout({
   const [activeView, setActiveView] = React.useState<View>('dashboard');
   const [activeSyllabus, setActiveSyllabus] = React.useState<SyllabusType>('upsc');
   const [selectedTopicId, setSelectedTopicId] = React.useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = React.useState<SavedStudyPlan | null>(null);
 
   const [upscData, setUpscData] = React.useState(initialUpscData);
   const [mpscData, setMpscData] = React.useState(initialMpscData);
@@ -86,6 +87,11 @@ export default function MainLayout({
     } else {
         setSelectedTopicId(null);
     }
+  };
+  
+  const handleViewPlan = (plan: SavedStudyPlan) => {
+      setSelectedPlan(plan);
+      setActiveView('plan-viewer');
   };
 
   const renderActiveView = () => {
@@ -117,7 +123,10 @@ export default function MainLayout({
                         setActiveView={handleViewChange} 
                     />;
         case 'my-plans':
-            return <MyPlansView savedPlans={savedPlansData} setActiveView={handleViewChange} />;
+            return <MyPlansView savedPlans={savedPlansData} setActiveView={handleViewChange} onViewPlan={handleViewPlan} />;
+        case 'plan-viewer':
+            if (!selectedPlan) return <MyPlansView savedPlans={savedPlansData} setActiveView={handleViewChange} onViewPlan={handleViewPlan} />;
+            return <PlanViewer plan={selectedPlan} setActiveView={handleViewChange} allSyllabusData={allSyllabusData} />;
         case 'syllabus': {
             const dataMap = { upsc: upscData, mpsc: mpscData, ifos: ifosData };
             const setDataMap = { upsc: setUpscData, mpsc: setMpscData, ifos: setIfosData };

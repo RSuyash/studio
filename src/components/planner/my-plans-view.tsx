@@ -11,6 +11,7 @@ import { Folder } from 'lucide-react';
 interface MyPlansViewProps {
   savedPlans: SavedStudyPlan[];
   setActiveView: (view: View) => void;
+  onViewPlan: (plan: SavedStudyPlan) => void;
 }
 
 const EmptyState = ({ setActiveView }: { setActiveView: (view: View) => void; }) => (
@@ -28,7 +29,7 @@ const EmptyState = ({ setActiveView }: { setActiveView: (view: View) => void; })
   </div>
 );
 
-export default function MyPlansView({ savedPlans, setActiveView }: MyPlansViewProps) {
+export default function MyPlansView({ savedPlans, setActiveView, onViewPlan }: MyPlansViewProps) {
   
   return (
     <>
@@ -42,7 +43,7 @@ export default function MyPlansView({ savedPlans, setActiveView }: MyPlansViewPr
             {savedPlans.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {savedPlans.map(plan => (
-                        <PlanCard key={plan.id} plan={plan} />
+                        <PlanCard key={plan.id} plan={plan} onViewPlan={onViewPlan} />
                     ))}
                 </div>
             ) : (
