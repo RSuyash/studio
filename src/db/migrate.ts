@@ -11,10 +11,10 @@
 import { Pool } from 'pg';
 import 'dotenv/config';
 
-import { initialSyllabusData as upscSyllabus } from '@/lib/exams/upsc/upsc-syllabus-data';
-import { mpscSyllabusData as mpscSyllabus } from '@/lib/exams/mpsc/mpsc-syllabus-data';
-import { initialResourceData } from '@/lib/resources/resource-data';
-import type { SyllabusTopic, Resource } from '@/lib/types';
+import { initialSyllabusData as upscSyllabus } from '../lib/exams/upsc/upsc-syllabus-data';
+import { mpscSyllabusData as mpscSyllabus } from '../lib/exams/mpsc/mpsc-syllabus-data';
+import { initialResourceData } from '../lib/resources/resource-data';
+import type { SyllabusTopic, Resource } from '../lib/types';
 
 if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is not set.');
