@@ -27,9 +27,10 @@ import IfosExplorerView from './exam-explorer/ifos-explorer-view';
 import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
+import StudyPlannerView from './planner/study-planner-view';
 import { LogOut } from 'lucide-react';
 
-export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'ifos-explorer';
+export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'ifos-explorer' | 'study-planner';
 export type SyllabusType = 'upsc' | 'mpsc' | 'ifos';
 
 interface MainLayoutProps {
@@ -65,6 +66,7 @@ export default function MainLayout({
     { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
     { view: 'exam-centre', label: 'Exam Centre', icon: Icons.Layers },
     { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen, syllabus: 'upsc' },
+    { view: 'study-planner', label: 'Study Planner', icon: Icons.ListTodo },
     { view: 'insights', label: 'Exam Insights', icon: Icons.Sparkles },
     { view: 'resources', label: 'My Resources', icon: Icons.Library },
   ];
@@ -78,6 +80,7 @@ export default function MainLayout({
 
   const renderActiveView = () => {
     const allSyllabusData = { upsc: upscData, mpsc: mpscData, ifos: ifosData };
+    const combinedSyllabus = [...upscData, ...mpscData, ...ifosData];
 
     switch (activeView) {
         case 'dashboard':
@@ -99,6 +102,8 @@ export default function MainLayout({
                    />;
         case 'exam-centre':
             return <ExamCentreView setActiveView={handleViewChange} comparisonData={comparisonData} />;
+        case 'study-planner':
+            return <StudyPlannerView allSyllabusData={combinedSyllabus} />;
         case 'syllabus': {
             const dataMap = { upsc: upscData, mpsc: mpscData, ifos: ifosData };
             const setDataMap = { upsc: setUpscData, mpsc: setMpscData, ifos: setIfosData };
