@@ -58,9 +58,9 @@ export default function PlannerResults({
               <div>
                 <h2 className="text-2xl font-bold mb-4 font-headline tracking-tight">Your Generated Study Plan</h2>
                 <div className="space-y-6">
-                  {studyPlan.plan.map((dailyPlan, index) => (
+                  {studyPlan.plan.map((dailyPlan) => (
                     <DailyPlanCard
-                      key={index}
+                      key={dailyPlan.day}
                       dailyPlan={dailyPlan}
                       onTaskClick={onTaskClick}
                     />
