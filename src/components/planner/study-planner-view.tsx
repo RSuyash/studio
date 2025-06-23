@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -46,17 +47,20 @@ interface PlanStats {
 
 const parseDuration = (durationStr: string): number => {
     if (!durationStr) return 0;
-    const parts = durationStr.toLowerCase().split(' ');
-    const value = parseFloat(parts[0]);
+    const lowerCaseStr = durationStr.toLowerCase();
+    
+    // Use parseFloat which handily ignores trailing non-numeric characters
+    const value = parseFloat(lowerCaseStr);
     if (isNaN(value)) return 0;
 
-    if (parts[1].startsWith('hr')) {
+    if (lowerCaseStr.includes('hr') || lowerCaseStr.includes('hour')) {
         return value * 60;
     }
-    if (parts[1].startsWith('min')) {
+    if (lowerCaseStr.includes('min') || lowerCaseStr.includes('minute')) {
         return value;
     }
-    return 0;
+    
+    return 0; // If no unit is found, don't guess.
 };
 
 export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData: SyllabusTopic[] }) {
