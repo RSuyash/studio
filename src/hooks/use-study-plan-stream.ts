@@ -3,30 +3,29 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { z } from 'zod';
 import type { DailyPlanSchema } from '@/ai/flows/study-plan/schemas';
+import type { StudyPlanInput, StudyPlanData } from '@/lib/types';
 import { useToast } from './use-toast';
 
-interface GenerateStudyPlanOutput {
-  plan: z.infer<typeof DailyPlanSchema>[];
-  summary: string;
-}
 
-type PlannerInput = {
-  focusAreas: string;
-  timeframe: string;
-  hoursPerWeek: number;
-  syllabusContext: string;
-};
+type PlannerInputWithContext = StudyPlanInput & { syllabusContext: string };
 
 export const useStudyPlanStream = () => {
-  const [studyPlan, setStudyPlan] = useState<GenerateStudyPlanOutput | null>(null);
+  const [studyPlan, setStudyPlan] = useState<StudyPlanData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentInputs, setCurrentInputs] = useState<StudyPlanInput | null>(null);
+
   const { toast } = useToast();
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const generatePlan = useCallback(async (values: PlannerInput) => {
+  const generatePlan = useCallback(async (values: PlannerInputWithContext) => {
     if (isLoading) return;
     
+    setCurrentInputs({ 
+      focusAreas: values.focusAreas,
+      timeframe: values.timeframe,
+      hoursPerWeek: values.hoursPerWeek
+    });
     setStudyPlan(null);
     setIsLoading(true);
     setError(null);
@@ -134,5 +133,5 @@ export const useStudyPlanStream = () => {
       }
   }, []);
 
-  return { studyPlan, isLoading, error, generatePlan };
+  return { studyPlan, isLoading, error, generatePlan, currentInputs };
 };

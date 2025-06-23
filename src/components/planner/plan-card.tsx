@@ -1,0 +1,56 @@
+'use client';
+
+import type { SavedStudyPlan } from '@/lib/types';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, Target, Eye } from 'lucide-react';
+import { Badge } from '../ui/badge';
+import { format } from 'date-fns';
+
+interface PlanCardProps {
+  plan: SavedStudyPlan;
+}
+
+const Stat = ({ icon: Icon, value, label }: { icon: React.ElementType, value: string | number, label: string }) => (
+    <div className="flex items-center text-muted-foreground text-sm">
+        <Icon className="h-4 w-4 mr-2" />
+        <span className="font-medium text-foreground mr-1">{value}</span> {label}
+    </div>
+);
+
+
+export default function PlanCard({ plan }: PlanCardProps) {
+  const totalDays = plan.plan_data.plan.length;
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader>
+        <CardTitle className="text-xl">{plan.name}</CardTitle>
+        <CardDescription>
+          Created on {format(new Date(plan.created_at), "MMMM d, yyyy")}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex-grow space-y-4">
+        <div className="space-y-2">
+            <Stat icon={Calendar} value={plan.input_details.timeframe} label="Duration" />
+            <Stat icon={Clock} value={`${plan.input_details.hoursPerWeek}h`} label="per week" />
+            <Stat icon={Target} value={totalDays} label={totalDays === 1 ? "day" : "days"} />
+        </div>
+        <div>
+            <h4 className="font-semibold text-sm mb-2">Focus Areas:</h4>
+            <div className="flex flex-wrap gap-2">
+                {plan.input_details.focusAreas.split(',').map((area, index) => (
+                    <Badge key={index} variant="secondary">{area.trim()}</Badge>
+                ))}
+            </div>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button className="w-full" disabled>
+            <Eye className="mr-2 h-4 w-4" />
+            View Plan (Coming Soon)
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}

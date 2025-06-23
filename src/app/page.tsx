@@ -1,7 +1,6 @@
 import MainLayout from "@/components/main-layout";
 import { Toaster } from "@/components/ui/toaster";
-import { getSyllabusDataForExam, getResourceData, getExamData, getComparisonData } from '@/lib/data-service';
-import type { ExamComparisonData, Exam } from "@/lib/types";
+import { getSyllabusDataForExam, getResourceData, getExamData, getComparisonData, getSavedStudyPlans } from '@/lib/data-service';
 
 export default async function Home() {
   // Fetch all data dynamically
@@ -18,6 +17,8 @@ export default async function Home() {
   const mpscExamData = await getExamData('mpsc');
   const ifosExamData = await getExamData('ifos');
 
+  const savedPlansData = await getSavedStudyPlans();
+
   return (
     <>
       <MainLayout 
@@ -29,6 +30,7 @@ export default async function Home() {
         upscExamData={upscExamData}
         mpscExamData={mpscExamData}
         ifosExamData={ifosExamData}
+        savedPlansData={savedPlansData}
       />
       <Toaster />
     </>

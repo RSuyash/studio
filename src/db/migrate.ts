@@ -78,6 +78,7 @@ async function main() {
 
     // 1. Clear existing data
     console.log('Clearing existing data...');
+    await client.query('DELETE FROM study_plans;');
     await client.query('DELETE FROM resources;');
     await client.query('DELETE FROM topic_tags;');
     await client.query('DELETE FROM syllabus_topics;');

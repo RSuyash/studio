@@ -68,3 +68,36 @@ export interface ResourceWithTopicInfo extends Resource {
   topicTitle: string;
   topicPath: string;
 }
+
+// Types related to saved study plans
+export interface StudyPlanInput {
+  focusAreas: string;
+  timeframe: string;
+  hoursPerWeek: number;
+}
+
+export interface DailyTask {
+  topicId: string;
+  duration: string;
+  topic: string;
+  activity: 'Study' | 'Revise' | 'Practice' | 'Test' | 'Weekly Revision' | 'Analyze Test';
+  suggestion: string;
+}
+
+export interface DailyPlan {
+  day: string;
+  tasks: DailyTask[];
+}
+
+export interface StudyPlanData {
+  plan: DailyPlan[];
+  summary: string;
+}
+
+export interface SavedStudyPlan {
+  id: number;
+  name: string;
+  created_at: string;
+  input_details: StudyPlanInput;
+  plan_data: StudyPlanData;
+}

@@ -1,5 +1,5 @@
 import { pool } from './db';
-import type { SyllabusTopic, Resource, Exam, ExamComparisonData } from './types';
+import type { SyllabusTopic, Resource, Exam, ExamComparisonData, SavedStudyPlan } from './types';
 import type { PoolClient } from 'pg';
 
 const placeholderIfosExam: Exam = {
@@ -220,6 +220,29 @@ export async function getComparisonData(): Promise<ExamComparisonData[]> {
         console.error('Failed to fetch exam comparison from database. Falling back to mock data.', e);
         const { examComparisonData } = await import('@/lib/exam-comparison-data');
         return examComparisonData;
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+export async function getSavedStudyPlans(): Promise<SavedStudyPlan[]> {
+    if (!pool) {
+        console.log('Database not connected. Cannot fetch saved study plans.');
+        return [];
+    }
+
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        console.log('Fetching saved study plans from database...');
+        const res = await client.query('SELECT * FROM study_plans ORDER BY created_at DESC');
+        console.log(`Successfully fetched ${res.rows.length} saved plans from database.`);
+        return res.rows;
+    } catch (e) {
+        console.error('Failed to fetch saved study plans from database.', e);
+        return [];
     } finally {
         if (client) {
             client.release();

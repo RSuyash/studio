@@ -6,8 +6,11 @@ import { Icons } from '../icons';
 import type { View, SyllabusType } from '../main-layout';
 import PlannerForm from './planner-form';
 import PlannerResults from './planner-results';
-import type { SyllabusTopic } from '@/lib/types';
+import type { SyllabusTopic, StudyPlanInput } from '@/lib/types';
 import { useStudyPlanStream } from '@/hooks/use-study-plan-stream';
+import { useToast } from '@/hooks/use-toast';
+import { saveStudyPlan } from '@/actions/study-plan-actions';
+import SavePlanDialog from './save-plan-dialog';
 
 const parseDurationToHours = (durationStr: string): number => {
     if (!durationStr) return 0;
@@ -30,18 +33,34 @@ const parseDurationToHours = (durationStr: string): number => {
 
 interface StudyPlannerViewProps {
     allSyllabusData: { upsc: SyllabusTopic[], mpsc: SyllabusTopic[], ifos: SyllabusTopic[] };
-    setActiveView: (view: View, syllabusType: SyllabusType, topicId: string) => void;
+    setActiveView: (view: View, syllabusType?: SyllabusType, topicId?: string) => void;
 }
 
 export default function StudyPlannerView({ allSyllabusData, setActiveView }: StudyPlannerViewProps) {
-  const { studyPlan, isLoading, generatePlan } = useStudyPlanStream();
+  const { studyPlan, isLoading, generatePlan, currentInputs } = useStudyPlanStream();
+  const { toast } = useToast();
+  const [isSaveDialogOpen, setSaveDialogOpen] = React.useState(false);
 
   const syllabusContext = React.useMemo(() => {
     return serializeSyllabusWithMastery(allSyllabusData);
   }, [allSyllabusData]);
 
-  const handleSubmit = (values: { focusAreas: string, timeframe: string, hoursPerWeek: number }) => {
+  const handleSubmit = (values: StudyPlanInput) => {
     generatePlan({ ...values, syllabusContext });
+  };
+
+  const handleSave = async (planName: string) => {
+    if (!studyPlan || !currentInputs) {
+        toast({ variant: 'destructive', title: 'Error', description: 'No plan available to save.' });
+        return;
+    }
+    const result = await saveStudyPlan(planName, studyPlan, currentInputs);
+    if (result.success) {
+        toast({ title: 'Plan Saved!', description: `Your plan "${planName}" has been successfully saved.` });
+    } else {
+        toast({ variant: 'destructive', title: 'Save Failed', description: result.error });
+    }
+    setSaveDialogOpen(false);
   };
 
   const planHours = React.useMemo(() => {
@@ -72,24 +91,32 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
   };
   
   return (
-    <div className="flex h-screen flex-col bg-background">
-      <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-card px-4 md:px-6">
-          <Icons.ListTodo className="h-6 w-6" />
-          <h2 className="text-lg font-semibold">Strategic Study Planner</h2>
-      </header>
+    <>
+      <div className="flex h-screen flex-col bg-background">
+        <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-card px-4 md:px-6">
+            <Icons.ListTodo className="h-6 w-6" />
+            <h2 className="text-lg font-semibold">Strategic Study Planner</h2>
+        </header>
 
-      <div className="grid min-h-0 flex-1 md:grid-cols-[400px_1fr]">
-          <PlannerForm
-            isLoading={isLoading}
-            onSubmit={handleSubmit}
-          />
-          <PlannerResults
-            isLoading={isLoading}
-            studyPlan={studyPlan}
-            planHours={planHours}
-            onTaskClick={handleTaskClick}
-          />
+        <div className="grid min-h-0 flex-1 md:grid-cols-[400px_1fr]">
+            <PlannerForm
+              isLoading={isLoading}
+              onSubmit={handleSubmit}
+            />
+            <PlannerResults
+              isLoading={isLoading}
+              studyPlan={studyPlan}
+              planHours={planHours}
+              onTaskClick={handleTaskClick}
+              onSavePlan={() => setSaveDialogOpen(true)}
+            />
+        </div>
       </div>
-  </div>
+      <SavePlanDialog 
+        isOpen={isSaveDialogOpen}
+        onOpenChange={setSaveDialogOpen}
+        onSave={handleSave}
+      />
+    </>
 );
 }

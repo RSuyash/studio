@@ -5,15 +5,19 @@ import * as React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icons } from '../icons';
-import type { GenerateStudyPlanOutput } from '@/ai/flows/study-plan';
+import type { StudyPlanData } from '@/lib/types';
 import PlannerAnalytics from './planner-analytics';
 import DailyPlanCard from './daily-plan-card';
+import { Button } from '../ui/button';
+import { Save } from 'lucide-react';
+import { Card } from '../ui/card';
 
 interface PlannerResultsProps {
   isLoading: boolean;
-  studyPlan: GenerateStudyPlanOutput | null;
+  studyPlan: StudyPlanData | null;
   planHours: { total: number; study: number; revise: number; test: number };
   onTaskClick: (topicId: string) => void;
+  onSavePlan: () => void;
 }
 
 export default function PlannerResults({
@@ -21,6 +25,7 @@ export default function PlannerResults({
   studyPlan,
   planHours,
   onTaskClick,
+  onSavePlan,
 }: PlannerResultsProps) {
   return (
     <main className="flex-1 overflow-hidden">
@@ -56,7 +61,14 @@ export default function PlannerResults({
               <PlannerAnalytics planHours={planHours} />
 
               <div>
-                <h2 className="text-2xl font-bold mb-4 font-headline tracking-tight">Your Generated Study Plan</h2>
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+                    <h2 className="text-2xl font-bold font-headline tracking-tight">Your Generated Study Plan</h2>
+                    <Button onClick={onSavePlan} disabled={isLoading}>
+                        <Save className="mr-2 h-4 w-4" />
+                        Save Plan
+                    </Button>
+                </div>
+
                 <div className="space-y-6">
                   {studyPlan.plan.map((dailyPlan) => (
                     <DailyPlanCard
@@ -79,7 +91,9 @@ export default function PlannerResults({
                 )}
                 
                 {!isLoading && (
-                  <p className="text-sm text-muted-foreground mt-6 text-center">{studyPlan.summary}</p>
+                    <Card className="mt-6 bg-muted/50 p-4 text-center text-sm text-muted-foreground">
+                       <p>{studyPlan.summary}</p>
+                    </Card>
                 )}
               </div>
             </div>

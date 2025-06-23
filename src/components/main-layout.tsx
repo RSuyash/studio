@@ -16,7 +16,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Icons } from '@/components/icons'
-import type { SyllabusTopic, ExamComparisonData, Resource, Exam } from '@/lib/types';
+import type { SyllabusTopic, ExamComparisonData, Resource, Exam, SavedStudyPlan } from '@/lib/types';
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -28,9 +28,10 @@ import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
 import StudyPlannerView from './planner/study-planner-view';
+import MyPlansView from './planner/my-plans-view';
 import { LogOut } from 'lucide-react';
 
-export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'ifos-explorer' | 'study-planner';
+export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'ifos-explorer' | 'study-planner' | 'my-plans';
 export type SyllabusType = 'upsc' | 'mpsc' | 'ifos';
 
 interface MainLayoutProps {
@@ -42,6 +43,7 @@ interface MainLayoutProps {
   upscExamData: Exam;
   mpscExamData: Exam;
   ifosExamData: Exam;
+  savedPlansData: SavedStudyPlan[];
 }
 
 export default function MainLayout({ 
@@ -53,6 +55,7 @@ export default function MainLayout({
   upscExamData,
   mpscExamData,
   ifosExamData,
+  savedPlansData,
 }: MainLayoutProps) {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
   const [activeSyllabus, setActiveSyllabus] = React.useState<SyllabusType>('upsc');
@@ -68,6 +71,7 @@ export default function MainLayout({
     { view: 'exam-centre', label: 'Exam Centre', icon: Icons.Layers },
     { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen, syllabus: 'upsc' },
     { view: 'study-planner', label: 'Study Planner', icon: Icons.ListTodo },
+    { view: 'my-plans', label: 'My Plans', icon: Icons.ListChecks },
     { view: 'insights', label: 'Exam Insights', icon: Icons.Sparkles },
     { view: 'resources', label: 'My Resources', icon: Icons.Library },
   ];
@@ -79,6 +83,8 @@ export default function MainLayout({
     }
     if (topicId) {
         setSelectedTopicId(topicId);
+    } else {
+        setSelectedTopicId(null);
     }
   };
 
@@ -110,6 +116,8 @@ export default function MainLayout({
                         allSyllabusData={allSyllabusData}
                         setActiveView={handleViewChange} 
                     />;
+        case 'my-plans':
+            return <MyPlansView savedPlans={savedPlansData} setActiveView={handleViewChange} />;
         case 'syllabus': {
             const dataMap = { upsc: upscData, mpsc: mpscData, ifos: ifosData };
             const setDataMap = { upsc: setUpscData, mpsc: setMpscData, ifos: setIfosData };
