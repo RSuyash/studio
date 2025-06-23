@@ -165,3 +165,20 @@ export const serializeSyllabusForPrompt = (topics: SyllabusTopic[]): string => {
   recurse(topics, 0);
   return result;
 };
+
+// New function to serialize the syllabus tree with mastery levels for the planner AI
+export const serializeSyllabusWithMastery = (topics: SyllabusTopic[]): string => {
+  let result = '';
+  const recurse = (items: SyllabusTopic[], depth: number) => {
+    items.forEach(item => {
+      const prefix = '  '.repeat(depth);
+      // Format as "[id] [Mastery: novice] title"
+      result += `${prefix}- [${item.id}] [Mastery: ${item.mastery}] ${item.title}\n`;
+      if (item.subtopics) {
+        recurse(item.subtopics, depth + 1);
+      }
+    });
+  };
+  recurse(topics, 0);
+  return result;
+};

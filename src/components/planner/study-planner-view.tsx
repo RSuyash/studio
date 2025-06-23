@@ -18,7 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import type { SyllabusTopic } from '@/lib/types';
 import { generateStudyPlan, type GenerateStudyPlanOutput } from '@/ai/flows/create-study-plan-flow';
-import { serializeSyllabusForPrompt } from '@/lib/resource-utils';
+import { serializeSyllabusWithMastery } from '@/lib/resource-utils';
 import { BrainCircuit, CheckCircle, BookOpen, Repeat, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -52,7 +52,7 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
   });
 
   const syllabusContext = React.useMemo(() => {
-    return serializeSyllabusForPrompt(allSyllabusData);
+    return serializeSyllabusWithMastery(allSyllabusData);
   }, [allSyllabusData]);
 
   const onSubmit = async (values: PlannerFormValues) => {
@@ -92,7 +92,7 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
               <Card>
                 <CardHeader>
                   <CardTitle>Create Your Plan</CardTitle>
-                  <CardDescription>Tell the AI your goals, and it will generate a personalized schedule.</CardDescription>
+                  <CardDescription>Tell the AI your goals, and it will generate a personalized schedule based on your topic mastery.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Form {...form}>
@@ -169,7 +169,7 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
                     <Icons.ListTodo className="h-16 w-16 text-muted-foreground/30 mb-4" />
                     <h3 className="text-2xl font-semibold tracking-tight">Your AI-Powered Plan Awaits</h3>
                     <p className="mt-2 max-w-md text-muted-foreground">
-                      Fill out the form on the left to generate a dynamic study schedule tailored to your needs.
+                      Fill out the form on the left to generate a dynamic study schedule tailored to your needs and mastery levels.
                     </p>
                   </div>
                 )}
@@ -218,8 +218,9 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
                                   <div className="flex-1">
                                     <p className="font-semibold">{task.topic}</p>
                                     <p className="text-sm text-muted-foreground">
-                                        <span className="font-medium text-foreground">{task.activity}</span> &middot; {task.time}
+                                        <span className="font-medium text-foreground">{task.activity}</span> &middot; {task.duration}
                                     </p>
+                                    <p className="text-xs text-muted-foreground italic mt-1">"{task.suggestion}"</p>
                                   </div>
                                 </div>
                              )
