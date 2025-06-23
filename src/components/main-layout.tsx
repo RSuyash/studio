@@ -16,8 +16,9 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Icons } from '@/components/icons'
-import { initialSyllabusData } from "@/lib/exams/upsc/upsc-syllabus-data";
-import { mpscSyllabusData } from "@/lib/exams/mpsc/mpsc-syllabus-data";
+// The initial data is now passed as props, so we don't need these direct imports
+// import { initialSyllabusData } from "@/lib/exams/upsc/upsc-syllabus-data";
+// import { mpscSyllabusData } from "@/lib/exams/mpsc/mpsc-syllabus-data";
 import type { SyllabusTopic, ExamComparisonData, Resource } from '@/lib/types';
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Button } from "@/components/ui/button"
@@ -29,21 +30,30 @@ import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
 import { LogOut } from 'lucide-react';
-import { initialResourceData } from '@/lib/resources/resource-data';
+// import { initialResourceData } from '@/lib/resources/resource-data';
 
 export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer';
 export type SyllabusType = 'upsc' | 'mpsc';
 
 interface MainLayoutProps {
   comparisonData: ExamComparisonData[];
+  upscSyllabusData: SyllabusTopic[];
+  mpscSyllabusData: SyllabusTopic[];
+  resourceData: Record<string, Resource[]>;
 }
 
-export default function MainLayout({ comparisonData }: MainLayoutProps) {
+export default function MainLayout({ 
+  comparisonData,
+  upscSyllabusData: initialUpscData,
+  mpscSyllabusData: initialMpscData,
+  resourceData: initialResourceData,
+}: MainLayoutProps) {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
   const [activeSyllabus, setActiveSyllabus] = React.useState<SyllabusType>('upsc');
 
-  const [upscData, setUpscData] = React.useState(initialSyllabusData);
-  const [mpscData, setMpscData] = React.useState(mpscSyllabusData);
+  // Use the fetched data to initialize state. Updates will be client-side for now.
+  const [upscData, setUpscData] = React.useState(initialUpscData);
+  const [mpscData, setMpscData] = React.useState(initialMpscData);
   const [resourceData, setResourceData] = React.useState<Record<string, Resource[]>>(initialResourceData);
 
   const menuItems = [
