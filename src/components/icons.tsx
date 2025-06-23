@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   BookMarked,
   HelpCircle,
+  ListTodo,
 } from 'lucide-react';
 
 export type Icon = LucideIcon;
@@ -45,4 +46,5 @@ export const Icons = {
   ShieldCheck,
   BookMarked,
   HelpCircle,
+  ListTodo,
 };

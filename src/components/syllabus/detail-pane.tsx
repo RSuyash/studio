@@ -6,7 +6,7 @@ import type { SyllabusTopic, MasteryLevel, Resource, ResourceCategory } from "@/
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
-import { Tag, Plus, MoreVertical, Edit, Trash2, Library, Book, Video, FileText, StickyNote, BarChartHorizontal, ChevronRight, HelpCircle, Target, Sparkles } from 'lucide-react';
+import { Tag, Plus, MoreVertical, Edit, Trash2, Library, Book, Video, FileText, StickyNote, BarChartHorizontal, ChevronRight, HelpCircle, Target, Sparkles, ListTodo, CheckCircle, BrainCircuit } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
@@ -36,9 +36,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
 import { explainSyllabusTopic } from "@/ai/flows/explain-topic-flow";
+import { createStudyPlan, type CreateStudyPlanOutput } from "@/ai/flows/create-study-plan-flow";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Skeleton } from "../ui/skeleton";
+import { Icons } from "../icons";
 
 // Mapping category to icon and color
 const categoryInfo: Record<ResourceCategory, { icon: React.ElementType, color: string }> = {
@@ -113,6 +115,8 @@ export const DetailPane = ({
     // AI feature state
     const [explanation, setExplanation] = React.useState<string | null>(null);
     const [isExplaining, setIsExplaining] = React.useState(false);
+    const [studyPlan, setStudyPlan] = React.useState<CreateStudyPlanOutput | null>(null);
+    const [isCreatingPlan, setIsCreatingPlan] = React.useState(false);
     const { toast } = useToast();
 
 
@@ -121,9 +125,11 @@ export const DetailPane = ({
             const { topic, path } = findTopicPath(syllabusData, selectedTopicId) || {};
             setTopic(topic || null);
             setPath(path || []);
-            // Reset AI explanation when topic changes
+            // Reset AI features when topic changes
             setExplanation(null);
             setIsExplaining(false);
+            setStudyPlan(null);
+            setIsCreatingPlan(false);
         } else {
             setTopic(null);
             setPath([]);
@@ -233,6 +239,28 @@ export const DetailPane = ({
             setIsExplaining(false);
         }
     };
+    
+    const handleCreateStudyPlan = async () => {
+        if (!topic) return;
+        setIsCreatingPlan(true);
+        setStudyPlan(null);
+        try {
+            const result = await createStudyPlan({
+                title: topic.title,
+                description: topic.description,
+            });
+            setStudyPlan(result);
+        } catch (error) {
+            console.error("AI study plan creation failed:", error);
+            toast({
+                variant: "destructive",
+                title: "AI Plan Failed",
+                description: "Could not generate a study plan. Please try again.",
+            });
+        } finally {
+            setIsCreatingPlan(false);
+        }
+    };
 
     const externalResources = topicResources.filter(r => r.category !== 'note');
     const notes = topicResources.filter(r => r.category === 'note');
@@ -245,10 +273,14 @@ export const DetailPane = ({
                 <div className="space-y-4">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                         <h1 className="text-3xl font-bold font-headline flex-1">{topic.title}</h1>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                              <Button variant="outline" size="sm" onClick={handleExplainTopic} disabled={isExplaining} className="h-8">
                                 <Sparkles className="mr-2 h-4 w-4" />
-                                Explain with AI
+                                Explain
+                            </Button>
+                             <Button variant="outline" size="sm" onClick={handleCreateStudyPlan} disabled={isCreatingPlan} className="h-8">
+                                <Icons.ListTodo className="mr-2 h-4 w-4" />
+                                Create Study Plan
                             </Button>
                             <MasteryControl currentLevel={topic.mastery} onLevelChange={handleMasteryChange} />
                         </div>
@@ -277,6 +309,55 @@ export const DetailPane = ({
 
                 <p className="text-muted-foreground">{topic.description}</p>
                 
+                 {(isCreatingPlan || studyPlan) && (
+                    <div className="space-y-4 rounded-lg border bg-card p-4 text-card-foreground shadow-sm">
+                        <h4 className="text-lg font-semibold flex items-center gap-2">
+                            <Icons.ListTodo className="h-5 w-5 text-primary" />
+                            AI-Generated Study Plan
+                        </h4>
+                        {isCreatingPlan && (
+                            <div className="space-y-4">
+                                <Skeleton className="h-5 w-1/3" />
+                                <div className="pl-4 space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-5/6" />
+                                </div>
+                                <Skeleton className="h-5 w-1/4" />
+                                <div className="pl-4 space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                </div>
+                            </div>
+                        )}
+                        {studyPlan && (
+                            <div className="space-y-4 text-sm">
+                                <div>
+                                    <h5 className="font-semibold mb-1">Key Focus Areas:</h5>
+                                    <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                                        {studyPlan.keyFocusAreas.map((area, i) => <li key={i}>{area}</li>)}
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h5 className="font-semibold mb-1">Suggested Techniques:</h5>
+                                     <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                                        {studyPlan.studyTechniques.map((tech, i) => <li key={i}>{tech}</li>)}
+                                    </ul>
+                                </div>
+                                 <div>
+                                    <h5 className="font-semibold mb-1">Related Topics:</h5>
+                                     <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                                        {studyPlan.crossReferenceTopics.map((topic, i) => <li key={i}>{topic}</li>)}
+                                    </ul>
+                                </div>
+                                <div className="flex items-center gap-2 text-muted-foreground pt-2 border-t mt-4">
+                                    <BrainCircuit className="h-4 w-4 text-primary" />
+                                    <span className="font-semibold text-foreground">Time Allocation:</span>
+                                    <span>{studyPlan.suggestedTimeAllocation}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                 )}
+
                 {(topic.marks || topic.questions) && (
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border bg-muted/50 p-4">
                         {topic.marks && (
