@@ -33,7 +33,6 @@ const otherExams = [
     { name: 'Banking (SBI/IBPS)', icon: Landmark },
     { name: 'UGC NET / CSIR NET', icon: GraduationCap },
     { name: 'GATE / JAM (Life Sci)', icon: FlaskConical },
-    { name: 'IFoS', icon: Sprout },
     { name: 'IB ACIO', icon: Eye },
     { name: 'RRB NTPC / Group B', icon: TramFront },
     { name: 'Technical Scientist', icon: Beaker },
@@ -91,6 +90,23 @@ export default function ExamCentreView({ setActiveView, comparisonData }: ExamCe
                 <CardFooter className="flex-wrap gap-2">
                    <Button onClick={() => setActiveView('mpsc-explorer')}>Explore</Button>
                    <Button variant="ghost" onClick={() => setActiveView('syllabus', 'mpsc')}>Syllabus</Button>
+                   <Button variant="ghost" onClick={() => setActiveView('insights')}>Insights</Button>
+                </CardFooter>
+              </Card>
+              
+              <Card className="flex flex-col border-t-4 border-primary">
+                <CardHeader>
+                    <div className="bg-primary/10 text-primary self-start rounded-lg p-3">
+                        <Sprout className="h-6 w-6" />
+                    </div>
+                </CardHeader>
+                <CardContent className="flex-grow space-y-2">
+                  <CardTitle>Indian Forest Service (IFoS)</CardTitle>
+                  <CardDescription>Explore the structure of the Indian Forest Service Examination.</CardDescription>
+                </CardContent>
+                <CardFooter className="flex-wrap gap-2">
+                   <Button onClick={() => setActiveView('ifos-explorer')}>Explore</Button>
+                   <Button variant="ghost" onClick={() => setActiveView('syllabus', 'ifos')}>Syllabus</Button>
                    <Button variant="ghost" onClick={() => setActiveView('insights')}>Insights</Button>
                 </CardFooter>
               </Card>

@@ -16,20 +16,51 @@ interface InsightsViewProps {
   upscSyllabus: SyllabusTopic[];
   mpscExam: Exam;
   mpscSyllabus: SyllabusTopic[];
+  ifosExam: Exam;
+  ifosSyllabus: SyllabusTopic[];
 }
 
-export default function InsightsView({ upscExam, upscSyllabus, mpscExam, mpscSyllabus }: InsightsViewProps) {
-  const [selectedExam, setSelectedExam] = React.useState<'upsc' | 'mpsc'>('upsc');
+type SelectableExam = 'upsc' | 'mpsc' | 'ifos';
+
+export default function InsightsView({ 
+  upscExam, upscSyllabus, 
+  mpscExam, mpscSyllabus,
+  ifosExam, ifosSyllabus
+}: InsightsViewProps) {
+  const [selectedExam, setSelectedExam] = React.useState<SelectableExam>('upsc');
 
   const { exam, syllabus, title } = React.useMemo(() => {
-    return selectedExam === 'upsc'
-      ? { exam: upscExam, syllabus: upscSyllabus, title: 'UPSC CSE' }
-      : { exam: mpscExam, syllabus: mpscSyllabus, title: 'MPSC Rajyaseva' };
-  }, [selectedExam, upscExam, upscSyllabus, mpscExam, mpscSyllabus]);
+    switch(selectedExam) {
+      case 'mpsc':
+        return { exam: mpscExam, syllabus: mpscSyllabus, title: 'MPSC Rajyaseva' };
+      case 'ifos':
+        return { exam: ifosExam, syllabus: ifosSyllabus, title: 'IFoS' };
+      case 'upsc':
+      default:
+        return { exam: upscExam, syllabus: upscSyllabus, title: 'UPSC CSE' };
+    }
+  }, [selectedExam, upscExam, upscSyllabus, mpscExam, mpscSyllabus, ifosExam, ifosSyllabus]);
 
   const stats = React.useMemo(() => {
+    if (!exam || exam.stages.length === 0) {
+        return null;
+    }
     return calculateExamStats(exam, syllabus);
   }, [exam, syllabus]);
+
+  if (!stats) {
+    return (
+      <>
+        <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
+            <Icons.Sparkles className="h-6 w-6" />
+            <h2 className="text-lg font-semibold">Exam Insights</h2>
+        </header>
+        <main className="flex-1 space-y-6 p-4 md:p-6 lg:p-8">
+            <p>Insights for this exam could not be loaded. Please ensure the database is connected and migrated.</p>
+        </main>
+      </>
+    )
+  }
 
   return (
     <>
@@ -41,10 +72,11 @@ export default function InsightsView({ upscExam, upscSyllabus, mpscExam, mpscSyl
         <main className="flex-1 space-y-6 p-4 md:p-6 lg:p-8">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-2xl font-headline font-bold">{title}: At a Glance</h2>
-                 <Tabs defaultValue="upsc" onValueChange={(value) => setSelectedExam(value as 'upsc' | 'mpsc')}>
+                 <Tabs defaultValue="upsc" onValueChange={(value) => setSelectedExam(value as SelectableExam)}>
                     <TabsList>
                         <TabsTrigger value="upsc">UPSC CSE</TabsTrigger>
                         <TabsTrigger value="mpsc">MPSC Rajyaseva</TabsTrigger>
+                        <TabsTrigger value="ifos">IFoS</TabsTrigger>
                     </TabsList>
                 </Tabs>
             </div>

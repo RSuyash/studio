@@ -41,6 +41,7 @@ const SyllabusHeader = ({
               <SelectContent>
                   <SelectItem value="upsc">UPSC CSE</SelectItem>
                   <SelectItem value="mpsc">MPSC Rajyaseva</SelectItem>
+                  <SelectItem value="ifos">IFoS</SelectItem>
               </SelectContent>
           </Select>
           <Button variant="outline" size="icon" onClick={onFilterToggle} className="md:hidden">
@@ -49,6 +50,12 @@ const SyllabusHeader = ({
         </div>
     </header>
 );
+
+const syllabusTitles: Record<SyllabusType, string> = {
+    upsc: "UPSC Syllabus",
+    mpsc: "MPSC Syllabus",
+    ifos: "IFoS Syllabus",
+};
 
 export default function SyllabusViewer({ 
   syllabusData, 
@@ -128,7 +135,7 @@ export default function SyllabusViewer({
             data={filteredData}
             selectedTopicId={selectedTopicId}
             onSelectTopic={setSelectedTopicId}
-            title={activeSyllabus === 'upsc' ? "UPSC Syllabus" : "MPSC Syllabus"}
+            title={syllabusTitles[activeSyllabus]}
           />
         </div>
         <div className="min-w-0 flex-1">
@@ -161,7 +168,7 @@ export default function SyllabusViewer({
                     setSelectedTopicId(id);
                     setMobileSheetOpen(false); // Close sheet on selection
                   }}
-                  title={activeSyllabus === 'upsc' ? "UPSC Syllabus" : "MPSC Syllabus"}
+                  title={syllabusTitles[activeSyllabus]}
                 />
             </div>
         </SheetContent>

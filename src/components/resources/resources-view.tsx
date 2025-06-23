@@ -44,7 +44,7 @@ export default function ResourcesView({
 }: {
   resourceData: Record<string, Resource[]>;
   setResourceData: React.Dispatch<React.SetStateAction<Record<string, Resource[]>>>;
-  allSyllabusData: { upsc: SyllabusTopic[], mpsc: SyllabusTopic[] };
+  allSyllabusData: { upsc: SyllabusTopic[], mpsc: SyllabusTopic[], ifos: SyllabusTopic[] };
 }) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingResource, setEditingResource] = React.useState<ResourceWithTopicInfo | null>(null);
@@ -54,11 +54,13 @@ export default function ResourcesView({
   const [typeFilter, setTypeFilter] = React.useState<ResourceCategory | 'all'>('all');
   const [statusFilter, setStatusFilter] = React.useState<ResourceStatus | 'all'>('all');
 
+  const combinedSyllabus = React.useMemo(() => {
+    return [...allSyllabusData.upsc, ...allSyllabusData.mpsc, ...allSyllabusData.ifos];
+  }, [allSyllabusData]);
+
   const allResources = React.useMemo(() => {
-    // Combine both syllabus trees for a comprehensive resource list
-    const combinedSyllabus = [...allSyllabusData.upsc, ...allSyllabusData.mpsc];
     return getAllResources(resourceData, combinedSyllabus);
-  }, [resourceData, allSyllabusData]);
+  }, [resourceData, combinedSyllabus]);
 
   const filteredResources = React.useMemo(() => {
     return allResources.filter(resource => {
@@ -222,7 +224,7 @@ export default function ResourcesView({
         onOpenChange={handleDialogClose}
         onSubmit={handleFormSubmit}
         resourceToEdit={editingResource}
-        syllabusData={[...allSyllabusData.upsc, ...allSyllabusData.mpsc]}
+        syllabusData={combinedSyllabus}
       />
       
       <AlertDialog open={!!resourceToDelete} onOpenChange={(isOpen) => !isOpen && setResourceToDelete(null)}>

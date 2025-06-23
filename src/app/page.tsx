@@ -11,9 +11,13 @@ export default async function Home() {
   // Fetch dynamic data from the database (or fallback to TS files)
   const upscSyllabusData = await getSyllabusDataForExam('upsc');
   const mpscSyllabusData = await getSyllabusDataForExam('mpsc');
+  const ifosSyllabusData = await getSyllabusDataForExam('ifos');
+  
   const allResourceData = await getResourceData();
+  
   const upscExamData = await getExamData('upsc');
   const mpscExamData = await getExamData('mpsc');
+  const ifosExamData = await getExamData('ifos');
 
   return (
     <>
@@ -21,9 +25,11 @@ export default async function Home() {
         comparisonData={comparisonData} 
         upscSyllabusData={upscSyllabusData}
         mpscSyllabusData={mpscSyllabusData}
+        ifosSyllabusData={ifosSyllabusData}
         resourceData={allResourceData}
         upscExamData={upscExamData}
         mpscExamData={mpscExamData}
+        ifosExamData={ifosExamData}
       />
       <Toaster />
     </>

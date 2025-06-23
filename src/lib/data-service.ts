@@ -2,8 +2,18 @@ import { pool } from './db';
 import type { SyllabusTopic, Resource, Exam } from './types';
 import type { PoolClient } from 'pg';
 
+const placeholderIfosExam: Exam = {
+    id: 'ifos',
+    title: 'IFoS Exam Data Not Found',
+    description: 'Please connect to the database to view this content. Run the migration script to populate the data.',
+    stages: [],
+    finalScore: [],
+};
+
 // Helper function to build a tree from a flat list of topics
 const buildSyllabusTree = (topics: any[]): SyllabusTopic[] => {
+    if (topics.length === 0) return [];
+    
     const topicMap = new Map<string, any>();
     const roots: SyllabusTopic[] = [];
 
@@ -39,9 +49,13 @@ const buildSyllabusTree = (topics: any[]): SyllabusTopic[] => {
     return roots;
 };
 
-export async function getSyllabusDataForExam(examId: 'upsc' | 'mpsc'): Promise<SyllabusTopic[]> {
+export async function getSyllabusDataForExam(examId: 'upsc' | 'mpsc' | 'ifos'): Promise<SyllabusTopic[]> {
     if (!pool) {
         console.log(`Database not connected. Falling back to mock data for ${examId} syllabus.`);
+        if (examId === 'ifos') {
+            console.log('Database not connected. Returning empty syllabus for IFoS.');
+            return [];
+        }
         if (examId === 'upsc') {
             const { initialSyllabusData } = await import('@/lib/exams/upsc/upsc-syllabus-data');
             return initialSyllabusData;
@@ -71,6 +85,10 @@ export async function getSyllabusDataForExam(examId: 'upsc' | 'mpsc'): Promise<S
         return buildSyllabusTree(res.rows);
     } catch (e) {
         console.error(`Failed to fetch syllabus for ${examId} from database. Falling back to mock data.`, e);
+        if (examId === 'ifos') {
+            console.error('Failed to fetch IFoS syllabus from database. Returning empty syllabus.', e);
+            return [];
+        }
         if (examId === 'upsc') {
             const { initialSyllabusData } = await import('@/lib/exams/upsc/upsc-syllabus-data');
             return initialSyllabusData;
@@ -128,9 +146,13 @@ export async function getResourceData(): Promise<Record<string, Resource[]>> {
     }
 }
 
-export async function getExamData(examId: 'upsc' | 'mpsc'): Promise<Exam> {
+export async function getExamData(examId: 'upsc' | 'mpsc' | 'ifos'): Promise<Exam> {
     if (!pool) {
         console.log(`Database not connected. Falling back to mock data for ${examId} exam structure.`);
+        if (examId === 'ifos') {
+            console.log('Database not connected. Returning placeholder for IFoS exam data.');
+            return placeholderIfosExam;
+        }
         if (examId === 'upsc') {
             const { upscCseExam } = await import('@/lib/exams/upsc/upsc-exam-data');
             return upscCseExam;
@@ -147,12 +169,20 @@ export async function getExamData(examId: 'upsc' | 'mpsc'): Promise<Exam> {
         const query = 'SELECT structure FROM exam_details WHERE id = $1';
         const res = await client.query(query, [examId]);
         if (res.rows.length === 0) {
+             if (examId === 'ifos') {
+                console.error('IFoS exam structure not found in database. Returning placeholder.');
+                return placeholderIfosExam;
+            }
             throw new Error(`Exam structure for ${examId} not found in database.`);
         }
         console.log(`Successfully fetched exam structure for ${examId} from database.`);
         return res.rows[0].structure as Exam;
     } catch (e) {
         console.error(`Failed to fetch exam structure for ${examId} from database. Falling back to mock data.`, e);
+        if (examId === 'ifos') {
+            console.error('Failed to fetch IFoS exam from database. Returning placeholder.', e);
+            return placeholderIfosExam;
+        }
         if (examId === 'upsc') {
             const { upscCseExam } = await import('@/lib/exams/upsc/upsc-exam-data');
             return upscCseExam;

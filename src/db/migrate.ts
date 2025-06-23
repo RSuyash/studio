@@ -13,9 +13,11 @@ import 'dotenv/config';
 
 import { initialSyllabusData as upscSyllabus } from '../lib/exams/upsc/upsc-syllabus-data';
 import { mpscSyllabusData as mpscSyllabus } from '../lib/exams/mpsc/mpsc-syllabus-data';
+import { ifosSyllabusData } from '../lib/exams/ifos/ifos-syllabus-data';
 import { initialResourceData } from '../lib/resources/resource-data';
 import { upscCseExam } from '../lib/exams/upsc/upsc-exam-data';
 import { mpscRajyasevaExam } from '../lib/exams/mpsc/mpsc-exam-data';
+import { ifosExam } from '../lib/exams/ifos/ifos-exam-data';
 import type { SyllabusTopic, Resource } from '../lib/types';
 
 if (!process.env.DATABASE_URL) {
@@ -35,14 +37,14 @@ interface FlatTopic {
   questions: number | undefined;
   mastery: string;
   parent_id: string | null;
-  exam_id: 'upsc' | 'mpsc';
+  exam_id: 'upsc' | 'mpsc' | 'ifos';
   tags: string[];
 }
 
 // Recursively flattens the syllabus tree
 const flattenSyllabus = (
   topics: SyllabusTopic[],
-  exam_id: 'upsc' | 'mpsc',
+  exam_id: 'upsc' | 'mpsc' | 'ifos',
   parent_id: string | null = null
 ): FlatTopic[] => {
   let flatList: FlatTopic[] = [];
@@ -86,12 +88,13 @@ async function main() {
     await client.query(`
       INSERT INTO exams (id, name) VALUES 
       ('upsc', 'UPSC CSE'),
-      ('mpsc', 'MPSC Rajyaseva');
+      ('mpsc', 'MPSC Rajyaseva'),
+      ('ifos', 'IFoS');
     `);
     
     await client.query(
-        `INSERT INTO exam_details (id, structure) VALUES ($1, $2), ($3, $4)`,
-        ['upsc', JSON.stringify(upscCseExam), 'mpsc', JSON.stringify(mpscRajyasevaExam)]
+        `INSERT INTO exam_details (id, structure) VALUES ($1, $2), ($3, $4), ($5, $6)`,
+        ['upsc', JSON.stringify(upscCseExam), 'mpsc', JSON.stringify(mpscRajyasevaExam), 'ifos', JSON.stringify(ifosExam)]
     );
     console.log('Exams and structures inserted.');
 
@@ -100,6 +103,7 @@ async function main() {
     const allFlatTopics = [
       ...flattenSyllabus(upscSyllabus, 'upsc'),
       ...flattenSyllabus(mpscSyllabus, 'mpsc'),
+      ...flattenSyllabus(ifosSyllabusData, 'ifos'),
     ];
 
     const allTags = [...new Set(allFlatTopics.flatMap(t => t.tags))];

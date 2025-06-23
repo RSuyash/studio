@@ -23,36 +23,42 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import ResourcesView from '@/components/resources/resources-view';
 import ExamExplorerView from './exam-explorer/exam-explorer-view';
 import MpscExplorerView from './exam-explorer/mpsc-explorer-view';
+import IfosExplorerView from './exam-explorer/ifos-explorer-view';
 import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
 import { LogOut } from 'lucide-react';
 
-export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer';
-export type SyllabusType = 'upsc' | 'mpsc';
+export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'ifos-explorer';
+export type SyllabusType = 'upsc' | 'mpsc' | 'ifos';
 
 interface MainLayoutProps {
   comparisonData: ExamComparisonData[];
   upscSyllabusData: SyllabusTopic[];
   mpscSyllabusData: SyllabusTopic[];
+  ifosSyllabusData: SyllabusTopic[];
   resourceData: Record<string, Resource[]>;
   upscExamData: Exam;
   mpscExamData: Exam;
+  ifosExamData: Exam;
 }
 
 export default function MainLayout({ 
   comparisonData,
   upscSyllabusData: initialUpscData,
   mpscSyllabusData: initialMpscData,
+  ifosSyllabusData: initialIfosData,
   resourceData: initialResourceData,
   upscExamData,
   mpscExamData,
+  ifosExamData,
 }: MainLayoutProps) {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
   const [activeSyllabus, setActiveSyllabus] = React.useState<SyllabusType>('upsc');
 
   const [upscData, setUpscData] = React.useState(initialUpscData);
   const [mpscData, setMpscData] = React.useState(initialMpscData);
+  const [ifosData, setIfosData] = React.useState(initialIfosData);
   const [resourceData, setResourceData] = React.useState<Record<string, Resource[]>>(initialResourceData);
 
   const menuItems = [
@@ -71,7 +77,7 @@ export default function MainLayout({
   };
 
   const renderActiveView = () => {
-    const allSyllabusData = { upsc: upscData, mpsc: mpscData };
+    const allSyllabusData = { upsc: upscData, mpsc: mpscData, ifos: ifosData };
 
     switch (activeView) {
         case 'dashboard':
@@ -80,21 +86,26 @@ export default function MainLayout({
             return <ExamExplorerView setActiveView={handleViewChange} exam={upscExamData} />;
         case 'mpsc-explorer':
             return <MpscExplorerView setActiveView={handleViewChange} exam={mpscExamData} />;
+        case 'ifos-explorer':
+            return <IfosExplorerView setActiveView={handleViewChange} exam={ifosExamData} />;
         case 'insights':
             return <InsightsView 
                       upscExam={upscExamData}
                       upscSyllabus={upscData}
                       mpscExam={mpscExamData}
                       mpscSyllabus={mpscData}
+                      ifosExam={ifosExamData}
+                      ifosSyllabus={ifosData}
                    />;
         case 'exam-centre':
             return <ExamCentreView setActiveView={handleViewChange} comparisonData={comparisonData} />;
         case 'syllabus': {
-            const data = activeSyllabus === 'upsc' ? upscData : mpscData;
-            const setData = activeSyllabus === 'upsc' ? setUpscData : setMpscData;
+            const dataMap = { upsc: upscData, mpsc: mpscData, ifos: ifosData };
+            const setDataMap = { upsc: setUpscData, mpsc: setMpscData, ifos: setIfosData };
+
             return <SyllabusViewer 
-                syllabusData={data} 
-                setSyllabusData={setData} 
+                syllabusData={dataMap[activeSyllabus]} 
+                setSyllabusData={setDataMap[activeSyllabus]} 
                 activeSyllabus={activeSyllabus} 
                 setActiveSyllabus={setActiveSyllabus}
                 resourceData={resourceData}
