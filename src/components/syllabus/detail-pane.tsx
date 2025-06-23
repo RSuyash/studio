@@ -6,7 +6,7 @@ import type { SyllabusTopic, MasteryLevel, Resource, ResourceCategory } from "@/
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
-import { Tag, Plus, MoreVertical, Edit, Trash2, Library, Book, Video, FileText, StickyNote, BarChartHorizontal, ChevronRight, HelpCircle, Target } from 'lucide-react';
+import { Tag, Plus, MoreVertical, Edit, Trash2, Library, Book, Video, FileText, StickyNote, BarChartHorizontal, ChevronRight, HelpCircle, Target, Sparkles } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,10 @@ import { findTopicPath } from "@/lib/resource-utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
+import { explainSyllabusTopic } from "@/ai/flows/explain-topic-flow";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Skeleton } from "../ui/skeleton";
 
 // Mapping category to icon and color
 const categoryInfo: Record<ResourceCategory, { icon: React.ElementType, color: string }> = {
@@ -106,11 +110,20 @@ export const DetailPane = ({
     const [topic, setTopic] = React.useState<SyllabusTopic | null>(null);
     const [path, setPath] = React.useState<SyllabusTopic[]>([]);
 
+    // AI feature state
+    const [explanation, setExplanation] = React.useState<string | null>(null);
+    const [isExplaining, setIsExplaining] = React.useState(false);
+    const { toast } = useToast();
+
+
     React.useEffect(() => {
         if (selectedTopicId) {
             const { topic, path } = findTopicPath(syllabusData, selectedTopicId) || {};
             setTopic(topic || null);
             setPath(path || []);
+            // Reset AI explanation when topic changes
+            setExplanation(null);
+            setIsExplaining(false);
         } else {
             setTopic(null);
             setPath([]);
@@ -199,6 +212,28 @@ export const DetailPane = ({
         setResourceToDelete(null);
     };
 
+    const handleExplainTopic = async () => {
+        if (!topic) return;
+        setIsExplaining(true);
+        setExplanation(null);
+        try {
+            const result = await explainSyllabusTopic({
+                title: topic.title,
+                description: topic.description,
+            });
+            setExplanation(result.explanation);
+        } catch (error) {
+            console.error("AI explanation failed:", error);
+            toast({
+                variant: "destructive",
+                title: "AI Explanation Failed",
+                description: "Could not generate an explanation for this topic. Please try again later.",
+            });
+        } finally {
+            setIsExplaining(false);
+        }
+    };
+
     const externalResources = topicResources.filter(r => r.category !== 'note');
     const notes = topicResources.filter(r => r.category === 'note');
 
@@ -207,9 +242,37 @@ export const DetailPane = ({
             <div className="space-y-8 p-6">
                 <SyllabusBreadcrumb path={path} />
 
-                <div className="flex items-start justify-between gap-4">
-                    <h1 className="text-3xl font-bold font-headline">{topic.title}</h1>
-                    <MasteryControl currentLevel={topic.mastery} onLevelChange={handleMasteryChange} />
+                <div className="space-y-4">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                        <h1 className="text-3xl font-bold font-headline flex-1">{topic.title}</h1>
+                        <div className="flex items-center gap-2">
+                             <Button variant="outline" size="sm" onClick={handleExplainTopic} disabled={isExplaining} className="h-8">
+                                <Sparkles className="mr-2 h-4 w-4" />
+                                Explain with AI
+                            </Button>
+                            <MasteryControl currentLevel={topic.mastery} onLevelChange={handleMasteryChange} />
+                        </div>
+                    </div>
+                    {(isExplaining || explanation) && (
+                        <div className="pt-2">
+                             {isExplaining && (
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-1/4" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-3/4" />
+                                </div>
+                             )}
+                             {explanation && (
+                                <Alert className="bg-primary/5 border-primary/20">
+                                    <Sparkles className="h-4 w-4 text-primary" />
+                                    <AlertTitle className="text-primary font-semibold">AI Explanation</AlertTitle>
+                                    <AlertDescription className="text-foreground/90">
+                                        {explanation}
+                                    </AlertDescription>
+                                </Alert>
+                             )}
+                        </div>
+                    )}
                 </div>
 
                 <p className="text-muted-foreground">{topic.description}</p>
