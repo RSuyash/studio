@@ -1,51 +1,76 @@
-# Database Migration
+# Database Setup and Migration Guide
 
-This directory contains scripts to migrate the application's data from TypeScript files to a PostgreSQL database.
+This guide provides instructions for setting up a local PostgreSQL database, migrating the application's data from TypeScript files, and running the app with a live database connection.
 
-## Prerequisites
+## How the Connection Works
 
-1.  **PostgreSQL Instance**: You need a running PostgreSQL database.
-2.  **Database URL**: You must set the `DATABASE_URL` environment variable to point to your PostgreSQL instance. The format is: `postgres://USER:PASSWORD@HOST:PORT/DATABASE`
+The application is designed to be flexible. It looks for a `DATABASE_URL` environment variable on startup.
+- **If `DATABASE_URL` is found**, it will connect to your PostgreSQL database to load and manage syllabus and resource data.
+- **If `DATABASE_URL` is NOT found**, the app will gracefully fall back to using the static data from the TypeScript files located in `/src/lib/`. No database is required in this case.
 
-    Create a `.env.local` file in the project root and add your connection string:
-    ```
-    DATABASE_URL=postgres://user:password@localhost:5432/nexus_cortex
-    ```
-    *If you do not set this variable, the application will fall back to using the static TypeScript files in `src/lib/`.*
+---
 
-## Setup & Migration Steps
+## Local Setup Steps
 
-1.  **Create the Database**:
-    Manually create a new database in your PostgreSQL instance (e.g., `nexus_cortex`).
+### Prerequisites
 
-2.  **Create Tables**:
-    Run the `schema.sql` file against your newly created database to set up the required tables. You can do this using a tool like `psql`:
-    ```bash
-    psql -d YOUR_DATABASE_URL -f src/db/schema.sql
-    ```
+1.  **PostgreSQL Installed**: You must have a PostgreSQL server running on your local machine.
+2.  **`psql` CLI**: Ensure you have the `psql` command-line tool available, which usually comes with the PostgreSQL installation.
 
-3.  **Install Dependencies**:
-    Make sure all project dependencies are installed:
-    ```bash
-    npm install
-    ```
+### Step 1: Create a Database
 
-4.  **Run the Migration Script**:
-    Execute the migration script. This will read the data from the `.ts` files in `src/lib/` and populate your PostgreSQL tables.
-    ```bash
-    npm run db:migrate
-    ```
+First, create a new database for the application. You can do this using `psql` or any database management tool.
 
-## Running the Application with PostgreSQL
+```bash
+# Example using psql
+createdb nexus_cortex
+```
 
-Once you have completed the migration steps above, you can run the application, and it will load its data from your PostgreSQL database.
+### Step 2: Set Up Environment Variables
 
-1.  **Start the Development Server**:
-    ```bash
-    npm run dev
-    ```
+Create a new file named `.env.local` in the root directory of the project (at the same level as `package.json`).
 
-2.  **Verify Connection**:
-    The application will now fetch all syllabus and resource data from your PostgreSQL instance on initial load. If the connection fails or the `DATABASE_URL` is not set, it will automatically fall back to using the local TypeScript files without crashing.
+Add your database connection string to this file. The format is `postgres://USER:PASSWORD@HOST:PORT/DATABASE`.
 
-**Note**: Currently, only the initial data loading is connected to the database. Any updates, additions, or deletions you make within the application (e.g., changing mastery level, adding a resource) are handled in-memory and will not be persisted to the database yet. Full database persistence for write operations will be implemented in a future update.
+**File: `.env.local`**
+```
+DATABASE_URL=postgres://your_user:your_password@localhost:5432/nexus_cortex
+```
+*Replace `your_user` and `your_password` with your actual PostgreSQL credentials. If you don't have a password set up, the format might be `postgres://your_user@localhost:5432/nexus_cortex`.*
+
+### Step 3: Install Dependencies
+
+Make sure you have installed the necessary Node.js packages, including the `pg` driver for PostgreSQL.
+
+```bash
+npm install
+```
+
+### Step 4: Create Database Tables
+
+The `schema.sql` file contains the commands to create all the necessary tables. Run this script against the database you created in Step 1.
+
+```bash
+# This command executes the schema file on your database
+psql -d YOUR_DATABASE_URL -f src/db/schema.sql
+```
+*Replace `YOUR_DATABASE_URL` with the same connection string you used in your `.env.local` file.*
+
+### Step 5: Run the Data Migration Script
+
+Now, populate the tables with the initial data from the TypeScript files. The project has a pre-configured script for this.
+
+```bash
+npm run db:migrate
+```
+You should see console logs indicating that the data for exams, topics, tags, and resources has been inserted successfully.
+
+### Step 6: Run the Application
+
+You're all set! Start the Next.js development server.
+
+```bash
+npm run dev
+```
+
+The application will now automatically detect your `.env.local` file and connect to your PostgreSQL database on startup. All initial syllabus and resource data will be fetched directly from your local database.
