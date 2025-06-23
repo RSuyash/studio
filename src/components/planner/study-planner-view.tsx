@@ -1,22 +1,13 @@
-
 'use client';
 
 import * as React from 'react';
-import { useToast } from '@/hooks/use-toast';
-import type { SyllabusTopic } from '@/lib/types';
-import type { DailyPlanSchema } from '@/ai/flows/study-plan/schemas';
 import { serializeSyllabusWithMastery, findTopicById } from '@/lib/resource-utils';
 import { Icons } from '../icons';
 import type { View, SyllabusType } from '../main-layout';
 import PlannerForm from './planner-form';
 import PlannerResults from './planner-results';
-import type { z } from 'zod';
-
-interface GenerateStudyPlanOutput {
-    plan: z.infer<typeof DailyPlanSchema>[];
-    summary: string;
-}
-
+import type { SyllabusTopic } from '@/lib/types';
+import { useStudyPlanStream } from '@/hooks/use-study-plan-stream';
 
 const parseDurationToHours = (durationStr: string): number => {
     if (!durationStr) return 0;
@@ -43,82 +34,14 @@ interface StudyPlannerViewProps {
 }
 
 export default function StudyPlannerView({ allSyllabusData, setActiveView }: StudyPlannerViewProps) {
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [studyPlan, setStudyPlan] = React.useState<GenerateStudyPlanOutput | null>(null);
-  const { toast } = useToast();
+  const { studyPlan, isLoading, generatePlan } = useStudyPlanStream();
 
   const syllabusContext = React.useMemo(() => {
     return serializeSyllabusWithMastery(allSyllabusData);
   }, [allSyllabusData]);
 
-  const onSubmit = async (values: { focusAreas: string, timeframe: string, hoursPerWeek: number }) => {
-    setIsLoading(true);
-    setStudyPlan(null); // Clear previous plan
-
-    try {
-        const response = await fetch('/api/generate-plan', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...values, syllabusContext }),
-        });
-
-        if (!response.ok || !response.body) {
-            throw new Error(`Failed to generate plan. Status: ${response.status}`);
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let accumulatedJson = '';
-
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-
-            accumulatedJson += decoder.decode(value, { stream: true });
-
-            let boundary = accumulatedJson.indexOf('\n');
-            while (boundary !== -1) {
-                const jsonString = accumulatedJson.substring(0, boundary);
-                accumulatedJson = accumulatedJson.substring(boundary + 1);
-
-                if (jsonString.trim()) {
-                    try {
-                        const parsed = JSON.parse(jsonString);
-
-                        if (parsed.type === 'day') {
-                            setStudyPlan(prevPlan => ({
-                                plan: [...(prevPlan?.plan || []), parsed.payload],
-                                summary: prevPlan?.summary || 'Generating plan, please wait...'
-                            }));
-                        } else if (parsed.type === 'summary') {
-                             setStudyPlan(prevPlan => ({
-                                plan: prevPlan?.plan || [],
-                                summary: parsed.payload
-                            }));
-                        } else if (parsed.type === 'error') {
-                            throw new Error(parsed.payload);
-                        }
-
-                    } catch (e) {
-                        console.error("Failed to parse JSON chunk:", e, jsonString);
-                    }
-                }
-                boundary = accumulatedJson.indexOf('\n');
-            }
-        }
-
-    } catch (error) {
-      console.error('Failed to generate study plan:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-      toast({
-        variant: 'destructive',
-        title: 'Error Generating Plan',
-        description: `The AI failed to create a plan. ${errorMessage}`,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSubmit = (values: { focusAreas: string, timeframe: string, hoursPerWeek: number }) => {
+    generatePlan({ ...values, syllabusContext });
   };
 
   const planHours = React.useMemo(() => {
@@ -158,7 +81,7 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
       <div className="grid min-h-0 flex-1 md:grid-cols-[400px_1fr]">
           <PlannerForm
             isLoading={isLoading}
-            onSubmit={onSubmit}
+            onSubmit={handleSubmit}
           />
           <PlannerResults
             isLoading={isLoading}
