@@ -171,11 +171,60 @@ export const initialSyllabusData: SyllabusTopic[] = [
         mastery: 'none',
         resources: [],
         subtopics: [
-          { id: 'mains-gs1-art-culture', title: 'Indian Culture', description: 'Salient aspects of Art Forms, Literature, and Architecture from ancient to modern times.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs1-modern-history', title: 'Modern Indian History', description: 'From about the middle of the eighteenth century until the present- significant events, issues, personalities. The Freedom Struggle - its various stages and important contributors/contributions from different parts of the country. Post-independence consolidation and reorganization within the country.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs1-world-history', title: 'History of the World', description: 'Events from 18th century such as industrial revolution, world wars, redrawal of national boundaries, colonization, decolonization, political philosophies like communism, capitalism, socialism etc.— their forms and effect on the society.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs1-society', title: 'Society', description: 'Salient features of Indian Society, Diversity of India. Role of women and women’s organization, population and associated issues, poverty and developmental issues, urbanization, their problems and their remedies. Effects of globalization on Indian society. Social empowerment, communalism, regionalism & secularism.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs1-geography', title: 'Geography', description: 'Salient features of world’s physical geography. Distribution of key natural resources across the world (including South Asia and the Indian sub-continent); factors responsible for the location of primary, secondary, and tertiary sector industries in various parts of the world (including India). Important Geophysical phenomena such as earthquakes, Tsunami, Volcanic activity, cyclone etc., geographical features and their location-changes in critical geographical features (including water-bodies and ice-caps) and in flora and fauna and the effects of such changes.', tags: [], mastery: 'none', resources: [] },
+            { 
+                id: 'mains-gs1-art-culture', 
+                title: 'Indian Heritage and Culture', 
+                description: 'Covers the cultural history of India.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                  { id: 'mains-gs1-art-forms', title: 'Art Forms', description: 'Salient aspects of Indian Art Forms from ancient to modern times.', tags: [], mastery: 'none', resources: [] },
+                  { id: 'mains-gs1-literature', title: 'Literature', description: 'Salient aspects of Indian Literature from ancient to modern times.', tags: [], mastery: 'none', resources: [] },
+                  { id: 'mains-gs1-architecture', title: 'Architecture', description: 'Salient aspects of Indian Architecture from ancient to modern times.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs1-modern-history', 
+                title: 'Modern Indian History', 
+                description: 'From the middle of the 18th century until the present, including the freedom struggle and post-independence consolidation.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                  { id: 'mains-gs1-mid-18th-century', title: 'Significant Events, Issues, Personalities (from mid-18th Century)', description: 'Key events, challenges, and influential figures from around 1750 onwards.', tags: [], mastery: 'none', resources: [] },
+                  { id: 'mains-gs1-freedom-struggle', title: 'The Freedom Struggle', description: 'Its various stages and important contributors/contributions from different parts of the country.', tags: [], mastery: 'none', resources: [] },
+                  { id: 'mains-gs1-post-independence', title: 'Post-independence Consolidation', description: 'Consolidation and reorganization within the country after 1947.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs1-world-history', 
+                title: 'History of the World', 
+                description: 'Events from 18th century such as industrial revolution, world wars, redrawal of national boundaries, colonization, decolonization, political philosophies etc.',
+                tags: [], mastery: 'none', resources: []
+            },
+            { 
+                id: 'mains-gs1-society', 
+                title: 'Indian Society', 
+                description: 'Structure, issues, and dynamics of Indian society.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs1-society-features', title: 'Salient features of Indian Society, Diversity of India', description: 'The core characteristics and diversity of Indian society.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs1-society-women', title: 'Role of women and women’s organization', description: 'The role and challenges of women and their organizations.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs1-society-issues', title: 'Population, Poverty, Urbanization', description: 'Population and associated issues, poverty and developmental issues, urbanization, their problems and their remedies.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs1-society-globalization', title: 'Effects of globalization on Indian society', description: 'The social and cultural impact of globalization.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs1-society-empowerment', title: 'Social empowerment, communalism, regionalism & secularism', description: 'Key social dynamics and challenges.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs1-geography', 
+                title: 'Geography of the World and India', 
+                description: 'Physical, social, and economic geography.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs1-geography-physical', title: 'Salient features of world’s physical geography', description: 'Key landforms, climate zones, and oceanographic features.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs1-geography-resources', title: 'Distribution of key natural resources', description: 'Distribution across the world (including South Asia and the Indian sub-continent).', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs1-geography-industries', title: 'Location of industries', description: 'Factors responsible for the location of primary, secondary, and tertiary sector industries.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs1-geography-phenomena', title: 'Important Geophysical phenomena', description: 'Earthquakes, Tsunami, Volcanic activity, cyclone etc.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs1-geography-changes', title: 'Changes in critical geographical features', description: 'Changes in water-bodies, ice-caps, flora and fauna and the effects of such changes.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
         ],
       },
       {
@@ -187,11 +236,69 @@ export const initialSyllabusData: SyllabusTopic[] = [
         mastery: 'none',
         resources: [],
         subtopics: [
-          { id: 'mains-gs2-constitution', title: 'Indian Constitution', description: 'Historical underpinnings, evolution, features, amendments, significant provisions and basic structure. Functions and responsibilities of the Union and the States, issues and challenges pertaining to the federal structure, devolution of powers and finances up to local levels and challenges therein. Separation of powers between various organs dispute redressal mechanisms and institutions. Comparison of the Indian constitutional scheme with that of other countries.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs2-polity', title: 'Polity', description: 'Parliament and State legislatures—structure, functioning, conduct of business, powers & privileges and issues arising out of these. Structure, organization and functioning of the Executive and the Judiciary—Ministries and Departments of the Government; pressure groups and formal/informal associations and their role in the Polity. Salient features of the Representation of People’s Act. Appointment to various Constitutional posts, powers, functions and responsibilities of various Constitutional Bodies. Statutory, regulatory and various quasi-judicial bodies.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs2-governance', title: 'Governance', description: 'Important aspects of governance, transparency and accountability, e-governance- applications, models, successes, limitations, and potential; citizens charters, transparency & accountability and institutional and other measures. Role of civil services in a democracy.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs2-social-justice', title: 'Social Justice', description: 'Government policies and interventions for development in various sectors and issues arising out of their design and implementation. Development processes and the development industry —the role of NGOs, SHGs, various groups and associations, donors, charities, institutional and other stakeholders. Welfare schemes for vulnerable sections of the population by the Centre and States and the performance of these schemes; mechanisms, laws, institutions and Bodies constituted for the protection and betterment of these vulnerable sections. Issues relating to development and management of Social Sector/Services relating to Health, Education, Human Resources. Issues relating to poverty and hunger.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs2-ir', title: 'International Relations', description: 'India and its neighborhood - relations. Bilateral, regional and global groupings and agreements involving India and/or affecting India’s interests. Effect of policies and politics of developed and developing countries on India’s interests, Indian diaspora. Important International institutions, agencies and fora- their structure, mandate.', tags: [], mastery: 'none', resources: [] },
+            { 
+                id: 'mains-gs2-constitution', 
+                title: 'Indian Constitution', 
+                description: 'The foundational legal and political framework of India.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs2-const-evo', title: 'Historical Underpinnings, Evolution, Features, Amendments', description: 'The making and evolution of the Constitution.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-const-structure', title: 'Significant Provisions and Basic Structure', description: 'Core provisions and the basic structure doctrine.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-const-comparison', title: 'Comparison with other countries', description: 'Comparing the Indian constitutional scheme with that of other nations.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs2-polity', 
+                title: 'Polity', 
+                description: 'The structure and functioning of the Indian political system.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs2-polity-federal', title: 'Functions & Responsibilities of Union & States (Federalism)', description: 'Issues and challenges pertaining to the federal structure, devolution of powers and finances up to local levels.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-polity-separation', title: 'Separation of Powers', description: 'Between various organs, dispute redressal mechanisms and institutions.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-polity-legislature', title: 'Parliament and State Legislatures', description: 'Structure, functioning, conduct of business, powers & privileges.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-polity-executive', title: 'Executive and Judiciary', description: 'Structure, organization and functioning of the Executive and the Judiciary.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-polity-rpa', title: 'Salient features of the Representation of People’s Act', description: 'Key provisions of the RPA.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-polity-bodies', title: 'Constitutional, Statutory, Regulatory and Quasi-judicial bodies', description: 'Appointment, powers, functions and responsibilities.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs2-governance', 
+                title: 'Governance', 
+                description: 'Aspects of governance, transparency, and accountability.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs2-gov-aspects', title: 'Important aspects of governance, transparency and accountability', description: 'Core principles of good governance.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-gov-egov', title: 'E-governance', description: 'Applications, models, successes, limitations, and potential.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-gov-charters', title: 'Citizens Charters', description: 'Mechanisms for accountability to citizens.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-gov-civilservices', title: 'Role of civil services in a democracy', description: 'The function and challenges for the bureaucracy.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs2-social-justice', 
+                title: 'Social Justice', 
+                description: 'Welfare policies and developmental issues.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs2-sj-policies', title: 'Government policies and interventions', description: 'For development in various sectors and issues arising out of their design and implementation.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-sj-dev-process', title: 'Development processes and the development industry', description: 'Role of NGOs, SHGs, various groups and associations, donors, charities.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-sj-vulnerable', title: 'Welfare schemes for vulnerable sections', description: 'Schemes for women, children, SC/ST, minorities, etc., and their performance.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-sj-social-sector', title: 'Issues relating to Health, Education, Human Resources', description: 'Challenges in the management of social sectors.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-sj-poverty', title: 'Issues relating to poverty and hunger', description: 'Core challenges in human development.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs2-ir', 
+                title: 'International Relations', 
+                description: 'India\'s engagement with the world.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs2-ir-neighborhood', title: 'India and its neighborhood', description: 'Bilateral relations with neighboring countries.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-ir-groupings', title: 'Bilateral, regional and global groupings', description: 'Agreements involving India and/or affecting India’s interests (e.g., SAARC, ASEAN, QUAD).', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-ir-policies', title: 'Effect of policies of developed & developing countries', description: 'Impact of global politics and policies on India’s interests.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-ir-diaspora', title: 'Indian diaspora', description: 'The role and significance of the Indian diaspora.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs2-ir-institutions', title: 'Important International institutions', description: 'Agencies and fora- their structure, mandate (e.g., UN, WTO, IMF).', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
         ]
       },
       {
@@ -203,12 +310,72 @@ export const initialSyllabusData: SyllabusTopic[] = [
         mastery: 'none',
         resources: [],
         subtopics: [
-          { id: 'mains-gs3-economy', title: 'Economic Development', description: 'Indian Economy and issues relating to planning, mobilization, of resources, growth, development and employment. Inclusive growth and issues arising from it. Government Budgeting. Effects of liberalization on the economy, changes in industrial policy and their effects on industrial growth. Infrastructure: Energy, Ports, Roads, Airports, Railways etc. Investment models.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs3-agriculture', title: 'Agriculture', description: 'Major crops-cropping patterns in various parts of the country, - different types of irrigation and irrigation systems storage, transport and marketing of agricultural produce and issues and related constraints; e-technology in the aid of farmers. Issues related to direct and indirect farm subsidies and minimum support prices; Public Distribution System- objectives, functioning, limitations, revamping; issues of buffer stocks and food security; Technology missions; economics of animal-rearing. Food processing and related industries in India- scope’ and significance, location, upstream and downstream requirements, supply chain management. Land reforms in India.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs3-scitech', title: 'Science & Technology', description: 'Developments and their applications and effects in everyday life. Achievements of Indians in science & technology; indigenization of technology and developing new technology. Awareness in the fields of IT, Space, Computers, robotics, nano-technology, bio-technology and issues relating to intellectual property rights.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs3-environment', title: 'Environment & Biodiversity', description: 'Conservation, environmental pollution and degradation, environmental impact assessment.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs3-dm', title: 'Disaster Management', description: 'Disaster and disaster management.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mains-gs3-security', title: 'Internal Security', description: 'Linkages between development and spread of extremism. Role of external state and non-state actors in creating challenges to internal security. Challenges to internal security through communication networks, role of media and social networking sites in internal security challenges, basics of cyber security; money-laundering and its prevention. Security challenges and their management in border areas - linkages of organized crime with terrorism. Various Security forces and agencies and their mandate.', tags: [], mastery: 'none', resources: [] },
+            { 
+                id: 'mains-gs3-economy', 
+                title: 'Economic Development', 
+                description: 'Indian Economy and its challenges.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs3-eco-planning', title: 'Planning, Mobilization of resources, Growth, Development, Employment', description: 'Core issues of Indian economic planning.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-eco-inclusive', title: 'Inclusive growth and issues arising from it', description: 'Challenges and strategies for inclusive development.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-eco-budgeting', title: 'Government Budgeting', description: 'The process and components of the government budget.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-eco-liberalization', title: 'Effects of liberalization on the economy', description: 'Impact of economic reforms since 1991.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-eco-industrial', title: 'Changes in industrial policy and their effects', description: 'Evolution of industrial policy.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-eco-infra', title: 'Infrastructure', description: 'Energy, Ports, Roads, Airports, Railways etc.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-eco-investment', title: 'Investment models', description: 'Different models for public and private investment.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs3-agriculture', 
+                title: 'Agriculture', 
+                description: 'The agricultural sector in India.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs3-agri-patterns', title: 'Major crops, cropping patterns, irrigation', description: 'Agricultural practices and water management.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-agri-subsidies', title: 'Farm subsidies and minimum support prices (MSP)', description: 'Issues related to direct and indirect farm subsidies.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-agri-pds', title: 'Public Distribution System (PDS)', description: 'Objectives, functioning, limitations, and issues of food security.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-agri-tech', title: 'Technology missions; e-technology in the aid of farmers', description: 'Use of technology in agriculture.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-agri-food', title: 'Food processing and related industries', description: 'Scope, significance, and supply chain management.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-agri-land', title: 'Land reforms in India', description: 'History and impact of land reforms.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs3-scitech', 
+                title: 'Science & Technology', 
+                description: 'Developments and applications of S&T.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs3-st-everyday', title: 'S&T developments and their applications in everyday life', description: 'Practical applications of scientific advancements.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-st-achievements', title: 'Achievements of Indians in S&T; indigenization of technology', description: 'India\'s contributions and self-reliance in technology.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-st-awareness', title: 'Awareness in IT, Space, Computers, Robotics, Nano-tech, Bio-tech', description: 'Knowledge of emerging fields.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-st-ipr', title: 'Issues relating to intellectual property rights (IPR)', description: 'Patents, copyrights, and related issues.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { 
+                id: 'mains-gs3-environment', 
+                title: 'Environment & Biodiversity', 
+                description: 'Conservation and environmental issues.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs3-env-conservation', title: 'Conservation, environmental pollution and degradation', description: 'Protecting natural resources and mitigating pollution.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-env-eia', title: 'Environmental impact assessment (EIA)', description: 'Assessing the environmental impact of projects.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
+            { id: 'mains-gs3-dm', title: 'Disaster Management', description: 'Disaster and disaster management.', tags: [], mastery: 'none', resources: [] },
+            { 
+                id: 'mains-gs3-security', 
+                title: 'Internal Security', 
+                description: 'Challenges to India\'s internal security.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs3-sec-linkages', title: 'Linkages between development and spread of extremism', description: 'The relationship between socio-economic factors and extremism.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-sec-actors', title: 'Role of external state and non-state actors', description: 'Cross-border challenges to internal security.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-sec-cyber', title: 'Cyber security and communication networks', description: 'Challenges through communication networks, media, social networking sites.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-sec-money', title: 'Money-laundering and its prevention', description: 'Combating financial crimes.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-sec-border', title: 'Security challenges and their management in border areas', description: 'Linkages of organized crime with terrorism.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mains-gs3-sec-forces', title: 'Various Security forces and agencies and their mandate', description: 'The roles of different security forces.', tags: [], mastery: 'none', resources: [] },
+                ]
+            },
         ]
       },
       {
@@ -220,14 +387,59 @@ export const initialSyllabusData: SyllabusTopic[] = [
         mastery: 'none',
         resources: [],
         subtopics: [
-            { id: 'mains-gs4-ethics-interface', title: 'Ethics and Human Interface', description: 'Essence, determinants and consequences of Ethics in-human actions; dimensions of ethics; ethics - in private and public relationships. Human Values - lessons from the lives and teachings of great leaders, reformers and administrators; role of family, society and educational institutions in inculcating values.', tags: [], mastery: 'none', resources: []},
+            { 
+                id: 'mains-gs4-ethics-interface', 
+                title: 'Ethics and Human Interface', 
+                description: 'Core concepts of ethics and human values.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs4-ethics-essence', title: 'Essence, determinants and consequences of Ethics', description: 'The fundamental nature of ethics in human actions.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-ethics-dimensions', title: 'Dimensions of ethics', description: 'Different dimensions and theories of ethics.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-ethics-relations', title: 'Ethics in private and public relationships', description: 'Applying ethical principles in different contexts.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-ethics-values', title: 'Human Values', description: 'Lessons from great leaders, reformers, administrators; role of family, society, and education.', tags: [], mastery: 'none', resources: []},
+                ]
+            },
             { id: 'mains-gs4-attitude', title: 'Attitude', description: 'Content, structure, function; its influence and relation with thought and behavior; moral and political attitudes; social influence and persuasion.', tags: [], mastery: 'none', resources: []},
-            { id: 'mains-gs4-aptitude', title: 'Aptitude and Foundational Values for Civil Service', description: 'Integrity, impartiality and non-partisanship, objectivity, dedication to public service, empathy, tolerance and compassion towards the weaker-sections.', tags: [], mastery: 'none', resources: []},
+            { 
+                id: 'mains-gs4-aptitude', 
+                title: 'Aptitude and Foundational Values for Civil Service', 
+                description: 'The core values required for public service.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs4-aptitude-values', title: 'Core Foundational Values', description: 'Integrity, impartiality, non-partisanship, objectivity, dedication, empathy, tolerance, compassion.', tags: [], mastery: 'none', resources: []},
+                ]
+            },
             { id: 'mains-gs4-ei', title: 'Emotional Intelligence', description: 'Concepts, and their utilities and application in administration and governance.', tags: [], mastery: 'none', resources: []},
-            { id: 'mains-gs4-thinkers', title: 'Contributions of moral thinkers and philosophers from India and world.', description: 'Contributions from Indian and World thinkers like Gandhi, Kant, Aristotle, etc.', tags: [], mastery: 'none', resources: []},
-            { id: 'mains-gs4-public-service', title: 'Public/Civil service values and Ethics in Public administration', description: 'Status and problems; ethical concerns and dilemmas in government and private institutions; laws, rules, regulations and conscience as sources of ethical guidance; accountability and ethical governance; strengthening of ethical and moral values in governance; ethical issues in international relations and funding; corporate governance.', tags: [], mastery: 'none', resources: []},
-            { id: 'mains-gs4-probity', title: 'Probity in Governance', description: 'Concept of public service; Philosophical basis of governance and probity; Information sharing and transparency in government, Right to Information, Codes of Ethics, Codes of Conduct, Citizen’s Charters, Work culture, Quality of service delivery, Utilization of public funds, challenges of corruption.', tags: [], mastery: 'none', resources: []},
-            { id: 'mains-gs4-casestudies', title: 'Case Studies on above issues.', description: 'Analysis of realistic or hypothetical scenarios to test ethical decision-making.', tags: [], mastery: 'none', resources: []},
+            { id: 'mains-gs4-thinkers', title: 'Contributions of moral thinkers and philosophers', description: 'From India and the world.', tags: [], mastery: 'none', resources: []},
+            { 
+                id: 'mains-gs4-public-service', 
+                title: 'Public/Civil service values and Ethics in Public administration', 
+                description: 'Ethical challenges in public administration.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs4-ps-status', title: 'Status and problems', description: 'Challenges within the civil services.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-ps-dilemmas', title: 'Ethical concerns and dilemmas', description: 'Ethical issues in government and private institutions.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-ps-guidance', title: 'Sources of ethical guidance', description: 'Laws, rules, regulations and conscience.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-ps-accountability', title: 'Accountability and ethical governance', description: 'Mechanisms for ensuring accountability.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-ps-strengthening', title: 'Strengthening of ethical and moral values in governance', description: 'Measures to improve ethical standards.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-ps-ir', title: 'Ethical issues in international relations and funding', description: 'Global ethical considerations.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-ps-corp-gov', title: 'Corporate governance', description: 'Ethical principles in the corporate sector.', tags: [], mastery: 'none', resources: []},
+                ]
+            },
+            { 
+                id: 'mains-gs4-probity', 
+                title: 'Probity in Governance', 
+                description: 'Upholding integrity and honesty in public governance.',
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mains-gs4-probity-concept', title: 'Concept of public service; Philosophical basis of governance', description: 'The principles behind public service.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-probity-rti', title: 'Information sharing, transparency, Right to Information', description: 'Tools for ensuring transparency.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-probity-codes', title: 'Codes of Ethics, Codes of Conduct, Citizen’s Charters', description: 'Formal frameworks for probity.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-probity-work', title: 'Work culture, Quality of service delivery', description: 'Operational aspects of good governance.', tags: [], mastery: 'none', resources: []},
+                    { id: 'mains-gs4-probity-funds', title: 'Utilization of public funds, challenges of corruption', description: 'Financial integrity and combating corruption.', tags: [], mastery: 'none', resources: []},
+                ]
+            },
+            { id: 'mains-gs4-casestudies', title: 'Case Studies on above issues', description: 'Analysis of realistic or hypothetical scenarios to test ethical decision-making.', tags: [], mastery: 'none', resources: []},
         ]
       },
       {
@@ -322,5 +534,3 @@ export const initialSyllabusData: SyllabusTopic[] = [
     ]
   },
 ];
-
-    

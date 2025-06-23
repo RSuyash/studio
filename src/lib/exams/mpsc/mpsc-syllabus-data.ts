@@ -183,11 +183,62 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         mastery: 'none',
         resources: [],
         subtopics: [
-          { id: 'mpsc-gs2-polity', title: 'Indian Constitution and Polity', description: 'Constitution making, Preamble, FRs, DPSPs, Union & State government, Judiciary, Federal Structure, Constitutional Bodies.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs2-governance', title: 'Governance and Public Policy', description: 'Good Governance, E-Governance, RTI, Citizen Charters, Role of Civil Services, Social Audit.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs2-justice', title: 'Social Justice and Welfare', description: 'Welfare schemes for vulnerable sections (SC, ST, OBC, women, minorities), Issues of Social Inclusion and Empowerment.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs2-law', title: 'Law and Public Policy', description: 'Important Acts related to Women, Children, Environment, Education, Health, and Cybersecurity. Disaster Laws.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs2-ir', title: 'International Relations', description: 'India’s foreign policy, relations with neighbors (SAARC, ASEAN) and major powers (USA, Russia, China), and role in international institutions (UN, WTO).', tags: [], mastery: 'none', resources: [] }
+            { 
+                id: 'mpsc-gs2-polity', 
+                title: 'Indian Constitution and Polity', 
+                description: 'The constitutional framework and political system of India.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs2-polity-background', title: 'Historical Background & Making of Constitution', description: 'The evolution and framing of the Indian Constitution.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-polity-features', title: 'Salient Features, Preamble, FRs, DPSPs, FDs', description: 'Core principles and components of the Constitution.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-polity-govt', title: 'Union & State Government', description: 'Structure and functioning of the Executive, Legislature, and Judiciary at central and state levels.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-polity-federal', title: 'Federal Structure & Centre-State Relations', description: 'Legislative, administrative, and financial relations between the Union and States.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-polity-bodies', title: 'Constitutional & Statutory Bodies', description: 'EC, UPSC, CAG, Finance Commission, NITI Aayog, Human Rights Commissions, etc.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { 
+                id: 'mpsc-gs2-governance', 
+                title: 'Governance and Public Policy', 
+                description: 'Aspects of public administration and policy-making.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs2-governance-concepts', title: 'Good Governance, E-Governance, RTI', description: 'Key concepts for transparent and efficient administration.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-governance-accountability', title: 'Accountability Mechanisms', description: 'Citizen Charters, Social Audit, and Vigilance mechanisms.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-governance-civilservices', title: 'Role of Civil Services in Democracy', description: 'The function and importance of the administrative machinery.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-governance-schemes', title: 'Government Policies & Interventions', description: 'Design and implementation of schemes, especially in Maharashtra.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { 
+                id: 'mpsc-gs2-justice', 
+                title: 'Social Justice and Welfare', 
+                description: 'Policies and issues related to the welfare of vulnerable sections.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs2-justice-schemes', title: 'Welfare Schemes for Vulnerable Sections', description: 'Schemes for SCs, STs, OBCs, minorities, women, children, elderly, disabled.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-justice-issues', title: 'Issues of Social Inclusion & Empowerment', description: 'Challenges and policies related to empowering marginalized communities.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { 
+                id: 'mpsc-gs2-law', 
+                title: 'Law and Public Policy', 
+                description: 'Key legislation and its impact on public policy.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs2-law-acts', title: 'Important Acts/Laws', description: 'Legislation related to Women, Children, Environment, Education, Health, and Cybersecurity.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-law-disaster', title: 'Disaster Laws & Administrative Responses', description: 'Legal framework for disaster management.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { 
+                id: 'mpsc-gs2-ir', 
+                title: 'International Relations', 
+                description: 'India\'s engagement with the world.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs2-ir-policy', title: 'India’s Foreign Policy', description: 'Objectives, principles, and evolution of India\'s foreign policy.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-ir-relations', title: 'Bilateral & Multilateral Relations', description: 'Relations with neighbors (SAARC, ASEAN) and major powers (USA, Russia, China, EU).', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs2-ir-institutions', title: 'International Institutions', description: 'India\'s role in the UN, WTO, IMF, World Bank, etc.', tags: [], mastery: 'none', resources: [] }
+                ]
+            }
         ]
       },
       {
@@ -199,12 +250,70 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         mastery: 'none',
         resources: [],
          subtopics: [
-          { id: 'mpsc-gs3-economy', title: 'Indian Economy and Planning', description: 'Growth, Development, Poverty, Unemployment, Fiscal Policy (Budget, GST), Monetary Policy (RBI, Inflation), Economy of Maharashtra.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs3-agriculture', title: 'Agriculture and Allied Sectors', description: 'Land reforms, Irrigation, Cropping patterns, Agri-Marketing, Food Processing, Government schemes for farmers.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs3-industry', title: 'Industry and Infrastructure', description: 'Industrial Policy, MSMEs, Startups, Make in India, SEZs, Infrastructure (Roads, Energy), PPP Models.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs3-scitech', title: 'Science and Technology', description: 'Role of S&T, Space Technology (ISRO), Biotechnology, Nanotechnology, ICT, Cybersecurity, AI.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs3-environment', title: 'Environment and Ecology', description: 'Conservation, Biodiversity, Climate Change, Pollution, Waste Management, EIA, SDGs.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs3-security', title: 'Internal Security and Disaster Management', description: 'Threats from Extremism & Terrorism, role of security forces, Cybercrime, Money laundering. Disaster Management cycle (NDMA, SDRF).', tags: [], mastery: 'none', resources: [] }
+            { 
+                id: 'mpsc-gs3-economy', 
+                title: 'Indian Economy and Planning', 
+                description: 'Structure and challenges of the Indian economy.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs3-economy-growth', title: 'Growth, Development, & SDG', description: 'Concepts of economic growth, development, and sustainable development goals.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-economy-issues', title: 'Poverty, Unemployment, & Inequality', description: 'Major socio-economic challenges.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-economy-policy', title: 'Fiscal & Monetary Policy', description: 'Budgeting, Taxation (GST), role of RBI, and inflation management.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-economy-maharashtra', title: 'Economy of Maharashtra', description: 'Growth, key issues, and state finances of Maharashtra.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { 
+                id: 'mpsc-gs3-agriculture', 
+                title: 'Agriculture and Allied Sectors', 
+                description: 'The agricultural sector and its related activities.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs3-agri-reforms', title: 'Land Reforms, Irrigation, Cropping Patterns', description: 'Structural aspects of Indian agriculture.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-agri-marketing', title: 'Agricultural Marketing & Food Processing', description: 'APMC Act, e-NAM, and the food processing industry.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-agri-schemes', title: 'Government Schemes for Farmers', description: 'Initiatives for agricultural credit, insurance (PMFBY, KCC), etc.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { 
+                id: 'mpsc-gs3-industry', 
+                title: 'Industry and Infrastructure', 
+                description: 'Industrial development and infrastructure.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs3-industry-policy', title: 'Industrial Policy & Growth', description: 'MSMEs, Startups, Make in India, Skill India.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-industry-infra', title: 'Infrastructure Development', description: 'Roads, Railways, Ports, Energy, Smart Cities, and PPP Models.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { 
+                id: 'mpsc-gs3-scitech', 
+                title: 'Science and Technology', 
+                description: 'Developments in S&T and their applications.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs3-scitech-space', title: 'Space Technology', description: 'ISRO achievements, satellites, Gaganyaan mission.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-scitech-emerging', title: 'Emerging Technologies', description: 'Biotechnology, Nanotechnology, Robotics, ICT, Cybersecurity, AI, ML.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { 
+                id: 'mpsc-gs3-environment', 
+                title: 'Environment and Ecology', 
+                description: 'Environmental conservation and challenges.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs3-env-conservation', title: 'Conservation & Legislation', description: 'Biodiversity, Climate Change, Forest & Wildlife Conservation.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-env-issues', title: 'Pollution & Waste Management', description: 'Control measures for pollution, and management of solid, e-waste, etc.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-env-assessment', title: 'Environmental Impact Assessment (EIA)', description: 'Process and significance of EIA.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { 
+                id: 'mpsc-gs3-security', 
+                title: 'Internal Security and Disaster Management', 
+                description: 'Challenges to national security and disaster preparedness.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs3-sec-threats', title: 'Internal Security Threats', description: 'Extremism, Terrorism, Cybercrime, Money laundering, Organized crime.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs3-sec-dm', title: 'Disaster Management', description: 'Types of disasters, preparedness, response, and role of NDMA/SDRF.', tags: [], mastery: 'none', resources: [] }
+                ]
+            }
         ]
       },
       {
@@ -216,12 +325,41 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         mastery: 'none',
         resources: [],
         subtopics: [
-          { id: 'mpsc-gs4-ethics-interface', title: 'Ethics and Human Interface', description: 'Essence, determinants, and consequences of Ethics in human actions. Human Values from leaders, reformers, and administrators.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs4-attitude', title: 'Attitude', description: 'Content, structure, function; its influence with thought and behavior; moral and political attitudes; social influence.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs4-aptitude', title: 'Aptitude & Foundational Values', description: 'Integrity, impartiality, objectivity, dedication to public service, empathy, tolerance, and compassion. Emotional intelligence.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs4-thinkers', title: 'Contributions of Thinkers & Philosophers', description: 'Contributions from Indian and Western moral thinkers.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs4-probity', title: 'Probity in Governance', description: 'Concept of public service, RTI, codes of ethics/conduct, citizen’s charters, challenges of corruption.', tags: [], mastery: 'none', resources: [] },
-          { id: 'mpsc-gs4-casestudies', title: 'Case Studies', description: 'Testing ethical reasoning and moral compass in practical administrative situations.', tags: [], mastery: 'none', resources: [] }
+            { 
+                id: 'mpsc-gs4-ethics-interface', 
+                title: 'Ethics and Human Interface', 
+                description: 'Core concepts of ethics and human values.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs4-ethics-essence', title: 'Essence, Determinants & Consequences of Ethics', description: 'The fundamental nature of ethics in human actions.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs4-ethics-values', title: 'Human Values', description: 'Lessons from great leaders, reformers, and the role of family and society.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { id: 'mpsc-gs4-attitude', title: 'Attitude', description: 'Content, structure, function; its influence with thought and behavior; moral and political attitudes; social influence.', tags: [], mastery: 'none', resources: [] },
+            { 
+                id: 'mpsc-gs4-aptitude', 
+                title: 'Aptitude & Foundational Values', 
+                description: 'Essential values for civil services.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs4-aptitude-values', title: 'Core Values', description: 'Integrity, impartiality, objectivity, dedication, empathy, tolerance, compassion.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs4-aptitude-ei', title: 'Emotional Intelligence', description: 'Concepts, dimensions, and application in administration.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { id: 'mpsc-gs4-thinkers', title: 'Contributions of Thinkers & Philosophers', description: 'Contributions from Indian and Western moral thinkers.', tags: [], mastery: 'none', resources: [] },
+            { 
+                id: 'mpsc-gs4-probity', 
+                title: 'Probity in Governance', 
+                description: 'Ethical governance and transparency.', 
+                tags: [], mastery: 'none', resources: [],
+                subtopics: [
+                    { id: 'mpsc-gs4-probity-concept', title: 'Concept of Public Service & Probity', description: 'Philosophical basis of governance.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs4-probity-transparency', title: 'Information Sharing & Transparency', description: 'Right to Information (RTI).', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs4-probity-codes', title: 'Codes of Ethics & Conduct', description: 'Frameworks for ethical behavior.', tags: [], mastery: 'none', resources: [] },
+                    { id: 'mpsc-gs4-probity-challenges', title: 'Challenges of Corruption', description: 'Issues and mechanisms to tackle corruption.', tags: [], mastery: 'none', resources: [] }
+                ]
+            },
+            { id: 'mpsc-gs4-casestudies', title: 'Case Studies', description: 'Testing ethical reasoning and moral compass in practical administrative situations.', tags: [], mastery: 'none', resources: [] }
         ]
       },
     ]
