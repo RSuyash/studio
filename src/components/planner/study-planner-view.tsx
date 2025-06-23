@@ -22,7 +22,8 @@ import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { findTopicById } from '@/lib/resource-utils';
-import { Card, CardContent } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '@/components/ui/badge';
 
 
 const plannerFormSchema = z.object({
@@ -61,7 +62,7 @@ const parseDurationToHours = (durationStr: string): number => {
     const minutesMatch = lowerCaseStr.match(/([\d.]+)\s*m/);
     if (minutesMatch) hours += parseFloat(minutesMatch[1]) / 60;
     
-    if (!hoursMatch && !minutesMatch) {
+    if (!hoursMatch && !minutesMatch && !lowerCaseStr.includes('rest')) {
       const numberMatch = lowerCaseStr.match(/[\d.]+/);
       if (numberMatch) hours = parseFloat(numberMatch[0]);
     }
@@ -267,12 +268,12 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
                       {isLoading && (
                            <div className="space-y-6">
                                <Skeleton className="h-24 w-full" />
-                               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
-                                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                                      <div key={day} className="space-y-4">
-                                          <Skeleton className="h-6 w-1/2 mx-auto" />
-                                          <Skeleton className="h-24 w-full" />
-                                          <Skeleton className="h-24 w-full" />
+                               <div className="grid grid-cols-1 gap-4">
+                                  {[...Array(7)].map((_, i) => (
+                                      <div key={i} className="space-y-4 rounded-lg border p-4">
+                                          <Skeleton className="h-6 w-1/4" />
+                                          <Skeleton className="h-16 w-full" />
+                                          <Skeleton className="h-16 w-full" />
                                       </div>
                                   ))}
                                </div>
@@ -315,33 +316,46 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
                               </div>
 
                               <div>
-                                  <h2 className="text-2xl font-bold mb-4">Your Generated Weekly Plan</h2>
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 lg:gap-4">
+                                  <h2 className="text-2xl font-bold mb-4 font-headline tracking-tight">Your Generated Weekly Plan</h2>
+                                  <div className="space-y-6">
                                       {studyPlan.plan.map((dailyPlan, index) => (
-                                          <div key={index} className="space-y-3 rounded-lg bg-muted/40 p-2">
-                                              <h4 className="text-center font-semibold text-muted-foreground">{dailyPlan.day}</h4>
-                                              <div className="space-y-3">
-                                              {dailyPlan.tasks.length > 0 ? dailyPlan.tasks.map((task, taskIndex) => {
-                                                  const { icon: Icon, color: colorClass } = activityInfo[task.activity as ActivityType] || { icon: Activity, color: 'border-gray-400' };
-                                                  return (
-                                                      <button key={taskIndex} onClick={() => handleTaskClick(task.topicId)} className={cn("w-full cursor-pointer p-2 text-left text-xs border-l-4 rounded bg-background shadow-sm hover:bg-muted", colorClass)}>
-                                                          <div className="flex items-start gap-2">
-                                                              <Icon className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
-                                                              <div className="flex-1">
-                                                                  <p className="font-semibold text-foreground">{task.topic}</p>
-                                                                  <p className="text-muted-foreground">{task.suggestion.split(" ")[0]} ({task.duration})</p>
+                                          <Card key={index}>
+                                              <CardHeader>
+                                                  <CardTitle className="text-xl font-headline">{dailyPlan.day}</CardTitle>
+                                              </CardHeader>
+                                              <CardContent className="space-y-3">
+                                                  {dailyPlan.tasks.length > 0 ? dailyPlan.tasks.map((task, taskIndex) => {
+                                                      const { icon: Icon, color: colorClass } = activityInfo[task.activity as ActivityType] || { icon: Activity, color: 'border-gray-400' };
+                                                      return (
+                                                          <button 
+                                                              key={taskIndex} 
+                                                              onClick={() => handleTaskClick(task.topicId)} 
+                                                              className={cn("w-full cursor-pointer p-3 text-left text-sm border-l-4 rounded-r-lg bg-card shadow-sm transition-all hover:shadow-md hover:bg-muted", colorClass)}
+                                                          >
+                                                              <div className="flex items-center justify-between">
+                                                                  <div className="flex items-center gap-4">
+                                                                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+                                                                          <Icon className="h-5 w-5 text-muted-foreground" />
+                                                                      </div>
+                                                                      <div>
+                                                                          <p className="font-semibold text-foreground">{task.topic}</p>
+                                                                          <p className="text-muted-foreground text-xs">{task.suggestion.split(" ")[0]} • {task.duration}</p>
+                                                                      </div>
+                                                                  </div>
+                                                                  <Badge variant="secondary">{task.activity}</Badge>
                                                               </div>
-                                                          </div>
-                                                      </button>
-                                                  )
-                                              }) : (
-                                                  <div className="flex items-center justify-center text-center text-xs text-muted-foreground py-8 h-24 rounded bg-background/50">Rest Day</div>
-                                              )}
-                                              </div>
-                                          </div>
+                                                          </button>
+                                                      )
+                                                  }) : (
+                                                      <div className="flex items-center justify-center text-sm text-muted-foreground py-8 rounded bg-muted/50">
+                                                          Rest Day
+                                                      </div>
+                                                  )}
+                                              </CardContent>
+                                          </Card>
                                       ))}
                                   </div>
-                                  <p className="text-xs text-muted-foreground mt-4 text-center">{studyPlan.summary}</p>
+                                  <p className="text-sm text-muted-foreground mt-6 text-center">{studyPlan.summary}</p>
                               </div>
                           </div>
                       )}
