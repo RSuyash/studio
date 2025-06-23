@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -31,22 +32,22 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import type { SyllabusTopic, ResourceWithTopicInfo } from '@/lib/types';
-import { findTopicById, findPathToTopicId, bookSubjects, bookSubjectTopicMap, topicIdToBookSubjectMap } from '@/lib/resource-utils';
-import { categoryInfoMap } from './resource-card';
+import type { SyllabusTopic, ResourceWithTopicInfo, ResourceCategory, ResourceStatus } from '@/lib/types';
+import { findTopicById, findPathToTopicId } from '@/lib/resource-utils';
+
+const resourceCategories: ResourceCategory[] = ['book', 'video', 'pdf', 'note'];
+const resourceStatuses: ResourceStatus[] = ['todo', 'in-progress', 'completed'];
 
 const resourceSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters long.' }),
   url: z.string().url({ message: 'Please enter a valid URL.' }),
   description: z.string().optional(),
-  category: z.enum(['book-ncert', 'book-reference', 'lecture-playlist', 'lecture-video']),
-  topicId: z.string().min(1, { message: 'Please select a subject or a final syllabus topic.' }),
-  class: z.string().optional(),
+  category: z.enum(resourceCategories),
+  status: z.enum(resourceStatuses),
+  topicId: z.string().min(1, { message: 'Please select a final syllabus topic.' }),
 });
 
 export type ResourceFormValues = z.infer<typeof resourceSchema>;
-
-const ncertClasses = ['VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 
 interface ResourceFormDialogProps {
     isOpen: boolean;
@@ -69,17 +70,14 @@ export default function ResourceFormDialog({
             title: '',
             url: '',
             description: '',
-            category: 'book-reference',
+            category: 'book',
+            status: 'todo',
             topicId: '',
-            class: '',
         }
     });
 
     const [selectedPath, setSelectedPath] = React.useState<string[]>([]);
-    const [selectedSubject, setSelectedSubject] = React.useState<string>('');
     const formId = React.useId();
-    const watchedCategory = form.watch('category');
-    const isBook = watchedCategory === 'book-ncert' || watchedCategory === 'book-reference';
 
     React.useEffect(() => {
         if (isOpen) {
@@ -90,26 +88,20 @@ export default function ResourceFormDialog({
                     description: resourceToEdit.description || '',
                     category: resourceToEdit.category,
                     topicId: resourceToEdit.topicId,
-                    class: resourceToEdit.class || '',
+                    status: resourceToEdit.status,
                 });
-                 if (resourceToEdit.category === 'book-ncert' || resourceToEdit.category === 'book-reference') {
-                    const subject = topicIdToBookSubjectMap[resourceToEdit.topicId];
-                    setSelectedSubject(subject || '');
-                } else {
-                    const path = findPathToTopicId(syllabusData, resourceToEdit.topicId);
-                    setSelectedPath(path || []);
-                }
+                const path = findPathToTopicId(syllabusData, resourceToEdit.topicId);
+                setSelectedPath(path || []);
             } else {
                 form.reset({
                     title: '',
                     url: '',
                     description: '',
-                    category: 'book-reference',
+                    category: 'book',
+                    status: 'todo',
                     topicId: '',
-                    class: '',
                 });
                 setSelectedPath([]);
-                setSelectedSubject('');
             }
         }
     }, [resourceToEdit, form, isOpen, syllabusData]);
@@ -220,44 +212,22 @@ export default function ResourceFormDialog({
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="category"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Category</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select a category" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {Object.entries(categoryInfoMap).map(([key, {title}]) => (
-                                                    <SelectItem key={key} value={key}>{title}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            {watchedCategory === 'book-ncert' && (
+                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
-                                    name="class"
+                                    name="category"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Class</FormLabel>
+                                            <FormLabel>Category</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Select a class for the NCERT book" />
+                                                        <SelectValue placeholder="Select a category" />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {ncertClasses.map(c => (
-                                                        <SelectItem key={c} value={c}>Class {c}</SelectItem>
+                                                    {resourceCategories.map((cat) => (
+                                                        <SelectItem key={cat} value={cat} className="capitalize">{cat}</SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
@@ -265,40 +235,35 @@ export default function ResourceFormDialog({
                                         </FormItem>
                                     )}
                                 />
-                            )}
+                                <FormField
+                                    control={form.control}
+                                    name="status"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Status</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a status" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {resourceStatuses.map((status) => (
+                                                        <SelectItem key={status} value={status} className="capitalize">{status.replace('-', ' ')}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <FormField
                                 control={form.control}
                                 name="topicId"
                                 render={({ field }) => (
                                     <div className="space-y-2">
-                                        {isBook ? (
-                                            <FormItem>
-                                                <FormLabel>Subject</FormLabel>
-                                                <Select 
-                                                    value={selectedSubject}
-                                                    onValueChange={(subject) => {
-                                                        setSelectedSubject(subject);
-                                                        const topicId = bookSubjectTopicMap[subject];
-                                                        field.onChange(topicId);
-                                                    }}
-                                                >
-                                                    <FormControl>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select a subject..." />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                         {bookSubjects.map(subject => (
-                                                            <SelectItem key={subject} value={subject}>
-                                                                {subject}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </FormItem>
-                                        ) : (
-                                            renderCascadingSelects()
-                                        )}
+                                        {renderCascadingSelects()}
                                         <input type="hidden" {...field} />
                                         <FormMessage />
                                     </div>

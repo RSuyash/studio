@@ -126,7 +126,7 @@ export default function MainLayout({ comparisonData }: MainLayoutProps) {
             </Avatar>
             <div className="flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">
                 <p className="truncate text-sm font-semibold text-sidebar-foreground">UPSC Aspirant</p>
-                <p className="truncate text-xs text-sidebar-foreground/70">Test User</p>
+                <p className="truncate text-xs text-sidebar-foreground/70">aspirant@nexus.com</p>
             </div>
             <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent group-data-[collapsible=icon]:hidden">
                 <LogOut className="size-4" />

@@ -129,57 +129,21 @@ export const filterSyllabus = (
   }, []);
 };
 
-
-export const subjectTopicMap: Record<string, string> = {
-    'preliminary-exam': 'Prelims',
-    'main-exam': 'Mains',
-    'mains-gs1': 'GS-I: History, Geo, Society',
-    'mains-gs2': 'GS-II: Polity, Gov, IR',
-    'mains-gs3': 'GS-III: Economy, S&T, Security',
-    'mains-gs4': 'GS-IV: Ethics',
-    'mains-optional': 'Optional Subject',
-    'interview': 'Interview'
-};
-
-export const subjects = Object.values(subjectTopicMap);
-export const ncertClasses = ['VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
-
-export const getSubjectForResource = (resource: ResourceWithTopicInfo, topics: SyllabusTopic[]): string => {
-    const path = findPathToTopicId(topics, resource.topicId);
-    if (!path || path.length === 0) {
-        return 'Uncategorized';
+// Gets a high-level topic name (e.g., GS Paper II) from a full topic path
+export const getHighLevelTopicName = (topicPath: string): string => {
+    const parts = topicPath.split(' / ');
+    // Find the first part that looks like a paper name (e.g., contains "Paper")
+    // or return the second-to-last part as a reasonable fallback for subject.
+    const paperPart = parts.find(p => p.includes('Paper'));
+    if (paperPart) {
+        return paperPart.split(':')[0]; // E.g., "Paper II: General Studies I" -> "Paper II"
     }
-    
-    // Find the most specific subject mapping from the path
-    for (let i = path.length - 1; i >= 0; i--) {
-        const topicId = path[i];
-        if (subjectTopicMap[topicId]) {
-            return subjectTopicMap[topicId];
-        }
+    // Fallback logic
+    if (parts.length > 2) {
+        return parts[parts.length - 2];
     }
-    
-    return 'Other';
+    if (parts.length > 1) {
+        return parts[1];
+    }
+    return parts[0] || 'General';
 };
-
-// Maps user-friendly subject names to the most appropriate high-level topic ID.
-export const bookSubjectTopicMap: Record<string, string> = {
-  'History & Culture': 'mains-gs1-art-culture',
-  'Modern History': 'mains-gs1-modern-history',
-  'Geography': 'prelims-gs1-geography',
-  'Indian Society': 'mains-gs1-society',
-  'Polity & Governance': 'prelims-gs1-polity',
-  'Social Justice & IR': 'mains-gs2',
-  'Economy': 'prelims-gs1-economy',
-  'Environment & Ecology': 'prelims-gs1-environment',
-  'Science & Technology': 'prelims-gs1-science',
-  'Internal Security & DM': 'mains-gs3',
-  'Ethics': 'mains-gs4',
-  'Optional Subject': 'mains-optional',
-};
-
-export const bookSubjects = Object.keys(bookSubjectTopicMap).sort();
-
-// Create a reverse map for editing purposes (topicId -> subject).
-export const topicIdToBookSubjectMap = Object.fromEntries(
-  Object.entries(bookSubjectTopicMap).map(([subject, topicId]) => [topicId, subject])
-);

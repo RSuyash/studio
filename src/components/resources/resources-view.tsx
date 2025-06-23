@@ -2,8 +2,8 @@
 'use client';
 
 import * as React from 'react';
-import type { SyllabusTopic, Resource, ResourceCategory, ResourceWithTopicInfo } from '@/lib/types';
-import { Library, Plus, Folder } from 'lucide-react';
+import type { SyllabusTopic, Resource, ResourceCategory, ResourceWithTopicInfo, ResourceStatus } from '@/lib/types';
+import { Library, Plus, Search, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -16,20 +16,23 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '../ui/scroll-area';
-import { updateTopicInTree, getAllResources, getSubjectForResource, ncertClasses, subjects } from '@/lib/resource-utils';
+import { updateTopicInTree, getAllResources, getHighLevelTopicName } from '@/lib/resource-utils';
 import type { ResourceFormValues } from './resource-form-dialog';
 import ResourceFormDialog from './resource-form-dialog';
-import ResourceItem from './resource-item';
 import ResourceCard from './resource-card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { SidebarTrigger } from '../ui/sidebar';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const EmptyState = ({ title, description }: { title: string; description: string }) => (
-    <div className="flex h-[40vh] flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-card p-12 text-center">
-        <Folder className="h-12 w-12 mb-4 text-primary/50" />
-        <h3 className="text-lg font-semibold">{title}</h3>
-        <p className="max-w-md text-sm text-muted-foreground">{description}</p>
+const resourceTypes: ResourceCategory[] = ['book', 'video', 'pdf', 'note'];
+const resourceStatuses: ResourceStatus[] = ['todo', 'in-progress', 'completed'];
+
+const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-card p-12 text-center mt-8">
+        <Folder className="h-12 w-12 text-muted-foreground/50 mb-4" />
+        <h3 className="text-xl font-semibold">No Resources Found</h3>
+        <p className="max-w-md text-sm text-muted-foreground">
+            Try adjusting your filters or add a new resource to get started.
+        </p>
     </div>
 );
 
@@ -45,34 +48,23 @@ export default function ResourcesView({
   const [editingResource, setEditingResource] = React.useState<ResourceWithTopicInfo | null>(null);
   const [resourceToDelete, setResourceToDelete] = React.useState<ResourceWithTopicInfo | null>(null);
   
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [typeFilter, setTypeFilter] = React.useState<ResourceCategory | 'all'>('all');
+  const [statusFilter, setStatusFilter] = React.useState<ResourceStatus | 'all'>('all');
+
   const allResources = React.useMemo(() => getAllResources(syllabusData), [syllabusData]);
 
-  const groupedResources = React.useMemo(() => {
-    const ncerts = allResources.filter(r => r.category === 'book-ncert');
-    const standardBooks = allResources.filter(r => r.category === 'book-reference');
-    const digital = allResources.filter(r => r.category === 'lecture-playlist' || r.category === 'lecture-video');
+  const filteredResources = React.useMemo(() => {
+    return allResources.filter(resource => {
+      const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            resource.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            getHighLevelTopicName(resource.topicPath).toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesType = typeFilter === 'all' || resource.category === typeFilter;
+      const matchesStatus = statusFilter === 'all' || resource.status === statusFilter;
 
-    const ncertsByClass = ncerts.reduce((acc, resource) => {
-        const key = resource.class || 'Unclassified';
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(resource);
-        return acc;
-    }, {} as Record<string, ResourceWithTopicInfo[]>);
-
-    const standardBySubject = standardBooks.reduce((acc, resource) => {
-        const subject = getSubjectForResource(resource, syllabusData);
-        if (!acc[subject]) acc[subject] = [];
-        acc[subject].push(resource);
-        return acc;
-    }, {} as Record<string, ResourceWithTopicInfo[]>);
-    
-    const digitalByCategory = digital.reduce((acc, resource) => {
-      (acc[resource.category] = acc[resource.category] || []).push(resource);
-      return acc;
-    }, {} as Record<ResourceCategory, ResourceWithTopicInfo[]>);
-
-    return { ncertsByClass, standardBySubject, digitalByCategory, hasNcerts: ncerts.length > 0, hasStandard: standardBooks.length > 0, hasDigital: digital.length > 0 };
-  }, [allResources, syllabusData]);
+      return matchesSearch && matchesType && matchesStatus;
+    });
+  }, [allResources, searchQuery, typeFilter, statusFilter]);
 
 
   const handleEditClick = (resource: ResourceWithTopicInfo) => {
@@ -109,7 +101,7 @@ export default function ResourcesView({
         url: resourceData.url,
         category: resourceData.category,
         description: resourceData.description,
-        class: resourceData.class as any,
+        status: resourceData.status,
       };
       
       setSyllabusData(currentData => {
@@ -139,7 +131,7 @@ export default function ResourcesView({
         url: resourceData.url,
         category: resourceData.category,
         description: resourceData.description,
-        class: resourceData.class as any,
+        status: resourceData.status,
       };
       
       setSyllabusData(currentData =>
@@ -155,88 +147,69 @@ export default function ResourcesView({
 
   return (
     <>
-      <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:px-6">
-        <div className="flex items-center gap-4">
-            <Library className="h-6 w-6" />
-            <h2 className="text-lg font-semibold">My Resources</h2>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Add Resource
-        </Button>
-      </header>
-      <ScrollArea className="h-[calc(100vh-3.5rem)]">
-        <main className="flex-1 space-y-6 p-4 md:p-6">
-          <Tabs defaultValue="ncerts" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="ncerts">NCERTs</TabsTrigger>
-              <TabsTrigger value="standard">Standard Books</TabsTrigger>
-              <TabsTrigger value="digital">Digital Resources</TabsTrigger>
-            </TabsList>
+      <ScrollArea className="h-screen">
+        <main className="flex-1 space-y-6 p-4 md:p-6 lg:p-8">
+            <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-3">
+                    <Library className="h-7 w-7 text-muted-foreground" />
+                    <h1 className="text-2xl font-bold tracking-tight">Resource Hub</h1>
+                </div>
+                <Button onClick={() => setDialogOpen(true)} className="w-full md:w-auto">
+                    <Plus className="mr-2 h-4 w-4" /> Add Resource
+                </Button>
+            </header>
+
+            <div className="flex flex-col gap-4 md:flex-row">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        placeholder="Search resources..." 
+                        className="pl-9"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+                <div className="flex gap-4">
+                    <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as any)}>
+                        <SelectTrigger className="w-full md:w-[150px]">
+                            <SelectValue placeholder="Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Types</SelectItem>
+                            {resourceTypes.map(type => (
+                                <SelectItem key={type} value={type} className="capitalize">{type}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                     <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
+                        <SelectTrigger className="w-full md:w-[150px]">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Statuses</SelectItem>
+                            {resourceStatuses.map(status => (
+                                <SelectItem key={status} value={status} className="capitalize">{status.replace('-', ' ')}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
             
-            <TabsContent value="ncerts" className="pt-4">
-              {groupedResources.hasNcerts ? (
-                <Accordion type="multiple" className="w-full" defaultValue={ncertClasses.map(c => `class-${c}`)}>
-                  {ncertClasses.map(c => {
-                    const resourcesForClass = groupedResources.ncertsByClass[c];
-                    return resourcesForClass && resourcesForClass.length > 0 ? (
-                      <AccordionItem value={`class-${c}`} key={`class-${c}`}>
-                        <AccordionTrigger>Class {c} ({resourcesForClass.length})</AccordionTrigger>
-                        <AccordionContent className="space-y-2">
-                          {resourcesForClass.map(resource => (
-                            <ResourceItem key={resource.id} resource={resource} onEdit={handleEditClick} onDelete={setResourceToDelete} />
-                          ))}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ) : null
-                  })}
-                </Accordion>
-              ) : (
-                <EmptyState title="No NCERTs Added" description="Add NCERT books and link them to syllabus topics to see them here." />
-              )}
-            </TabsContent>
-            
-            <TabsContent value="standard" className="pt-4">
-               {groupedResources.hasStandard ? (
-                  <Accordion type="multiple" className="w-full" defaultValue={subjects}>
-                    {subjects.map(subject => {
-                        const resourcesForSubject = groupedResources.standardBySubject[subject];
-                        return resourcesForSubject && resourcesForSubject.length > 0 ? (
-                           <AccordionItem value={subject} key={subject}>
-                              <AccordionTrigger>{subject} ({resourcesForSubject.length})</AccordionTrigger>
-                              <AccordionContent className="space-y-2">
-                                {resourcesForSubject.map(resource => (
-                                    <ResourceItem key={resource.id} resource={resource} onEdit={handleEditClick} onDelete={setResourceToDelete} />
-                                ))}
-                              </AccordionContent>
-                           </AccordionItem>
-                        ) : null
-                    })}
-                  </Accordion>
-                ) : (
-                  <EmptyState title="No Standard Books Added" description="Add your reference books and link them to syllabus topics to see them organized by subject." />
-                )}
-            </TabsContent>
-            
-            <TabsContent value="digital" className="pt-4">
-                {groupedResources.hasDigital ? (
-                    <div className="space-y-6">
-                        {Object.entries(groupedResources.digitalByCategory).map(([category, resources]) => (
-                            resources.length > 0 && (
-                                <ResourceCard
-                                    key={category}
-                                    category={category as ResourceCategory}
-                                    resources={resources}
-                                    onEdit={handleEditClick}
-                                    onDelete={setResourceToDelete}
-                                />
-                            )
-                        ))}
-                    </div>
-                ) : (
-                    <EmptyState title="No Digital Resources" description="Add YouTube videos, playlists, or other links to see them here." />
-                )}
-            </TabsContent>
-          </Tabs>
+            {filteredResources.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredResources.map((resource) => (
+                        <ResourceCard
+                            key={resource.id}
+                            resource={resource}
+                            onEdit={() => handleEditClick(resource)}
+                            onDelete={() => setResourceToDelete(resource)}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <EmptyState />
+            )}
+
         </main>
       </ScrollArea>
 

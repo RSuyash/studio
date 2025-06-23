@@ -18,7 +18,9 @@ export const initialSyllabusData: SyllabusTopic[] = [
         description: 'Decides the cut-off for the Main exam. Syllabus covers a wide range of subjects from current events to general science. Marks: 200, Questions: 100.',
         tags: ['gs', 'merit-cutoff'],
         mastery: 'none',
-        resources: [],
+        resources: [
+            { id: 'res-gs1-1', title: 'Indian Economy Key Concepts', url: 'https://www.investopedia.com/insights/what-is-indian-economy/', category: 'video', status: 'in-progress', description: 'YouTube - Mrunal Patel' }
+        ],
         subtopics: [
           {
             id: 'prelims-gs1-current-events',
@@ -34,7 +36,9 @@ export const initialSyllabusData: SyllabusTopic[] = [
                 description: 'Polity: Supreme Court rulings, constitutional amendments, government bills. Economy: Budget, Economic Survey, inflation, GDP, indices. Environment: National schemes (CAMPA, Green India). Science & Tech: ISRO missions, new technologies.',
                 tags: ['polity', 'economy', 'environment', 'sci-tech'],
                 mastery: 'none',
-                resources: [],
+                resources: [
+                    { id: 'res-ca-1', title: 'Budget 2025 Analysis', url: 'https://www.indiabudget.gov.in/', category: 'pdf', status: 'todo', description: 'Official Govt. Document' }
+                ],
               },
               {
                 id: 'prelims-ca-international',
@@ -54,7 +58,9 @@ export const initialSyllabusData: SyllabusTopic[] = [
             mastery: 'none',
             resources: [],
             subtopics: [
-              { id: 'prelims-history-ancient', title: 'Ancient History', description: 'Prehistoric cultures, Indus Valley Civilization, Vedic Period, Mauryan & Gupta Empires.', tags: [], mastery: 'none', resources: [] },
+              { id: 'prelims-history-ancient', title: 'Ancient History', description: 'Prehistoric cultures, Indus Valley Civilization, Vedic Period, Mauryan & Gupta Empires.', tags: [], mastery: 'none', resources: [
+                { id: 'res-hist-1', title: 'Ancient History Quick Notes', url: 'https://en.wikipedia.org/wiki/History_of_India', category: 'note', status: 'completed', description: 'Self-made notes' }
+              ] },
               { id: 'prelims-history-medieval', title: 'Medieval History', description: 'Delhi Sultanate, Mughal Empire, Bhakti & Sufi movements, Vijayanagar Empire.', tags: [], mastery: 'none', resources: [] },
               { id: 'prelims-history-modern', title: 'Modern History', description: 'European advent, 1857 Revolt, social reforms, Gandhian era, and key legislations.', tags: [], mastery: 'none', resources: [] },
             ],
@@ -196,7 +202,9 @@ export const initialSyllabusData: SyllabusTopic[] = [
         description: 'Covers Governance, Constitution, Polity, Social Justice, and International Relations. Marks: 250.',
         tags: ['gs-2', 'polity', 'governance', 'ir'],
         mastery: 'none',
-        resources: [],
+        resources: [
+            { id: 'res-gs2-1', title: 'Indian Polity', url: 'https://www.amazon.in/Indian-Polity-M-Laxmikanth/dp/9352607751', category: 'book', status: 'in-progress', description: 'by M. Laxmikanth', progress: 12, total: 80 }
+        ],
         subtopics: [
           { id: 'mains-gs2-constitution', title: 'Indian Constitution', description: 'Historical underpinnings, evolution, features, amendments, basic structure, federalism, separation of powers, and dispute redressal mechanisms.', tags: [], mastery: 'none', resources: [] },
           { id: 'mains-gs2-governance', title: 'Governance and Polity', description: 'Structure and functioning of Parliament, Executive, and Judiciary; role of pressure groups, and aspects of governance like transparency and e-governance.', tags: [], mastery: 'none', resources: [] },

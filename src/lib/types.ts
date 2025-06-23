@@ -28,15 +28,18 @@ export interface Exam {
   }[];
 }
 
-export type ResourceCategory = 'book-ncert' | 'book-reference' | 'lecture-playlist' | 'lecture-video';
+export type ResourceCategory = 'book' | 'video' | 'pdf' | 'note';
+export type ResourceStatus = 'todo' | 'in-progress' | 'completed';
 
 export interface Resource {
   id: string;
   title: string;
   url: string;
   category: ResourceCategory;
+  status: ResourceStatus;
   description?: string;
-  class?: 'VI' | 'VII' | 'VIII' | 'IX' | 'X' | 'XI' | 'XII';
+  progress?: number;
+  total?: number;
 }
 
 export type MasteryLevel = 'none' | 'novice' | 'advanced' | 'expert';
