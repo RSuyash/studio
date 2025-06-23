@@ -9,13 +9,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { updateTopicInTree, getAllTagsFromTree, filterSyllabus, findTopicById } from "@/lib/resource-utils";
 import { SyllabusExplorer } from "./syllabus-explorer";
 import { DetailPane } from "./detail-pane";
-import { SidebarTrigger } from "../ui/sidebar";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
-import { BookOpen, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { SyllabusType } from "../main-layout";
-import { Icons } from "../icons";
 
 const MindMapView = dynamic(() => import("./mind-map-view"), {
   ssr: false,
@@ -33,10 +31,7 @@ const SyllabusHeader = ({
 }) => (
     <header className="flex h-14 shrink-0 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center gap-4">
-            <SidebarTrigger />
-            <div className="flex items-center gap-4">
-                <h2 className="text-lg font-semibold">Syllabus Explorer</h2>
-            </div>
+            <h2 className="text-lg font-semibold">Syllabus Explorer</h2>
         </div>
         <div className="flex items-center gap-2">
            <Select value={activeSyllabus} onValueChange={onSyllabusChange}>
@@ -124,7 +119,7 @@ export default function SyllabusViewer({
         }}
       />
       <main className="flex min-h-0 flex-1">
-        <div className="hidden h-full w-full max-w-xs border-r lg:block">
+        <div className="hidden h-full w-full max-w-xs border-r md:block">
           <SyllabusExplorer
             data={filteredData}
             selectedTopicId={selectedTopicId}

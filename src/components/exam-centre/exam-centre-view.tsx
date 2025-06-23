@@ -25,7 +25,6 @@ export default function ExamCentreView({ setActiveView, comparisonData }: ExamCe
   return (
     <>
       <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
-        <SidebarTrigger />
         <Icons.Layers className="h-6 w-6" />
         <h2 className="text-lg font-semibold">Exam Centre</h2>
       </header>

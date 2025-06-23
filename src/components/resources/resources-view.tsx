@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -156,7 +157,6 @@ export default function ResourcesView({
     <>
       <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:px-6">
         <div className="flex items-center gap-4">
-            <SidebarTrigger />
             <Library className="h-6 w-6" />
             <h2 className="text-lg font-semibold">My Resources</h2>
         </div>
