@@ -18,11 +18,10 @@ import type { SyllabusTopic } from '@/lib/types';
 import { generateStudyPlan, type GenerateStudyPlanOutput } from '@/ai/flows/create-study-plan-flow';
 import { serializeSyllabusWithMastery } from '@/lib/resource-utils';
 import { BrainCircuit, CheckCircle, BookOpen, Repeat, Pencil, Clock, ListChecks } from 'lucide-react';
-import { MultiSelect } from '@/components/ui/multi-select';
 import StatCard from '../insights/stat-card';
 
 const plannerFormSchema = z.object({
-  focusAreas: z.array(z.string()).min(1, 'Please select at least one focus area.'),
+  focusAreas: z.string().min(3, 'Please enter your main focus areas.'),
   timeframe: z.string({ required_error: 'Please select a timeframe.' }),
   hoursPerWeek: z.coerce.number().min(1, 'Please enter at least 1 hour.').max(100, 'Please enter a realistic number of hours.'),
 });
@@ -69,7 +68,7 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
   const form = useForm<PlannerFormValues>({
     resolver: zodResolver(plannerFormSchema),
     defaultValues: {
-      focusAreas: [],
+      focusAreas: 'Polity, Modern History, Environment',
       timeframe: '1 Week',
       hoursPerWeek: 20,
     },
@@ -79,13 +78,6 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
     return serializeSyllabusWithMastery(allSyllabusData);
   }, [allSyllabusData]);
 
-  const focusAreaOptions = React.useMemo(() => {
-    return allSyllabusData.map(topic => ({
-      value: topic.title,
-      label: topic.title,
-    }));
-  }, [allSyllabusData]);
-  
   React.useEffect(() => {
     if (!studyPlan) {
         setPlanStats(null);
@@ -166,12 +158,9 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Focus Areas</FormLabel>
-                             <MultiSelect
-                                options={focusAreaOptions}
-                                selected={field.value}
-                                onChange={field.onChange}
-                                placeholder="Select focus areas..."
-                             />
+                            <FormControl>
+                                <Input placeholder="e.g., Polity, Modern History, Ethics" {...field} />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}

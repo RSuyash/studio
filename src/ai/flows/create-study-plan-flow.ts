@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateStudyPlanInputSchema = z.object({
-  focusAreas: z.array(z.string()).describe('A list of the main syllabus subjects or topics the user wants to focus on.'),
+  focusAreas: z.string().describe('A comma-separated string of the main syllabus subjects or topics the user wants to focus on.'),
   timeframe: z.string().describe('The total duration for the study plan (e.g., "1 Week", "1 Month").'),
   hoursPerWeek: z.number().describe('The total number of hours the user can study per week.'),
   syllabusContext: z.string().describe('A text representation of the entire syllabus tree, including user-defined mastery levels for each topic (e.g., "[id] [Mastery: novice] Title").'),
