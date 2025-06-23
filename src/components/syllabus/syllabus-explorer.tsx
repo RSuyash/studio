@@ -7,12 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CheckCircle, ChevronRight, Circle, Info } from 'lucide-react';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+import { Icons } from '@/components/icons';
 
 interface SyllabusExplorerProps {
     data: SyllabusTopic[];
@@ -27,15 +22,23 @@ const TopicNode: React.FC<{
   selectedTopicId: string | null;
   onSelectTopic: (id: string) => void;
 }> = ({ topic, level, selectedTopicId, onSelectTopic }) => {
-  const [isExpanded, setIsExpanded] = React.useState(level < 1); // Expand top levels by default
+  const [isExpanded, setIsExpanded] = React.useState(level < 1);
   const hasSubtopics = topic.subtopics && topic.subtopics.length > 0;
   const isActive = selectedTopicId === topic.id;
-
-  const Icon = topic.mastery === 'expert' ? CheckCircle : topic.mastery === 'advanced' ? Info : Circle;
 
   const handleSelect = () => {
     onSelectTopic(topic.id);
   };
+
+  const TopicIconComponent = topic.icon ? (Icons[topic.icon as keyof typeof Icons] as React.ElementType) : null;
+  const MasteryIconComponent = topic.mastery === 'expert' ? CheckCircle : topic.mastery === 'advanced' ? Info : Circle;
+  const IconComponent = TopicIconComponent || MasteryIconComponent;
+
+  const iconColor = TopicIconComponent 
+    ? 'text-primary' 
+    : topic.mastery === 'expert' 
+    ? 'text-green-500' 
+    : 'text-muted-foreground';
 
   return (
     <div>
@@ -52,9 +55,7 @@ const TopicNode: React.FC<{
                 )}
                 style={{ paddingLeft: `${level * 1.5 + 0.75}rem` }}
             >
-                <Icon className={cn("mr-2 h-4 w-4 shrink-0", 
-                  topic.mastery === 'expert' ? 'text-green-500' : 'text-muted-foreground'
-                )} />
+                <IconComponent className={cn("mr-2 h-4 w-4 shrink-0", iconColor)} />
                 {topic.title}
             </Button>
             {hasSubtopics && (

@@ -16,6 +16,10 @@ import {
   User,
   Settings,
   Landmark,
+  FileText,
+  ShieldCheck,
+  BookMarked,
+  HelpCircle,
 } from 'lucide-react';
 
 export type Icon = LucideIcon;
@@ -37,4 +41,8 @@ export const Icons = {
   User,
   Settings,
   Landmark,
+  FileText,
+  ShieldCheck,
+  BookMarked,
+  HelpCircle,
 };

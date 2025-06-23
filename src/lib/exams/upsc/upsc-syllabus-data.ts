@@ -14,6 +14,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'prelims-gs1',
         title: 'Paper I: General Studies (GS)',
+        icon: 'FileText',
         description: 'Decides the cut-off for the Main exam. Syllabus covers a wide range of subjects from current events to general science. Marks: 200, Questions: 100.',
         tags: ['gs', 'merit-cutoff'],
         mastery: 'none',
@@ -108,6 +109,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'prelims-csat',
         title: 'Paper II: CSAT (Civil Services Aptitude Test)',
+        icon: 'FileText',
         description: 'A qualifying paper requiring 33% marks (66/200). Tests aptitude and reasoning skills. Marks: 200, Questions: 80.',
         tags: ['csat', 'aptitude', 'qualifying'],
         mastery: 'none',
@@ -134,6 +136,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-qualifying',
         title: 'Qualifying Papers (A & B)',
+        icon: 'ShieldCheck',
         description: 'These papers test basic language proficiency and are not counted for merit. Candidates must score 25% (75/300) to pass.',
         tags: ['qualifying', 'language'],
         mastery: 'none',
@@ -160,6 +163,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-essay',
         title: 'Paper I: Essay',
+        icon: 'FileText',
         description: 'Candidates write two essays on a variety of topics, testing their ability to organize ideas and write concisely. Marks: 250.',
         tags: ['essay', 'merit'],
         mastery: 'none',
@@ -172,6 +176,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-gs1',
         title: 'Paper II: General Studies I',
+        icon: 'FileText',
         description: 'Covers Indian Heritage and Culture, History and Geography of the World, and Society. Marks: 250.',
         tags: ['gs-1', 'history', 'geography', 'society'],
         mastery: 'none',
@@ -187,6 +192,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-gs2',
         title: 'Paper III: General Studies II',
+        icon: 'FileText',
         description: 'Covers Governance, Constitution, Polity, Social Justice, and International Relations. Marks: 250.',
         tags: ['gs-2', 'polity', 'governance', 'ir'],
         mastery: 'none',
@@ -202,6 +208,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-gs3',
         title: 'Paper IV: General Studies III',
+        icon: 'FileText',
         description: 'Covers Technology, Economic Development, Biodiversity, Environment, Security, and Disaster Management. Marks: 250.',
         tags: ['gs-3', 'economy', 'sci-tech', 'security'],
         mastery: 'none',
@@ -217,6 +224,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-gs4',
         title: 'Paper V: General Studies IV',
+        icon: 'FileText',
         description: 'Covers Ethics, Integrity, and Aptitude, often using case studies. Marks: 250.',
         tags: ['gs-4', 'ethics', 'aptitude'],
         mastery: 'none',
@@ -234,6 +242,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'mains-optional',
         title: 'Papers VI & VII: Optional Subject',
+        icon: 'BookMarked',
         description: 'Candidates choose one subject from a list for two papers. This tests in-depth, graduate-level knowledge of the chosen discipline.',
         tags: ['optional', 'specialized', 'merit'],
         mastery: 'none',
@@ -484,6 +493,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
       {
         id: 'interview-purpose',
         title: 'Purpose of the Personality Test',
+        icon: 'HelpCircle',
         description: "Evaluates: Mental alertness, critical thinking, analytical ability, a balance of judgment, leadership potential, integrity, honesty, communication skills, depth of interest, intellectual curiosity, and suitability for public service. It is not primarily a knowledge test.",
         tags: ['evaluation-criteria'],
         mastery: 'none',
