@@ -42,11 +42,13 @@ const topResources = [
     { title: "Indian Economy", author: "Sanjiv Verma", subject: "Economy" },
 ]
 
-const recentCourses = [
-    { title: "GS Paper II: Full Course", progress: 75, category: "Polity & Governance" },
-    { title: "Ethics, Integrity and Aptitude", progress: 45, category: "GS Paper IV" },
-    { title: "World History: Mains", progress: 60, category: "History" },
-]
+const todaysBlueprint = [
+    { type: 'Study', title: 'GS-II: Parliament & State Legislatures', duration: '2 hrs', icon: BookOpen, tag: 'Polity' },
+    { type: 'Revise', title: 'Notes on Indus Valley Civilization', duration: '30 mins', icon: History, tag: 'History' },
+    { type: 'Test', title: 'Sectional Test: Modern History', duration: '1 hr', icon: PencilLine, tag: 'Test' },
+    { type: 'Study', title: 'Economic Planning in India', duration: '1.5 hrs', icon: BookOpen, tag: 'Economy' },
+];
+
 
 export const DashboardView = ({ setActiveView }: { setActiveView: (view: View, syllabus?: SyllabusType) => void }) => {
 
@@ -170,30 +172,27 @@ export const DashboardView = ({ setActiveView }: { setActiveView: (view: View, s
             </div>
              <Card>
                 <CardHeader>
-                    <CardTitle>Recent Courses</CardTitle>
-                    <CardDescription>Continue where you left off.</CardDescription>
+                    <CardTitle>Today's Blueprint</CardTitle>
+                    <CardDescription>Your prioritized tasks for the day.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Course</TableHead>
-                                <TableHead>Category</TableHead>
-                                <TableHead className="text-right">Progress</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {recentCourses.map((course) => (
-                                <TableRow key={course.title}>
-                                    <TableCell className="font-medium">{course.title}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline">{course.category}</Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">{course.progress}%</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                <CardContent className="space-y-4">
+                    {todaysBlueprint.map((task, index) => (
+                        <div key={index} className="flex items-center justify-between rounded-lg border bg-card p-3 shadow-sm transition-all hover:shadow-md">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-primary/10 text-primary rounded-full p-2">
+                                    <task.icon className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold">{task.title}</p>
+                                    <p className="text-sm text-muted-foreground">{task.type} &middot; {task.duration}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="secondary">{task.tag}</Badge>
+                                <Button variant="ghost" size="sm">Start</Button>
+                            </div>
+                        </div>
+                    ))}
                 </CardContent>
             </Card>
         </main>
