@@ -56,6 +56,7 @@ export default function MainLayout({
 }: MainLayoutProps) {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
   const [activeSyllabus, setActiveSyllabus] = React.useState<SyllabusType>('upsc');
+  const [selectedTopicId, setSelectedTopicId] = React.useState<string | null>(null);
 
   const [upscData, setUpscData] = React.useState(initialUpscData);
   const [mpscData, setMpscData] = React.useState(initialMpscData);
@@ -71,16 +72,18 @@ export default function MainLayout({
     { view: 'resources', label: 'My Resources', icon: Icons.Library },
   ];
   
-  const handleViewChange = (view: View, syllabus?: SyllabusType) => {
+  const handleViewChange = (view: View, syllabus?: SyllabusType, topicId?: string) => {
     setActiveView(view);
     if (syllabus) {
         setActiveSyllabus(syllabus);
+    }
+    if (topicId) {
+        setSelectedTopicId(topicId);
     }
   };
 
   const renderActiveView = () => {
     const allSyllabusData = { upsc: upscData, mpsc: mpscData, ifos: ifosData };
-    const combinedSyllabus = [...upscData, ...mpscData, ...ifosData];
 
     switch (activeView) {
         case 'dashboard':
@@ -103,7 +106,10 @@ export default function MainLayout({
         case 'exam-centre':
             return <ExamCentreView setActiveView={handleViewChange} comparisonData={comparisonData} />;
         case 'study-planner':
-            return <StudyPlannerView allSyllabusData={combinedSyllabus} />;
+            return <StudyPlannerView 
+                        allSyllabusData={allSyllabusData}
+                        setActiveView={handleViewChange} 
+                    />;
         case 'syllabus': {
             const dataMap = { upsc: upscData, mpsc: mpscData, ifos: ifosData };
             const setDataMap = { upsc: setUpscData, mpsc: setMpscData, ifos: setIfosData };
@@ -115,6 +121,8 @@ export default function MainLayout({
                 setActiveSyllabus={setActiveSyllabus}
                 resourceData={resourceData}
                 setResourceData={setResourceData}
+                selectedTopicId={selectedTopicId}
+                onSelectTopic={setSelectedTopicId}
             />;
         }
         case 'resources':

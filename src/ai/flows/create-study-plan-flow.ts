@@ -19,6 +19,7 @@ const GenerateStudyPlanInputSchema = z.object({
 export type GenerateStudyPlanInput = z.infer<typeof GenerateStudyPlanInputSchema>;
 
 const DailyTaskSchema = z.object({
+  topicId: z.string().describe('The unique ID of the syllabus topic this task refers to. This ID must come from the provided syllabus context.'),
   duration: z.string().describe('Suggested time allocation for the task (e.g., "2 hours", "45 mins").'),
   topic: z.string().describe('The specific syllabus topic or concept to study.'),
   activity: z.enum(['Study', 'Revise', 'Practice', 'Test']).describe('The type of activity to perform.'),
@@ -53,8 +54,9 @@ Your task is to act as a hyper-intelligent scheduler. Based on the user's focus 
 2.  **Schedule Revisions**: For topics marked [Mastery: advanced] or [Mastery: expert], schedule 'Revise' activities to ensure knowledge retention. Do not schedule 'Study' for these.
 3.  **Balance Activities**: The plan should not just be about studying new things. Intelligently mix in 'Revise', 'Practice' (e.g., answer writing), and 'Test' activities.
 4.  **Be Granular**: For each task, provide a short, actionable 'suggestion' to guide the user. For example, for a 'Study' task, suggest "Focus on creating flashcards for key terms". For a 'Practice' task, suggest "Write a 250-word answer on this topic".
-5.  **Be Realistic**: The daily schedule should be achievable within the user's weekly hour constraints. Assume a 7-day week if the timeframe is in weeks.
-6.  **Summarize**: Provide a short, encouraging summary of the plan's strategy, referencing how it will tackle weak areas first.
+5.  **Return Topic ID**: For every single task you create, you MUST include the original 'topicId' from the syllabus context. This is crucial for linking the plan back to the syllabus.
+6.  **Be Realistic**: The daily schedule should be achievable within the user's weekly hour constraints. Assume a 7-day week if the timeframe is in weeks.
+7.  **Summarize**: Provide a short, encouraging summary of the plan's strategy, referencing how it will tackle weak areas first.
 
 **User's Requirements:**
 -   **Focus Areas**: {{{focusAreas}}}

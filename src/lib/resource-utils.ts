@@ -167,8 +167,9 @@ export const serializeSyllabusForPrompt = (topics: SyllabusTopic[]): string => {
 };
 
 // New function to serialize the syllabus tree with mastery levels for the planner AI
-export const serializeSyllabusWithMastery = (topics: SyllabusTopic[]): string => {
+export const serializeSyllabusWithMastery = (allSyllabusData: { [key: string]: SyllabusTopic[] }): string => {
   let result = '';
+  
   const recurse = (items: SyllabusTopic[], depth: number) => {
     items.forEach(item => {
       const prefix = '  '.repeat(depth);
@@ -179,6 +180,12 @@ export const serializeSyllabusWithMastery = (topics: SyllabusTopic[]): string =>
       }
     });
   };
-  recurse(topics, 0);
+  
+  for (const examKey in allSyllabusData) {
+      result += `--- SYLLABUS FOR ${examKey.toUpperCase()} ---\n\n`;
+      recurse(allSyllabusData[examKey], 0);
+      result += '\n';
+  }
+  
   return result;
 };

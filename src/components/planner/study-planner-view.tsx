@@ -17,9 +17,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import type { SyllabusTopic } from '@/lib/types';
 import { generateStudyPlan, type GenerateStudyPlanOutput } from '@/ai/flows/create-study-plan-flow';
-import { serializeSyllabusWithMastery } from '@/lib/resource-utils';
-import { BrainCircuit, CheckCircle, BookOpen, Repeat, Pencil, Clock, ListChecks } from 'lucide-react';
+import { serializeSyllabusWithMastery, findTopicById } from '@/lib/resource-utils';
+import { BrainCircuit, CheckCircle, BookOpen, Repeat, Pencil, Clock, ListChecks, ArrowRight } from 'lucide-react';
 import StatCard from '../insights/stat-card';
+import { View, SyllabusType } from '../main-layout';
 
 const plannerFormSchema = z.object({
   focusAreas: z.string().min(3, 'Please enter your main focus areas.'),
@@ -63,7 +64,12 @@ const parseDuration = (durationStr: string): number => {
     return 0; // If no unit is found, don't guess.
 };
 
-export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData: SyllabusTopic[] }) {
+interface StudyPlannerViewProps {
+    allSyllabusData: { upsc: SyllabusTopic[], mpsc: SyllabusTopic[], ifos: SyllabusTopic[] };
+    setActiveView: (view: View, syllabusType: SyllabusType, topicId: string) => void;
+}
+
+export default function StudyPlannerView({ allSyllabusData, setActiveView }: StudyPlannerViewProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [studyPlan, setStudyPlan] = React.useState<GenerateStudyPlanOutput | null>(null);
   const [planStats, setPlanStats] = React.useState<PlanStats | null>(null);
@@ -136,6 +142,28 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleTaskClick = (topicId: string) => {
+      let syllabusType: SyllabusType | null = null;
+
+      if (findTopicById(allSyllabusData.upsc, topicId)) {
+          syllabusType = 'upsc';
+      } else if (findTopicById(allSyllabusData.mpsc, topicId)) {
+          syllabusType = 'mpsc';
+      } else if (findTopicById(allSyllabusData.ifos, topicId)) {
+          syllabusType = 'ifos';
+      }
+
+      if (syllabusType) {
+          setActiveView('syllabus', syllabusType, topicId);
+      } else {
+          toast({
+              variant: 'destructive',
+              title: 'Topic Not Found',
+              description: 'Could not find the corresponding topic in any syllabus.'
+          });
+      }
   };
 
   return (
@@ -281,8 +309,12 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
                           {dailyPlan.tasks.map((task, taskIndex) => {
                              const Icon = activityIcons[task.activity] || BookOpen;
                              return (
-                                <div key={taskIndex} className="flex items-start gap-4 rounded-md border p-3">
-                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted mt-1">
+                                <button 
+                                    key={taskIndex} 
+                                    onClick={() => handleTaskClick(task.topicId)}
+                                    className="w-full flex items-start gap-4 rounded-md border p-3 text-left transition-colors hover:bg-muted"
+                                >
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted mt-1 shrink-0">
                                     <Icon className="h-4 w-4 text-muted-foreground" />
                                   </div>
                                   <div className="flex-1">
@@ -292,7 +324,10 @@ export default function StudyPlannerView({ allSyllabusData }: { allSyllabusData:
                                     </p>
                                     <p className="text-xs text-muted-foreground italic mt-1">"{task.suggestion}"</p>
                                   </div>
-                                </div>
+                                   <div className="self-center">
+                                       <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                                   </div>
+                                </button>
                              )
                           })}
                         </CardContent>

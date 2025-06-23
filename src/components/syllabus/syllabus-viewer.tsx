@@ -64,15 +64,18 @@ export default function SyllabusViewer({
   setActiveSyllabus,
   resourceData,
   setResourceData,
+  selectedTopicId,
+  onSelectTopic,
 }: { 
   syllabusData: SyllabusTopic[], 
   setSyllabusData: React.Dispatch<React.SetStateAction<SyllabusTopic[]>>,
   activeSyllabus: SyllabusType,
   setActiveSyllabus: (syllabus: SyllabusType) => void,
   resourceData: Record<string, Resource[]>,
-  setResourceData: React.Dispatch<React.SetStateAction<Record<string, Resource[]>>>
+  setResourceData: React.Dispatch<React.SetStateAction<Record<string, Resource[]>>>,
+  selectedTopicId: string | null,
+  onSelectTopic: (id: string | null) => void,
 }) {
-  const [selectedTopicId, setSelectedTopicId] = React.useState<string | null>(null);
   const [selectedTags, setSelectedTags] = React.useState(new Set<string>());
   const [mobileSheetOpen, setMobileSheetOpen] = React.useState(false);
   
@@ -101,15 +104,15 @@ export default function SyllabusViewer({
   // When switching syllabus or filtering, reset selection if the selected topic is no longer visible
   React.useEffect(() => {
       if (selectedTopicId && !findTopicById(filteredData, selectedTopicId)) {
-          setSelectedTopicId(null);
+          onSelectTopic(null);
       }
-  }, [filteredData, selectedTopicId]);
+  }, [filteredData, selectedTopicId, onSelectTopic]);
 
   // Reset selection and filters when syllabus source changes
   React.useEffect(() => {
     setSelectedTags(new Set<string>());
-    setSelectedTopicId(null);
-  }, [activeSyllabus]);
+    onSelectTopic(null);
+  }, [activeSyllabus, onSelectTopic]);
 
 
   const filterPanelContent = (
@@ -134,7 +137,7 @@ export default function SyllabusViewer({
            <SyllabusExplorer
             data={filteredData}
             selectedTopicId={selectedTopicId}
-            onSelectTopic={setSelectedTopicId}
+            onSelectTopic={onSelectTopic}
             title={syllabusTitles[activeSyllabus]}
           />
         </div>
@@ -143,7 +146,7 @@ export default function SyllabusViewer({
             syllabusData={syllabusData}
             selectedTopicId={selectedTopicId}
             onUpdateTopic={handleUpdateTopic}
-            onSelectTopic={setSelectedTopicId}
+            onSelectTopic={onSelectTopic}
             resourceData={resourceData}
             setResourceData={setResourceData}
           />
@@ -165,7 +168,7 @@ export default function SyllabusViewer({
                   data={filteredData}
                   selectedTopicId={selectedTopicId}
                   onSelectTopic={(id) => {
-                    setSelectedTopicId(id);
+                    onSelectTopic(id);
                     setMobileSheetOpen(false); // Close sheet on selection
                   }}
                   title={syllabusTitles[activeSyllabus]}
