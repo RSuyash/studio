@@ -5,7 +5,7 @@ This guide provides instructions for setting up a local PostgreSQL database, mig
 ## How the Connection Works
 
 The application is designed to be flexible. It looks for a `DATABASE_URL` environment variable on startup.
-- **If `DATABASE_URL` is found**, it will connect to your PostgreSQL database to load and manage syllabus and resource data.
+- **If `DATABASE_URL` is found**, it will connect to your PostgreSQL database to load and manage syllabus, resource, and exam structure data.
 - **If `DATABASE_URL` is NOT found**, the app will gracefully fall back to using the static data from the TypeScript files located in `/src/lib/`. No database is required in this case.
 
 ---
@@ -63,7 +63,7 @@ Now, populate the tables with the initial data from the TypeScript files. The pr
 ```bash
 npm run db:migrate
 ```
-You should see console logs indicating that the data for exams, topics, tags, and resources has been inserted successfully.
+You should see console logs indicating that the data for exams, exam details, topics, tags, and resources has been inserted successfully.
 
 ### Step 6: Run the Application
 

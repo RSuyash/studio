@@ -1,8 +1,8 @@
 import MainLayout from "@/components/main-layout";
 import { Toaster } from "@/components/ui/toaster";
 import { examComparisonData } from "@/lib/exam-comparison-data";
-import { getSyllabusDataForExam, getResourceData } from '@/lib/data-service';
-import type { ExamComparisonData } from "@/lib/types";
+import { getSyllabusDataForExam, getResourceData, getExamData } from '@/lib/data-service';
+import type { ExamComparisonData, Exam } from "@/lib/types";
 
 export default async function Home() {
   // Static data can still be sourced from local files
@@ -12,6 +12,8 @@ export default async function Home() {
   const upscSyllabusData = await getSyllabusDataForExam('upsc');
   const mpscSyllabusData = await getSyllabusDataForExam('mpsc');
   const allResourceData = await getResourceData();
+  const upscExamData = await getExamData('upsc');
+  const mpscExamData = await getExamData('mpsc');
 
   return (
     <>
@@ -20,6 +22,8 @@ export default async function Home() {
         upscSyllabusData={upscSyllabusData}
         mpscSyllabusData={mpscSyllabusData}
         resourceData={allResourceData}
+        upscExamData={upscExamData}
+        mpscExamData={mpscExamData}
       />
       <Toaster />
     </>

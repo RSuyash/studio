@@ -5,23 +5,27 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { calculateExamStats, type ExamStats } from '@/lib/insights-utils';
-import { upscCseExam } from '@/lib/exams/upsc/upsc-exam-data';
-import { initialSyllabusData } from '@/lib/exams/upsc/upsc-syllabus-data';
-import { mpscRajyasevaExam } from '@/lib/exams/mpsc/mpsc-exam-data';
-import { mpscSyllabusData } from '@/lib/exams/mpsc/mpsc-syllabus-data';
 import StatCard from './stat-card';
 import PaperBreakdownChart from './paper-breakdown-chart';
 import { Layers, ListTree, Plus } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import type { Exam, SyllabusTopic } from '@/lib/types';
 
-export default function InsightsView() {
+interface InsightsViewProps {
+  upscExam: Exam;
+  upscSyllabus: SyllabusTopic[];
+  mpscExam: Exam;
+  mpscSyllabus: SyllabusTopic[];
+}
+
+export default function InsightsView({ upscExam, upscSyllabus, mpscExam, mpscSyllabus }: InsightsViewProps) {
   const [selectedExam, setSelectedExam] = React.useState<'upsc' | 'mpsc'>('upsc');
 
   const { exam, syllabus, title } = React.useMemo(() => {
     return selectedExam === 'upsc'
-      ? { exam: upscCseExam, syllabus: initialSyllabusData, title: 'UPSC CSE' }
-      : { exam: mpscRajyasevaExam, syllabus: mpscSyllabusData, title: 'MPSC Rajyaseva' };
-  }, [selectedExam]);
+      ? { exam: upscExam, syllabus: upscSyllabus, title: 'UPSC CSE' }
+      : { exam: mpscExam, syllabus: mpscSyllabus, title: 'MPSC Rajyaseva' };
+  }, [selectedExam, upscExam, upscSyllabus, mpscExam, mpscSyllabus]);
 
   const stats = React.useMemo(() => {
     return calculateExamStats(exam, syllabus);

@@ -16,10 +16,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Icons } from '@/components/icons'
-// The initial data is now passed as props, so we don't need these direct imports
-// import { initialSyllabusData } from "@/lib/exams/upsc/upsc-syllabus-data";
-// import { mpscSyllabusData } from "@/lib/exams/mpsc/mpsc-syllabus-data";
-import type { SyllabusTopic, ExamComparisonData, Resource } from '@/lib/types';
+import type { SyllabusTopic, ExamComparisonData, Resource, Exam } from '@/lib/types';
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -30,7 +27,6 @@ import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
 import { LogOut } from 'lucide-react';
-// import { initialResourceData } from '@/lib/resources/resource-data';
 
 export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer';
 export type SyllabusType = 'upsc' | 'mpsc';
@@ -40,6 +36,8 @@ interface MainLayoutProps {
   upscSyllabusData: SyllabusTopic[];
   mpscSyllabusData: SyllabusTopic[];
   resourceData: Record<string, Resource[]>;
+  upscExamData: Exam;
+  mpscExamData: Exam;
 }
 
 export default function MainLayout({ 
@@ -47,11 +45,12 @@ export default function MainLayout({
   upscSyllabusData: initialUpscData,
   mpscSyllabusData: initialMpscData,
   resourceData: initialResourceData,
+  upscExamData,
+  mpscExamData,
 }: MainLayoutProps) {
   const [activeView, setActiveView] = React.useState<View>('dashboard');
   const [activeSyllabus, setActiveSyllabus] = React.useState<SyllabusType>('upsc');
 
-  // Use the fetched data to initialize state. Updates will be client-side for now.
   const [upscData, setUpscData] = React.useState(initialUpscData);
   const [mpscData, setMpscData] = React.useState(initialMpscData);
   const [resourceData, setResourceData] = React.useState<Record<string, Resource[]>>(initialResourceData);
@@ -78,11 +77,16 @@ export default function MainLayout({
         case 'dashboard':
             return <DashboardView setActiveView={handleViewChange} />;
         case 'exam-explorer':
-            return <ExamExplorerView setActiveView={handleViewChange} />;
+            return <ExamExplorerView setActiveView={handleViewChange} exam={upscExamData} />;
         case 'mpsc-explorer':
-            return <MpscExplorerView setActiveView={handleViewChange} />;
+            return <MpscExplorerView setActiveView={handleViewChange} exam={mpscExamData} />;
         case 'insights':
-            return <InsightsView />;
+            return <InsightsView 
+                      upscExam={upscExamData}
+                      upscSyllabus={upscData}
+                      mpscExam={mpscExamData}
+                      mpscSyllabus={mpscData}
+                   />;
         case 'exam-centre':
             return <ExamCentreView setActiveView={handleViewChange} comparisonData={comparisonData} />;
         case 'syllabus': {

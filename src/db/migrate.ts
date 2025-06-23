@@ -14,6 +14,8 @@ import 'dotenv/config';
 import { initialSyllabusData as upscSyllabus } from '../lib/exams/upsc/upsc-syllabus-data';
 import { mpscSyllabusData as mpscSyllabus } from '../lib/exams/mpsc/mpsc-syllabus-data';
 import { initialResourceData } from '../lib/resources/resource-data';
+import { upscCseExam } from '../lib/exams/upsc/upsc-exam-data';
+import { mpscRajyasevaExam } from '../lib/exams/mpsc/mpsc-exam-data';
 import type { SyllabusTopic, Resource } from '../lib/types';
 
 if (!process.env.DATABASE_URL) {
@@ -76,15 +78,22 @@ async function main() {
     await client.query('DELETE FROM topic_tags;');
     await client.query('DELETE FROM syllabus_topics;');
     await client.query('DELETE FROM tags;');
+    await client.query('DELETE FROM exam_details;');
     await client.query('DELETE FROM exams;');
 
     // 2. Insert exams
-    console.log('Inserting exams...');
+    console.log('Inserting exams and their structures...');
     await client.query(`
       INSERT INTO exams (id, name) VALUES 
       ('upsc', 'UPSC CSE'),
       ('mpsc', 'MPSC Rajyaseva');
     `);
+    
+    await client.query(
+        `INSERT INTO exam_details (id, structure) VALUES ($1, $2), ($3, $4)`,
+        ['upsc', JSON.stringify(upscCseExam), 'mpsc', JSON.stringify(mpscRajyasevaExam)]
+    );
+    console.log('Exams and structures inserted.');
 
     // 3. Process and flatten syllabus data
     console.log('Processing syllabus data...');

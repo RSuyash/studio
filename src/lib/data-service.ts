@@ -1,5 +1,5 @@
 import { pool } from './db';
-import type { SyllabusTopic, Resource } from './types';
+import type { SyllabusTopic, Resource, Exam } from './types';
 import type { PoolClient } from 'pg';
 
 // Helper function to build a tree from a flat list of topics
@@ -121,6 +121,45 @@ export async function getResourceData(): Promise<Record<string, Resource[]>> {
         console.error('Failed to fetch resources from database. Falling back to mock data.', e);
         const { initialResourceData } = await import('@/lib/resources/resource-data');
         return initialResourceData;
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+export async function getExamData(examId: 'upsc' | 'mpsc'): Promise<Exam> {
+    if (!pool) {
+        console.log(`Database not connected. Falling back to mock data for ${examId} exam structure.`);
+        if (examId === 'upsc') {
+            const { upscCseExam } = await import('@/lib/exams/upsc/upsc-exam-data');
+            return upscCseExam;
+        } else {
+            const { mpscRajyasevaExam } = await import('@/lib/exams/mpsc/mpsc-exam-data');
+            return mpscRajyasevaExam;
+        }
+    }
+
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        console.log(`Fetching exam structure from database for: ${examId}...`);
+        const query = 'SELECT structure FROM exam_details WHERE id = $1';
+        const res = await client.query(query, [examId]);
+        if (res.rows.length === 0) {
+            throw new Error(`Exam structure for ${examId} not found in database.`);
+        }
+        console.log(`Successfully fetched exam structure for ${examId} from database.`);
+        return res.rows[0].structure as Exam;
+    } catch (e) {
+        console.error(`Failed to fetch exam structure for ${examId} from database. Falling back to mock data.`, e);
+        if (examId === 'upsc') {
+            const { upscCseExam } = await import('@/lib/exams/upsc/upsc-exam-data');
+            return upscCseExam;
+        } else {
+            const { mpscRajyasevaExam } = await import('@/lib/exams/mpsc/mpsc-exam-data');
+            return mpscRajyasevaExam;
+        }
     } finally {
         if (client) {
             client.release();
