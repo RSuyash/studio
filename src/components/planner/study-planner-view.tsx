@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import type { SyllabusTopic } from '@/lib/types';
-import { generateStudyPlan, type GenerateStudyPlanOutput } from '@/ai/flows/create-study-plan-flow';
+import { generateStudyPlan, type GenerateStudyPlanOutput } from '@/ai/flows/study-plan';
 import { serializeSyllabusWithMastery } from '@/lib/resource-utils';
 import { BrainCircuit, BookOpen, Repeat, Pencil, Clock, ListChecks, ArrowRight, Lightbulb, CalendarDays, BarChart, FileText, Activity } from 'lucide-react';
 import type { View, SyllabusType } from '../main-layout';
