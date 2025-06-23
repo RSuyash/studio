@@ -71,7 +71,7 @@ export default function InsightsView() {
             title: 'Qualifying Papers',
             value: totalQualifyingPapers,
             icon: BookOpen,
-            description: 'Prelims CSAT & Mains Language papers.'
+            description: 'Across Prelims and Mains stages.'
         },
         {
             title: 'Interview Marks',
@@ -88,6 +88,7 @@ export default function InsightsView() {
     ];
     
     if (selectedExam === 'mpsc') {
+      statCards[1].description = 'Prelims CSAT & Mains Language papers.';
       statCards[3] = {
             title: 'Total Syllabus Topics',
             value: totalSyllabusTopics,
@@ -142,7 +143,7 @@ export default function InsightsView() {
             </Tabs>
           
           <div>
-            <h2 className="mb-4 mt-8 text-2xl font-headline font-bold">Trends & Analysis</h2>
+            <h2 className="mb-4 mt-8 text-2xl font-headline font-bold">Trends &amp; Analysis</h2>
             <p className="text-muted-foreground mb-6">
               Explore data-driven insights into the {examData.title} exam. More features are coming soon.
             </p>
