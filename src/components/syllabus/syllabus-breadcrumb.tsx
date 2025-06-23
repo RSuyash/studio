@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import { Icons } from '@/components/icons';
-import { type SyllabusTopic } from '@/lib/syllabus-data';
+import type { SyllabusTopic } from '@/lib/types';
 
 export const SyllabusBreadcrumb = ({ topics, onClickHome, onClickTopic }: { topics: SyllabusTopic[], onClickHome: () => void, onClickTopic: (index: number) => void }) => {
     const HomeIcon = Icons['Home'];

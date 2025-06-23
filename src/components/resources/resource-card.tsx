@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import ResourceItem from './resource-item';
-import { type ResourceWithTopicInfo } from '@/lib/resource-utils';
-import { type ResourceCategory } from '@/lib/syllabus-data';
+import type { ResourceWithTopicInfo, ResourceCategory } from '@/lib/types';
 import { Book, ListVideo, Youtube } from 'lucide-react';
 
 export const categoryInfoMap: Record<ResourceCategory, { title: string; icon: React.ElementType }> = {

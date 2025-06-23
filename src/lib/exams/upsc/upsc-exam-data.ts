@@ -1,33 +1,5 @@
 
-export interface Paper {
-  name: string;
-  subject: string;
-  duration?: string;
-  marks: number;
-  qualifyingMarks?: string;
-  nature: 'Merit' | 'Qualifying';
-  syllabus?: string[];
-}
-
-export interface Stage {
-  title: string;
-  description: string;
-  papers?: Paper[];
-  syllabus?: string[];
-  notes?: string[];
-  subStages?: Stage[];
-}
-
-export interface Exam {
-  id: string;
-  title: string;
-  description: string;
-  stages: Stage[];
-  finalScore: {
-    component: string;
-    marks: number;
-  }[];
-}
+import type { Exam } from '@/lib/types';
 
 export const upscCseExam: Exam = {
   id: 'upsc-cse',

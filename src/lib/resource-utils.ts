@@ -1,5 +1,5 @@
 
-import { type SyllabusTopic, type Resource } from '@/lib/syllabus-data';
+import type { SyllabusTopic, Resource, ResourceWithTopicInfo } from '@/lib/types';
 
 // Helper to find a topic by ID in a nested structure
 export const findTopicById = (topics: SyllabusTopic[], id: string): SyllabusTopic | null => {
@@ -32,12 +32,6 @@ export const updateTopicInTree = (
     return topic;
   });
 };
-
-export interface ResourceWithTopicInfo extends Resource {
-  topicId: string;
-  topicTitle: string;
-  topicPath: string;
-}
 
 // Helper to get a flat list of all resources with their topic path
 export const getAllResources = (

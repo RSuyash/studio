@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
-import { mpscRajyasevaExam } from '@/lib/mpsc-exam-data';
+import { mpscRajyasevaExam } from '@/lib/exams/mpsc/mpsc-exam-data';
 import { FileText, BookOpen, ListTree, Users } from 'lucide-react';
 
 export default function MpscInsightsView() {

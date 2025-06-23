@@ -1,27 +1,5 @@
 
-export type ResourceCategory = 'book-ncert' | 'book-reference' | 'lecture-playlist' | 'lecture-video';
-
-export interface Resource {
-  id: string;
-  title: string;
-  url: string;
-  category: ResourceCategory;
-  description?: string;
-  class?: 'VI' | 'VII' | 'VIII' | 'IX' | 'X' | 'XI' | 'XII';
-}
-
-export type MasteryLevel = 'none' | 'novice' | 'advanced' | 'expert';
-
-export interface SyllabusTopic {
-  id: string;
-  title: string;
-  description: string;
-  tags: string[];
-  mastery: MasteryLevel;
-  subtopics?: SyllabusTopic[];
-  icon?: string;
-  resources?: Resource[];
-}
+import type { SyllabusTopic } from '@/lib/types';
 
 export const initialSyllabusData: SyllabusTopic[] = [
   {

@@ -13,7 +13,7 @@ import ReactFlow, {
   type DefaultEdgeOptions,
   type FitViewOptions,
 } from 'reactflow';
-import { type SyllabusTopic } from '@/lib/syllabus-data';
+import type { SyllabusTopic } from '@/lib/types';
 
 interface MindMapViewProps {
   data: SyllabusTopic[];

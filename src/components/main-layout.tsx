@@ -17,8 +17,9 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar'
 import { Icons } from '@/components/icons'
-import { initialSyllabusData, type SyllabusTopic } from "@/lib/syllabus-data";
-import { mpscSyllabusData } from "@/lib/mpsc-syllabus-data";
+import { initialSyllabusData } from "@/lib/exams/upsc/upsc-syllabus-data";
+import { mpscSyllabusData } from "@/lib/exams/mpsc/mpsc-syllabus-data";
+import type { SyllabusTopic, ExamComparisonData } from '@/lib/types';
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -29,7 +30,6 @@ import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
 import MpscInsightsView from './insights/mpsc-insights-view';
-import type { ExamComparisonData } from '@/lib/exam-comparison-data';
 
 export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer' | 'mpsc-insights';
 export type SyllabusType = 'upsc' | 'mpsc';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { BrainCircuit, Check, ChevronsUpDown } from 'lucide-react';
-import { type MasteryLevel } from '@/lib/syllabus-data';
+import type { MasteryLevel } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,

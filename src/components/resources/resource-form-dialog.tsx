@@ -31,8 +31,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { type SyllabusTopic } from '@/lib/syllabus-data';
-import { findTopicById, findPathToTopic, type ResourceWithTopicInfo, bookSubjects, bookSubjectTopicMap, topicIdToBookSubjectMap } from '@/lib/resource-utils';
+import type { SyllabusTopic, ResourceWithTopicInfo } from '@/lib/types';
+import { findTopicById, findPathToTopic, bookSubjects, bookSubjectTopicMap, topicIdToBookSubjectMap } from '@/lib/resource-utils';
 import { categoryInfoMap } from './resource-card';
 
 const resourceSchema = z.object({

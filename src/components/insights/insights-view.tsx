@@ -7,8 +7,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
 import { type View } from '../main-layout';
-import { upscCseExam } from '@/lib/exam-data';
-import { initialSyllabusData, type SyllabusTopic } from '@/lib/syllabus-data';
+import { upscCseExam } from '@/lib/exams/upsc/upsc-exam-data';
+import { initialSyllabusData } from '@/lib/exams/upsc/upsc-syllabus-data';
+import type { SyllabusTopic } from '@/lib/types';
 import { FileText, BookOpen, ListTree, Users } from 'lucide-react';
 
 const countSyllabusEntries = (topics: SyllabusTopic[]): number => {

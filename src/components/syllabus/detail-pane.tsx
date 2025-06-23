@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { type SyllabusTopic, type MasteryLevel, type Resource, type ResourceCategory } from "@/lib/syllabus-data";
+import type { SyllabusTopic, MasteryLevel, Resource, ResourceCategory } from "@/lib/types";
 import { CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";

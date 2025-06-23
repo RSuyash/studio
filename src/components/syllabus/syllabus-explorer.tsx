@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { type SyllabusTopic } from "@/lib/syllabus-data";
+import type { SyllabusTopic } from "@/lib/types";
 import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/components/icons";
 import { findTopicById } from "@/lib/resource-utils";

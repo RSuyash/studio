@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { type Stage } from '@/lib/exam-data';
+import type { Stage } from '@/lib/types';
 import PaperTable from './paper-table';
 
 interface StageCardProps {

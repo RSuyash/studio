@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Link, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { type ResourceWithTopicInfo } from '@/lib/resource-utils';
+import type { ResourceWithTopicInfo } from '@/lib/types';
 
 interface ResourceItemProps {
   resource: ResourceWithTopicInfo;

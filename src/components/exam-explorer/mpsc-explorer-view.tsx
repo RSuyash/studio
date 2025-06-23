@@ -4,8 +4,8 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mpscRajyasevaExam } from '@/lib/mpsc-exam-data';
-import type { Exam } from '@/lib/exam-data';
+import { mpscRajyasevaExam } from '@/lib/exams/mpsc/mpsc-exam-data';
+import type { Exam } from '@/lib/types';
 import StageCard from './stage-card';
 import { ScrollArea } from '../ui/scroll-area';
 import { type View, type SyllabusType } from '../main-layout';

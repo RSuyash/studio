@@ -1,5 +1,5 @@
 
-import type { Exam } from './exam-data';
+import type { Exam } from '@/lib/types';
 
 export const mpscRajyasevaExam: Exam = {
   id: 'mpsc-rajyaseva',
@@ -124,12 +124,12 @@ export const mpscRajyasevaExam: Exam = {
       title: 'Stage II: Main Examination',
       description: 'The Main Exam is descriptive in nature. Marks from the qualifying paper are not counted, while marks from the Essay and 4 GS papers are counted for the final ranking.',
       papers: [
-        { 
-            name: 'Qualifying Paper', 
-            subject: 'Marathi & English Language', 
-            duration: '3 hours', 
-            marks: 100, 
-            qualifyingMarks: '35% overall', 
+        {
+            name: 'Qualifying Paper',
+            subject: 'Marathi & English Language',
+            duration: '3 hours',
+            marks: 100,
+            qualifyingMarks: '35% overall',
             nature: 'Qualifying',
             syllabus: [
               '**A. Marathi (50 marks)**',
@@ -144,11 +144,11 @@ export const mpscRajyasevaExam: Exam = {
               'Grammar (15 marks)',
             ]
         },
-        { 
-            name: 'Paper I', 
-            subject: 'Essay', 
-            duration: '3 hours', 
-            marks: 250, 
+        {
+            name: 'Paper I',
+            subject: 'Essay',
+            duration: '3 hours',
+            marks: 250,
             nature: 'Merit',
             syllabus: [
               '**Structure**',
@@ -169,11 +169,11 @@ export const mpscRajyasevaExam: Exam = {
               'Avoid taking extreme or biased positions.',
             ]
         },
-        { 
-            name: 'Paper II', 
-            subject: 'General Studies I (History, Geography, Society)', 
-            duration: '3 hours', 
-            marks: 250, 
+        {
+            name: 'Paper II',
+            subject: 'General Studies I (History, Geography, Society)',
+            duration: '3 hours',
+            marks: 250,
             nature: 'Merit',
             syllabus: [
               '**A. History and Culture**',
@@ -198,11 +198,11 @@ export const mpscRajyasevaExam: Exam = {
               'Regionalism and communalism',
             ]
         },
-        { 
-            name: 'Paper III', 
-            subject: 'General Studies II (Constitution, Polity, Governance, Law, Social Justice, and International Relations)', 
-            duration: '3 hours', 
-            marks: 250, 
+        {
+            name: 'Paper III',
+            subject: 'General Studies II (Constitution, Polity, Governance, Law, Social Justice, and International Relations)',
+            duration: '3 hours',
+            marks: 250,
             nature: 'Merit',
             syllabus: [
               '**A. Indian Constitution and Polity**',
@@ -240,11 +240,11 @@ export const mpscRajyasevaExam: Exam = {
               'Agreements and Treaties impacting India',
             ]
         },
-        { 
-            name: 'Paper IV', 
-            subject: 'General Studies III (Indian Economy, Agriculture, Science, Technology, Environment, and Internal Security)', 
-            duration: '3 hours', 
-            marks: 250, 
+        {
+            name: 'Paper IV',
+            subject: 'General Studies III (Indian Economy, Agriculture, Science, Technology, Environment, and Internal Security)',
+            duration: '3 hours',
+            marks: 250,
             nature: 'Merit',
             syllabus: [
               '**A. Indian Economy and Planning**',
@@ -305,11 +305,11 @@ export const mpscRajyasevaExam: Exam = {
               'Community-based disaster risk reduction',
             ]
         },
-        { 
-            name: 'Paper V', 
-            subject: 'General Studies IV (Ethics, Integrity, and Aptitude)', 
-            duration: '3 hours', 
-            marks: 250, 
+        {
+            name: 'Paper V',
+            subject: 'General Studies IV (Ethics, Integrity, and Aptitude)',
+            duration: '3 hours',
+            marks: 250,
             nature: 'Merit',
             syllabus: [
               '**A. Ethics and Human Interface**',

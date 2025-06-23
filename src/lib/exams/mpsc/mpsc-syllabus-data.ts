@@ -1,4 +1,5 @@
-import type { SyllabusTopic } from './syllabus-data';
+
+import type { SyllabusTopic } from '@/lib/types';
 
 export const mpscSyllabusData: SyllabusTopic[] = [
   {

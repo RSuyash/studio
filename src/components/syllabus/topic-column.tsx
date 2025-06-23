@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { type SyllabusTopic } from '@/lib/syllabus-data';
+import type { SyllabusTopic } from '@/lib/types';
 
 export const TopicColumn = ({ topics, title, onSelect }: { topics: SyllabusTopic[], title: string, onSelect: (id: string) => void }) => {
   return (

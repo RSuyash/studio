@@ -1,9 +1,5 @@
-export interface ExamComparisonData {
-  exam: string;
-  majorTopics: string;
-  overlap: string;
-  notes: string;
-}
+
+import type { ExamComparisonData } from '@/lib/types';
 
 export const examComparisonData: ExamComparisonData[] = [
   {

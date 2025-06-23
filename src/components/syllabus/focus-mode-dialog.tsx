@@ -11,7 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { type SyllabusTopic } from '@/lib/syllabus-data';
+import type { SyllabusTopic } from '@/lib/types';
 import { explainSyllabusTopic } from '@/ai/flows/explain-topic-flow';
 import { Separator } from '@/components/ui/separator';
 

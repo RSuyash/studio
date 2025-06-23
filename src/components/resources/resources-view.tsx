@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { type SyllabusTopic, type Resource, type ResourceCategory } from '@/lib/syllabus-data';
+import type { SyllabusTopic, Resource, ResourceCategory, ResourceWithTopicInfo } from '@/lib/types';
 import { Library, Plus, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '../ui/scroll-area';
-import { updateTopicInTree, getAllResources, type ResourceWithTopicInfo, getSubjectForResource, ncertClasses, subjects } from '@/lib/resource-utils';
+import { updateTopicInTree, getAllResources, getSubjectForResource, ncertClasses, subjects } from '@/lib/resource-utils';
 import type { ResourceFormValues } from './resource-form-dialog';
 import ResourceFormDialog from './resource-form-dialog';
 import ResourceItem from './resource-item';

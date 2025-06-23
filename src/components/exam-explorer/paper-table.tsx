@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { type Paper } from '@/lib/exam-data';
+import type { Paper } from '@/lib/types';
 import {
   Table,
   TableBody,

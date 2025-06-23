@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { type SyllabusTopic } from "@/lib/syllabus-data";
+import type { SyllabusTopic } from "@/lib/types";
 import FocusModeDialog from "./focus-mode-dialog";
 import FilterPanel from "./filter-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
