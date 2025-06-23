@@ -6,15 +6,17 @@ import { getTimeframeInDays } from '@/ai/flows/study-plan/utils';
 
 const PlannerRequestSchema = GenerateStudyPlanInputSchema;
 
-// This function now handles GET requests for EventSource
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const inputData = {
-    focusAreas: searchParams.get('focusAreas') || '',
-    timeframe: searchParams.get('timeframe') || 'This Week',
-    hoursPerWeek: Number(searchParams.get('hoursPerWeek')) || 20,
-    syllabusContext: searchParams.get('syllabusContext') || '',
-  };
+// This function now handles POST requests for EventSource-like streaming
+export async function POST(req: NextRequest) {
+  let inputData;
+  try {
+      inputData = await req.json();
+  } catch (error) {
+      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+  }
 
   const validation = PlannerRequestSchema.safeParse(inputData);
 
@@ -26,18 +28,32 @@ export async function GET(req: NextRequest) {
   }
 
   const input = validation.data;
+  const signal = req.signal;
 
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
       const pushEvent = (data: object) => {
+        if (controller.desiredSize === null || controller.desiredSize <= 0) {
+            return;
+        }
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
       };
 
       const closeStream = () => {
-         controller.enqueue(encoder.encode('event: close\ndata: Connection closed\n\n'));
-         controller.close();
+         try {
+             controller.enqueue(encoder.encode('event: close\ndata: Connection closed\n\n'));
+             controller.close();
+         } catch (e) {
+            // Ignore errors if the stream is already closed
+         }
       }
+
+      // Listen for client disconnect
+      signal.addEventListener('abort', () => {
+        console.log("Client aborted the request.");
+        closeStream();
+      });
 
       const totalDays = getTimeframeInDays(input.timeframe);
       const chunkSize = 7;
@@ -45,6 +61,8 @@ export async function GET(req: NextRequest) {
       let allDailyPlans: z.infer<typeof DailyPlanSchema>[] = [];
 
       for (let startDay = 1; startDay <= totalDays; startDay += chunkSize) {
+        if (signal.aborted) break;
+
         const daysToGenerate = Math.min(chunkSize, totalDays - startDay + 1);
 
         try {
@@ -57,6 +75,7 @@ export async function GET(req: NextRequest) {
 
           if (output?.chunk && output.chunk.length > 0) {
             for (const dailyPlan of output.chunk) {
+              if (signal.aborted) break;
               allDailyPlans.push(dailyPlan);
               pushEvent({ type: 'day', payload: dailyPlan });
               await new Promise(resolve => setTimeout(resolve, 50)); 
@@ -69,6 +88,10 @@ export async function GET(req: NextRequest) {
              console.warn(`Generated empty chunk starting from day ${startDay}.`);
           }
         } catch (e) {
+          if (signal.aborted) {
+            console.log("Stream generation aborted during AI call.");
+            break;
+          }
           console.error(`Failed to generate a plan chunk starting from day ${startDay}. Stopping generation.`, e);
           pushEvent({ type: 'error', payload: 'An error occurred while generating a part of the plan.' });
           closeStream();
@@ -76,13 +99,13 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      const summary = `A comprehensive, ${allDailyPlans.length}-day plan has been generated based on your request for a ${input.timeframe} timeframe.`;
-      pushEvent({ type: 'summary', payload: summary });
+      if (!signal.aborted) {
+        const summary = `A comprehensive, ${allDailyPlans.length}-day plan has been generated based on your request for a ${input.timeframe} timeframe.`;
+        pushEvent({ type: 'summary', payload: summary });
+      }
+      
       closeStream();
     },
-    cancel() {
-        console.log("Stream canceled by client.");
-    }
   });
 
   return new Response(stream, {
