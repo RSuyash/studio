@@ -28,24 +28,32 @@ const countSyllabusEntries = (topics: SyllabusTopic[]): number => {
 
 export default function InsightsView({ setActiveView }: { setActiveView: (view: View) => void }) {
   const stats = React.useMemo(() => {
-    // The user wants to count written papers separately from the interview.
-    const writtenPapers = upscCseExam.stages
-      .filter(stage => !stage.title.includes('Interview')) // Exclude the interview stage
-      .reduce((acc, stage) => acc + (stage.papers?.length ?? 0), 0);
+    const prelimsStage = upscCseExam.stages.find(s => s.title.includes('Preliminary'));
+    const mainStage = upscCseExam.stages.find(s => s.title.includes('Main'));
+    const interviewStage = upscCseExam.stages.find(s => s.title.includes('Interview'));
 
-    const coreSubjects = 7; // GS Mains (4), Essay (1), Optional (1), GS Prelims (1)
+    const prelimsPaperCount = prelimsStage?.papers?.length ?? 0;
+    const mainPaperCount = mainStage?.papers?.length ?? 0;
+    const totalWrittenPapers = prelimsPaperCount + mainPaperCount;
+
+    const prelimsGsCount = prelimsStage?.papers?.filter(p => p.subject.includes('General Studies') && p.nature === 'Merit').length ?? 0;
+    const mainsGsCount = mainStage?.papers?.filter(p => p.subject.includes('General Studies')).length ?? 0;
+    const essayCount = mainStage?.papers?.filter(p => p.subject === 'Essay').length ?? 0;
+    const optionalSubjectCount = mainStage?.papers?.some(p => p.subject.includes('Optional')) ? 1 : 0;
+    const coreSubjectsCount = prelimsGsCount + mainsGsCount + essayCount + optionalSubjectCount;
+
     const totalSyllabusTopics = countSyllabusEntries(initialSyllabusData);
     
     return [
       {
         title: 'Written Papers',
-        value: writtenPapers,
+        value: totalWrittenPapers,
         icon: FileText,
-        description: '2 in Prelims + 9 in Mains.'
+        description: `${prelimsPaperCount} in Prelims + ${mainPaperCount} in Mains.`
       },
       {
         title: 'Core Merit Subjects',
-        value: coreSubjects,
+        value: coreSubjectsCount,
         icon: BookOpen,
         description: 'GS (Prelims + Mains), Essay & Optional.'
       },
@@ -57,7 +65,7 @@ export default function InsightsView({ setActiveView }: { setActiveView: (view: 
       },
       {
         title: 'Personality Test',
-        value: 1,
+        value: interviewStage ? 1 : 0,
         icon: Users,
         description: 'The final stage for merit ranking.'
       }

@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -10,33 +11,49 @@ import { FileText, BookOpen, ListTree, Users } from 'lucide-react';
 
 export default function MpscInsightsView() {
   const stats = React.useMemo(() => {
-    const writtenPapers = mpscRajyasevaExam.stages
-      .find(s => s.title.includes('Main'))?.papers?.filter(p => p.nature === 'Merit').length ?? 0;
+    const mainStage = mpscRajyasevaExam.stages.find(s => s.title.includes('Main'));
+    const interviewStage = mpscRajyasevaExam.stages.find(s => s.title.includes('Interview'));
+
+    const meritPapers = mainStage?.papers?.filter(p => p.nature === 'Merit') ?? [];
+    const qualifyingPapers = mainStage?.papers?.filter(p => p.nature === 'Qualifying') ?? [];
+    
+    const meritPaperCount = meritPapers.length;
+    const qualifyingPaperCount = qualifyingPapers.length;
+
+    const interviewMarks = mpscRajyasevaExam.finalScore.find(c => c.component === 'Interview')?.marks ?? 0;
+    
+    const essayPapers = meritPapers.filter(p => p.subject === 'Essay').length;
+    const gsPapers = meritPapers.filter(p => p.subject.startsWith('General Studies')).length;
+    
+    let meritDescParts: string[] = [];
+    if (essayPapers > 0) meritDescParts.push('Essay');
+    if (gsPapers > 0) meritDescParts.push(`${gsPapers} GS papers`);
+    const meritDescription = meritDescParts.join(' & ');
     
     return [
       {
         title: 'Written Merit Papers',
-        value: writtenPapers,
+        value: meritPaperCount,
         icon: FileText,
-        description: '5 in Mains (Essay, GS I-IV).'
+        description: `${meritPaperCount} in Mains (${meritDescription}).`
       },
       {
         title: 'Core Merit Subjects',
-        value: 5,
+        value: meritPaperCount,
         icon: BookOpen,
-        description: 'Essay & 4 General Studies papers.'
+        description: meritDescription,
       },
       {
         title: 'Qualifying Language Papers',
-        value: 2,
+        value: qualifyingPaperCount,
         icon: ListTree,
-        description: 'Marathi & English papers in Mains.'
+        description: `${qualifyingPapers.map(p => p.subject).join(', ')} in Mains.`
       },
       {
         title: 'Personality Test',
-        value: 1,
+        value: interviewStage ? 1 : 0,
         icon: Users,
-        description: `Carries ${mpscRajyasevaExam.finalScore.find(c => c.component === 'Interview')?.marks ?? 50} marks.`
+        description: `Carries ${interviewMarks} marks.`
       }
     ];
   }, []);
