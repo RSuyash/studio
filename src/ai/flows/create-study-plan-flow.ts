@@ -2,6 +2,8 @@
 'use server';
 /**
  * @fileOverview An AI flow to create a detailed, scheduled study plan.
+ * This flow is designed to handle very long-term plans by generating them in weekly chunks
+ * to avoid timeouts, and then stitching them together into a single comprehensive plan.
  *
  * - generateStudyPlan - A function that generates an actionable, scheduled study plan.
  * - GenerateStudyPlanInput - The input type for the generateStudyPlan function.
@@ -28,8 +30,8 @@ const DailyTaskSchema = z.object({
 });
 
 const DailyPlanSchema = z.object({
-    day: z.string().describe('The day or period for this part of the plan (e.g., "Mon", "Day 1", "Day 365").'),
-    tasks: z.array(DailyTaskSchema).describe('A list of tasks scheduled for that day or period.'),
+    day: z.string().describe('The day for this part of the plan, formatted as "Day X" where X is the absolute day number (e.g., "Day 1", "Day 8").'),
+    tasks: z.array(DailyTaskSchema).describe('A list of tasks scheduled for that day.'),
 });
 
 const GenerateStudyPlanOutputSchema = z.object({
@@ -42,45 +44,111 @@ export async function generateStudyPlan(input: GenerateStudyPlanInput): Promise<
   return createStudyPlanFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateStudyPlanPrompt',
-  input: {schema: GenerateStudyPlanInputSchema},
-  output: {schema: GenerateStudyPlanOutputSchema},
-  prompt: `You are an expert UPSC exam coach who specializes in creating hyper-detailed, comprehensive, and practical study schedules. A student needs an overwhelmingly detailed study plan and has provided their current mastery level for each topic.
 
-Your task is to generate a fully detailed, day-by-day plan for the **entire duration** requested by the user. Do not summarize or use weekly/monthly overviews for longer plans, even if the duration is multiple years. The user wants maximum detail.
+/**
+ * A helper function to parse a human-readable timeframe string into a total number of days.
+ * @param timeframe The string to parse (e.g., "Next Month", "2 Years").
+ * @returns The total number of days.
+ */
+function getTimeframeInDays(timeframe: string): number {
+    const lower = timeframe.toLowerCase();
+    const numMatch = lower.match(/(\d+)/);
+    const num = numMatch ? parseInt(numMatch[0], 10) : 1;
 
-**Key Instructions:**
-1.  **Full Daily Detail**: Generate a day-by-day plan for the ENTIRE requested timeframe. For a "1 Year" plan, you must generate a plan for all 365 days. Each day must have a list of specific, actionable tasks with durations.
-2.  **Use Appropriate Labels**: Label each day of the plan clearly. For weekly plans, use "Mon", "Tue", etc. For longer plans, use labels like "Day 1", "Day 2",... "Day 365".
-3.  **Prioritize Weak Areas**: Give higher priority and more 'Study' time to topics marked with [Mastery: novice] or [Mastery: none]. These are the user's weaknesses.
-4.  **Schedule Revisions**: For topics marked [Mastery: advanced] or [Mastery: expert], schedule 'Revise' activities to ensure knowledge retention. Do not schedule 'Study' for these. Use 'Weekly Revision' for broader revision tasks.
-5.  **Balance Activities**: The plan should not just be about studying new things. Intelligently mix in 'Revise', 'Practice', and 'Test' activities.
-6.  **Actionable Suggestions**: For each task, provide a brief, actionable 'suggestion' (e.g., 'Read Laxmikanth Ch 22' or 'Focus on Prelims PYQs for this topic').
-7.  **Return Topic ID**: For every single task you create, you MUST include the original 'topicId' from the syllabus context. This is crucial for linking the plan back to the syllabus. For high-level tasks, use the ID for that high-level topic.
-8.  **Be Realistic but Comprehensive**: The schedule should be achievable within the user's weekly hour constraints. Distribute the hours logically and consistently across every single day of the requested period.
-9.  **Summarize**: Provide a short, encouraging summary of the plan's strategy.
+    if (lower.includes("today")) return 1;
+    if (lower.includes("tomorrow")) return 1;
+    if (lower.includes("week")) return num * 7;
+    if (lower.includes("month")) return num * 30;
+    if (lower.includes("year")) return num * 365;
 
-**User's Requirements:**
--   **Focus Areas**: {{{focusAreas}}}
--   **Plan Duration**: {{{timeframe}}}
--   **Available Study Time**: {{{hoursPerWeek}}} hours per week
+    return 7; // Default to 7 days if no match
+}
 
-**Full Syllabus with User's Mastery Levels:**
-\`\`\`
-{{{syllabusContext}}}
-\`\`\`
-`,
+const generateStudyPlanChunkPrompt = ai.definePrompt({
+    name: 'generateStudyPlanChunkPrompt',
+    input: { schema: z.object({
+        ...GenerateStudyPlanInputSchema.shape,
+        daysToGenerate: z.number(),
+        startDay: z.number(),
+        planGeneratedSoFarSummary: z.string().describe("A concise summary of the plan generated for the previous days, to ensure continuity and avoid repetition."),
+    })},
+    output: { schema: z.object({
+        chunk: z.array(DailyPlanSchema).describe('The plan for the requested chunk of days.')
+    })},
+    prompt: `You are an expert UPSC exam coach creating one chunk of a larger, hyper-detailed study schedule.
+
+    **Overall Plan Goal:**
+    - Focus Areas: {{{focusAreas}}}
+    - Total Duration: {{{timeframe}}}
+    - Study Time: {{{hoursPerWeek}}} hours per week
+
+    **Context of Plan Generated So Far:**
+    This is a summary of what has been planned already. Do not repeat these topics unless for revision.
+    {{{planGeneratedSoFarSummary}}}
+
+    **Current Task:**
+    Your job is to generate a detailed, day-by-day plan for the next {{{daysToGenerate}}} days, starting from Day {{{startDay}}}.
+
+    **Instructions for this chunk:**
+    1.  Create a detailed task list for each of the {{{daysToGenerate}}} days.
+    2.  Label each day as "Day X" where X is the absolute day number. For example, if startDay is 8, you will generate "Day 8", "Day 9", ... "Day 14".
+    3.  Prioritize weak areas ([Mastery: novice] or [Mastery: none]) for 'Study' tasks.
+    4.  Schedule 'Revise' activities for strong areas ([Mastery: advanced] or [Mastery: expert]).
+    5.  Use the full syllabus context provided below to ensure every task has a valid 'topicId'.
+    6.  Distribute the weekly hours realistically across the days.
+    7.  Do NOT add any summary or intro/outro text. Just return the JSON for the days.
+
+    **Full Syllabus with User's Mastery Levels:**
+    \`\`\`
+    {{{syllabusContext}}}
+    \`\`\`
+    `
 });
 
 const createStudyPlanFlow = ai.defineFlow(
   {
-    name: 'generateStudyPlanFlow',
+    name: 'createStudyPlanFlow',
     inputSchema: GenerateStudyPlanInputSchema,
     outputSchema: GenerateStudyPlanOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
-    return output!;
+    const totalDays = getTimeframeInDays(input.timeframe);
+    // Generate in weekly chunks to avoid model timeout or context limits
+    const chunkSize = 7;
+    let allDailyPlans: z.infer<typeof DailyPlanSchema>[] = [];
+    let planGeneratedSoFarSummary = "This is the beginning of the plan. Start with the highest priority focus areas.";
+
+    for (let startDay = 1; startDay <= totalDays; startDay += chunkSize) {
+        const daysToGenerate = Math.min(chunkSize, totalDays - startDay + 1);
+
+        console.log(`Generating plan chunk for days ${startDay} to ${startDay + daysToGenerate - 1}...`);
+
+        const { output } = await generateStudyPlanChunkPrompt({
+            ...input,
+            daysToGenerate,
+            startDay,
+            planGeneratedSoFarSummary,
+        });
+
+        if (output?.chunk && output.chunk.length > 0) {
+            allDailyPlans.push(...output.chunk);
+
+            // Create a summary of the generated chunk to inform the next iteration.
+            const lastDayPlan = output.chunk[output.chunk.length - 1];
+            const topicsCovered = lastDayPlan.tasks.map(t => t.topic).slice(0, 3).join(', ');
+            planGeneratedSoFarSummary = `The plan up to Day ${lastDayPlan.day.split(' ')[1]} is complete. The last few days focused on: ${topicsCovered}. Now continue the plan, moving on to other topics from the focus areas or syllabus.`;
+        } else {
+            console.error(`Failed to generate a valid chunk starting from day ${startDay}. Stopping generation.`);
+            // If one chunk fails, we stop to avoid an incomplete plan and return what we have.
+            break;
+        }
+    }
+
+    const finalPlan: GenerateStudyPlanOutput = {
+      plan: allDailyPlans,
+      summary: `A comprehensive, ${allDailyPlans.length}-day plan has been generated based on your request for a ${input.timeframe} timeframe.`,
+    };
+
+    return finalPlan;
   }
 );
