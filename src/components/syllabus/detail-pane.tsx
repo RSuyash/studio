@@ -6,7 +6,7 @@ import type { SyllabusTopic, MasteryLevel, Resource, ResourceCategory } from "@/
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
-import { Tag, Plus, MoreVertical, Edit, Trash2, Library, Book, Video, FileText, StickyNote, BarChartHorizontal } from 'lucide-react';
+import { Tag, Plus, MoreVertical, Edit, Trash2, Library, Book, Video, FileText, StickyNote, BarChartHorizontal, ChevronRight } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
@@ -86,7 +86,7 @@ const EmptyState = () => (
     </div>
 )
 
-export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllabusData: SyllabusTopic[], selectedTopicId: string | null, onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void }) => {
+export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate, onSelectTopic }: { syllabusData: SyllabusTopic[], selectedTopicId: string | null, onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void, onSelectTopic: (id: string) => void }) => {
     
     const [topic, setTopic] = React.useState<SyllabusTopic | null>(null);
     const [path, setPath] = React.useState<SyllabusTopic[]>([]);
@@ -202,6 +202,24 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
                         </Popover>
                     </div>
                 </div>
+
+                {topic.subtopics && topic.subtopics.length > 0 && (
+                    <div className="space-y-4">
+                        <h4 className="text-lg font-semibold">Topics Covered</h4>
+                        <div className="space-y-2">
+                        {topic.subtopics.map((subtopic) => (
+                            <div 
+                                key={subtopic.id}
+                                onClick={() => onSelectTopic(subtopic.id)}
+                                className="flex cursor-pointer items-center justify-between rounded-lg border bg-card p-3 text-card-foreground shadow-sm transition-colors hover:bg-muted/50"
+                            >
+                                <span className="font-medium">{subtopic.title}</span>
+                                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                        ))}
+                        </div>
+                    </div>
+                )}
                 
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">

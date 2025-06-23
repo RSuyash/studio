@@ -132,6 +132,7 @@ export default function SyllabusViewer({
             syllabusData={syllabusData}
             selectedTopicId={selectedTopicId}
             onUpdate={handleUpdateTopic}
+            onSelectTopic={setSelectedTopicId}
           />
         </div>
       </main>
