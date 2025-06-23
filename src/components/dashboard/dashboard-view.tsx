@@ -3,228 +3,199 @@
 
 import * as React from 'react';
 import dynamic from 'next/dynamic';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Progress } from "@/components/ui/progress"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from "@/components/ui/button"
-import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Icons } from '@/components/icons';
 import type { View, SyllabusType } from '../main-layout';
-import { useToast } from '@/hooks/use-toast';
-import { explainSyllabusTopic, type ExplainTopicOutput } from '@/ai/flows/explain-topic-flow';
-import { LoaderCircle, Sparkles, BookOpen, Library, ChevronRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Search, BookOpen, Target, PencilLine, CalendarDays, ArrowRight, BookUser, History } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-const SubjectMasteryChart = dynamic(
+
+const PerformanceChart = dynamic(
   () => import('@/components/dashboard/subject-mastery-chart'),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-[300px] w-full" />
+    loading: () => <Skeleton className="h-[400px] w-full" />
   }
 )
 
+const recentActivities = [
+  { icon: Target, text: "You mastered 'Indian Parliament Structure'", time: "2 hours ago" },
+  { icon: PencilLine, text: "You completed a mock test on 'Modern History'", time: "5 hours ago" },
+  { icon: BookUser, text: "You added a new resource for 'GS-IV Ethics'", time: "1 day ago" },
+  { icon: Target, text: "You set 'Novice' for 'Post-Independence Consolidation'", time: "2 days ago" },
+]
+
+const topResources = [
+    { title: "Indian Polity", author: "M. Laxmikanth", subject: "Polity" },
+    { title: "Ancient and Medieval India", author: "Poonam Dalal Dahiya", subject: "History" },
+    { title: "Indian Economy", author: "Sanjiv Verma", subject: "Economy" },
+]
+
+const recentCourses = [
+    { title: "GS Paper II: Full Course", progress: 75, category: "Polity & Governance" },
+    { title: "Ethics, Integrity and Aptitude", progress: 45, category: "GS Paper IV" },
+    { title: "World History: Mains", progress: 60, category: "History" },
+]
+
 export const DashboardView = ({ setActiveView }: { setActiveView: (view: View, syllabus?: SyllabusType) => void }) => {
-    const [isGenerating, setIsGenerating] = React.useState(false);
-    const [explanation, setExplanation] = React.useState<ExplainTopicOutput | null>(null);
-    const { toast } = useToast();
-
-    const handleGenerateTip = async () => {
-        setIsGenerating(true);
-        setExplanation(null);
-        try {
-            const result = await explainSyllabusTopic({
-                title: 'Random UPSC CSE Topic',
-                description: 'Suggest a random, interesting, and non-obvious interlinkage between two different topics in the UPSC CSE syllabus. For example, connecting a topic from GS-1 History to a concept in GS-4 Ethics.',
-            });
-            if (result.explanation) {
-                setExplanation(result);
-            } else {
-                throw new Error('Failed to get a tip.');
-            }
-        } catch (error) {
-            console.error("Failed to generate tip:", error);
-            toast({
-                variant: "destructive",
-                title: "AI Error",
-                description: "Could not generate a study tip. Please try again.",
-            });
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-
 
     return (
-        <>
-            <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
-                <SidebarTrigger />
-                <div className="flex-1">
-                    <h2 className="text-lg font-semibold">Dashboard</h2>
+        <main className="flex-1 space-y-6 p-4 md:p-6 lg:p-8">
+            <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Welcome back, Aspirant!</h1>
+                    <p className="text-muted-foreground">Here's a snapshot of your progress. Keep up the great work!</p>
                 </div>
-            </header>
-            <main className="flex-1 space-y-6 p-4 md:p-6">
-                <div className="mb-6">
-                    <h1 className="font-headline text-3xl font-bold text-primary">Welcome back!</h1>
-                    <p className="text-muted-foreground">Here's a summary of your learning journey.</p>
+                 <div className="relative w-full md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search topics, resources..." className="pl-9" />
                 </div>
+            </div>
 
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Syllabus Progress</CardTitle>
-                            <Icons.BookOpen className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">75%</div>
-                            <p className="text-xs text-muted-foreground">
-                                You're on the right track!
-                            </p>
-                        </CardContent>
-                        <CardFooter>
-                           <Progress value={75} className="w-full" />
-                        </CardFooter>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Topics Mastered</CardTitle>
-                            <Icons.Target className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">42</div>
-                            <p className="text-xs text-muted-foreground">
-                                2 expert, 15 advanced, 25 novice
-                            </p>
-                        </CardContent>
-                    </Card>
-                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Mock Tests</CardTitle>
-                            <Icons.PencilLine className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">+12</div>
-                            <p className="text-xs text-muted-foreground">
-                                +19% from last month
-                            </p>
-                        </CardContent>
-                    </Card>
-                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Days to Prelims 2025</CardTitle>
-                            <Icons.CalendarDays className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">245</div>
-                            <p className="text-xs text-muted-foreground">
-                                Stay focused and consistent.
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-7">
-                    <Card className="lg:col-span-4">
-                        <CardHeader>
-                            <CardTitle>Subject-wise Mastery</CardTitle>
-                            <CardDescription>Your progress across key GS subjects.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="pl-2">
-                            <SubjectMasteryChart />
-                        </CardContent>
-                    </Card>
-
-                    <Card className="lg:col-span-3">
-                         <CardHeader>
-                            <CardTitle>Your Toolkit</CardTitle>
-                            <CardDescription>Quick access to your learning tools.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="grid gap-4">
-                            <div className="flex items-center justify-between rounded-lg border p-4">
-                                <div className="flex items-center gap-4">
-                                    <BookOpen className="h-6 w-6 text-primary" />
-                                    <div>
-                                        <p className="font-semibold">Syllabus Explorer</p>
-                                        <p className="text-sm text-muted-foreground">Dive into the syllabus.</p>
-                                    </div>
-                                </div>
-                                <Button size="sm" onClick={() => setActiveView('syllabus')}>Open</Button>
-                            </div>
-                            <div className="flex items-center justify-between rounded-lg border p-4">
-                                 <div className="flex items-center gap-4">
-                                    <Library className="h-6 w-6 text-primary" />
-                                    <div>
-                                        <p className="font-semibold">My Resources</p>
-                                        <p className="text-sm text-muted-foreground">Browse your saved links.</p>
-                                    </div>
-                                </div>
-                                <Button size="sm" onClick={() => setActiveView('resources')}>Open</Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <Card className="cursor-pointer transition-colors hover:bg-muted/50" onClick={() => setActiveView('exam-explorer')}>
-                    <CardHeader className="flex flex-row items-center gap-4">
-                        <div className="rounded-full bg-primary/10 p-3">
-                            <Icons.Landmark className="h-8 w-8 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                            <CardTitle>UPSC CSE Exam Structure</CardTitle>
-                            <CardDescription>An interactive breakdown of the CSE stages, papers, marks, and syllabus.</CardDescription>
-                        </div>
-                        <Button variant="ghost" size="icon" asChild>
-                           <ChevronRight className="h-6 w-6 text-muted-foreground" />
-                        </Button>
-                    </CardHeader>
-                </Card>
-
-                <Card className="cursor-pointer transition-colors hover:bg-muted/50" onClick={() => setActiveView('insights')}>
-                    <CardHeader className="flex flex-row items-center gap-4">
-                        <div className="rounded-full bg-primary/10 p-3">
-                            <Icons.Sparkles className="h-8 w-8 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                            <CardTitle>Exam Insights</CardTitle>
-                            <CardDescription>Discover trends, analysis, and key insights into UPSC & MPSC examinations.</CardDescription>
-                        </div>
-                        <Button variant="ghost" size="icon" asChild>
-                           <ChevronRight className="h-6 w-6 text-muted-foreground" />
-                        </Button>
-                    </CardHeader>
-                </Card>
-
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Sparkles className="text-primary" /> AI Study Tip
-                        </CardTitle>
-                        <CardDescription>Get a unique, AI-generated tip to help you find new connections in the syllabus.</CardDescription>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Syllabus Covered</CardTitle>
+                        <BookOpen className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        {isGenerating && (
-                            <div className="flex items-center space-x-2 text-muted-foreground">
-                                <LoaderCircle className="h-4 w-4 animate-spin" />
-                                <span>Generating...</span>
-                            </div>
-                        )}
-                        {explanation && (
-                             <blockquote className="mt-2 border-l-2 pl-6 italic">
-                                "{explanation.explanation}"
-                            </blockquote>
-                        )}
+                        <div className="text-2xl font-bold">75%</div>
+                        <p className="text-xs text-muted-foreground">+5% from last week</p>
                     </CardContent>
-                    <CardFooter>
-                        <Button onClick={handleGenerateTip} disabled={isGenerating}>
-                             {isGenerating ? (
-                                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <Sparkles className="mr-2 h-4 w-4" />
-                            )}
-                            Generate New Tip
-                        </Button>
-                    </CardFooter>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Topics Mastered</CardTitle>
+                        <Target className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">42</div>
+                        <p className="text-xs text-muted-foreground">2 expert, 15 advanced</p>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Mock Tests Taken</CardTitle>
+                        <PencilLine className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">12</div>
+                        <p className="text-xs text-muted-foreground">+2 from last month</p>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Days to Prelims 2025</CardTitle>
+                        <CalendarDays className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">245</div>
+                        <p className="text-xs text-muted-foreground">Stay focused and consistent</p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+                <Card className="lg:col-span-3">
+                    <CardHeader>
+                        <CardTitle>Performance Over Time</CardTitle>
+                        <CardDescription>Mock test scores from the last 6 months.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pl-2">
+                        <PerformanceChart />
+                    </CardContent>
                 </Card>
 
-            </main>
-        </>
+                <div className="lg:col-span-2 space-y-6">
+                    <Card>
+                         <CardHeader>
+                            <CardTitle>Recent Activity</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {recentActivities.map((activity, index) => {
+                                    const Icon = activity.icon;
+                                    return (
+                                        <div key={index} className="flex items-start gap-4">
+                                            <div className="bg-muted rounded-full p-2">
+                                                <Icon className="h-5 w-5 text-muted-foreground" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium">{activity.text}</p>
+                                                <p className="text-xs text-muted-foreground">{activity.time}</p>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Top Resources</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {topResources.map((resource, index) => (
+                                <div key={index} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar className="h-10 w-10 rounded-md">
+                                             <AvatarImage src={`https://placehold.co/100x100.png?text=${resource.subject.charAt(0)}`} alt={resource.subject} data-ai-hint="book cover" />
+                                            <AvatarFallback>{resource.subject.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p className="font-semibold text-sm">{resource.title}</p>
+                                            <p className="text-xs text-muted-foreground">{resource.author}</p>
+                                        </div>
+                                    </div>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                        <ArrowRight className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+             <Card>
+                <CardHeader>
+                    <CardTitle>Recent Courses</CardTitle>
+                    <CardDescription>Continue where you left off.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Course</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead className="text-right">Progress</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {recentCourses.map((course) => (
+                                <TableRow key={course.title}>
+                                    <TableCell className="font-medium">{course.title}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline">{course.category}</Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right">{course.progress}%</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </main>
     )
 }

@@ -11,8 +11,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarSeparator,
   SidebarInset,
 } from '@/components/ui/sidebar'
@@ -22,13 +20,14 @@ import { mpscSyllabusData } from "@/lib/exams/mpsc/mpsc-syllabus-data";
 import type { SyllabusTopic, ExamComparisonData } from '@/lib/types';
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import ResourcesView from '@/components/resources/resources-view';
 import ExamExplorerView from './exam-explorer/exam-explorer-view';
 import MpscExplorerView from './exam-explorer/mpsc-explorer-view';
 import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
+import { LogOut } from 'lucide-react';
 
 export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer';
 export type SyllabusType = 'upsc' | 'mpsc';
@@ -48,6 +47,7 @@ export default function MainLayout({ comparisonData }: MainLayoutProps) {
     { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
     { view: 'exam-centre', label: 'Exam Centre', icon: Icons.Layers },
     { view: 'syllabus', label: 'Syllabus Explorer', icon: Icons.BookOpen, syllabus: 'upsc' },
+    { view: 'insights', label: 'Exam Insights', icon: Icons.Sparkles },
     { view: 'resources', label: 'My Resources', icon: Icons.Library },
   ];
   
@@ -88,12 +88,12 @@ export default function MainLayout({ comparisonData }: MainLayoutProps) {
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
-        <SidebarHeader>
+        <SidebarHeader className="border-b border-sidebar-border">
           <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Icons.Logo className="size-5" />
             </div>
-            <h1 className="font-headline text-xl font-bold text-primary group-data-[collapsible=icon]:hidden">Nexus Cortex</h1>
+            <h1 className="text-xl font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">Nexus Cortex</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -112,34 +112,20 @@ export default function MainLayout({ comparisonData }: MainLayoutProps) {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
-          <SidebarSeparator />
-          <SidebarGroup className="p-2">
-            <SidebarGroupLabel>Tools</SidebarGroupLabel>
-            <SidebarMenuItem>
-              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
-                <Icons.Sparkles className="size-4" />
-                <span className="group-data-[collapsible=icon]:hidden">Mock Test Generator</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton className="w-full" disabled tooltip="Coming soon!">
-                <Icons.Layers className="size-4" />
-                <span className="group-data-[collapsible=icon]:hidden">Flashcard Maker</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarGroup>
         </SidebarContent>
+        <SidebarSeparator />
         <SidebarFooter>
-          <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-1">
+          <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-1.5">
             <Avatar className="h-9 w-9">
+                <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="profile avatar" />
                 <AvatarFallback>UA</AvatarFallback>
             </Avatar>
             <div className="flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">
-                <p className="truncate text-sm font-semibold">UPSC Aspirant</p>
-                <p className="truncate text-xs text-sidebar-foreground/70">Test User</p>
+                <p className="truncate text-sm font-semibold text-sidebar-foreground">UPSC Aspirant</p>
+                <p className="truncate text-xs text-sidebar-foreground/70">aspirant@nexus.com</p>
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:hidden">
-                <Icons.Settings className="size-4" />
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent group-data-[collapsible=icon]:hidden">
+                <LogOut className="size-4" />
             </Button>
           </div>
         </SidebarFooter>
