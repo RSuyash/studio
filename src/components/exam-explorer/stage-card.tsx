@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Stage } from '@/lib/types';
 import PaperTable from './paper-table';
+import { CheckCircle } from 'lucide-react';
 
 interface StageCardProps {
   stage: Stage;
@@ -25,11 +26,14 @@ export default function StageCard({ stage, stageNumber }: StageCardProps) {
         {stage.notes && stage.notes.length > 0 && (
           <div>
             <h4 className="font-semibold mb-2">Key Assessment Areas</h4>
-             <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+             <div className="space-y-2">
               {stage.notes.map((item, index) => (
-                <li key={index}>{item}</li>
+                <div key={index} className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 mt-0.5 shrink-0 text-primary" />
+                  <span className="text-sm text-muted-foreground">{item}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
 
