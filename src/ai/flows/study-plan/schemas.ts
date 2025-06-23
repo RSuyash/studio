@@ -23,6 +23,15 @@ export const DailyPlanSchema = z.object({
     tasks: z.array(DailyTaskSchema).describe('A list of tasks scheduled for that day.'),
 });
 
+export const WeeklyFocusSchema = z.object({
+    week: z.number().describe('The week number this focus applies to.'),
+    focus: z.string().describe('A concise summary of the main topics and goals for this week.'),
+});
+
+export const MetaPlanSchema = z.object({
+    weeklyPlan: z.array(WeeklyFocusSchema),
+});
+
 export const GenerateStudyPlanOutputSchema = z.object({
   plan: z.array(DailyPlanSchema).describe('A breakdown of the study plan, corresponding to the requested timeframe.'),
   summary: z.string().describe('A brief, encouraging summary of the generated plan.'),

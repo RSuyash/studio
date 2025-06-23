@@ -1,10 +1,11 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { generateStudyPlanChunkPrompt } from '@/ai/flows/study-plan/prompts';
-import { GenerateStudyPlanInputSchema, DailyPlanSchema } from '@/ai/flows/study-plan/schemas';
+import { generateMetaPlanPrompt, generateStudyPlanChunkPrompt } from '@/ai/flows/study-plan/prompts';
+import { GenerateStudyPlanInputSchema, DailyPlanSchema, MetaPlanSchema } from '@/ai/flows/study-plan/schemas';
 import { getTimeframeInDays } from '@/ai/flows/study-plan/utils';
 
 const PlannerRequestSchema = GenerateStudyPlanInputSchema;
+const LONG_PLAN_THRESHOLD_DAYS = 14;
 
 // This function now handles POST requests for EventSource-like streaming
 export async function POST(req: NextRequest) {
@@ -55,56 +56,87 @@ export async function POST(req: NextRequest) {
         closeStream();
       });
 
-      const totalDays = getTimeframeInDays(input.timeframe);
-      const chunkSize = 7;
-      let planGeneratedSoFarSummary = 'This is the beginning of the plan. Start with the highest priority focus areas.';
-      let allDailyPlans: z.infer<typeof DailyPlanSchema>[] = [];
+      try {
+        const totalDays = getTimeframeInDays(input.timeframe);
+        let allDailyPlans: z.infer<typeof DailyPlanSchema>[] = [];
+        
+        // Short Plan Logic: Generate in a single chunk
+        if (totalDays <= LONG_PLAN_THRESHOLD_DAYS) {
+            const { output } = await generateStudyPlanChunkPrompt({
+                ...input,
+                daysToGenerate: totalDays,
+                startDay: 1,
+                weeklyFocus: `A focused, ${totalDays}-day plan based on these priorities: ${input.focusAreas}`,
+            });
 
-      for (let startDay = 1; startDay <= totalDays; startDay += chunkSize) {
-        if (signal.aborted) break;
+            if (output?.chunk) {
+                for (const dailyPlan of output.chunk) {
+                    if (signal.aborted) break;
+                    allDailyPlans.push(dailyPlan);
+                    pushEvent({ type: 'day', payload: dailyPlan });
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+            }
+        } else {
+            // Long Plan Logic: Use Meta-Plan and Parallel Chunking
+            const totalWeeks = Math.ceil(totalDays / 7);
 
-        const daysToGenerate = Math.min(chunkSize, totalDays - startDay + 1);
+            // 1. Generate the high-level Meta Plan
+            const metaPlanResponse = await generateMetaPlanPrompt({
+                ...input,
+                totalWeeks,
+            });
 
-        try {
-          const { output } = await generateStudyPlanChunkPrompt({
-            ...input,
-            daysToGenerate,
-            startDay,
-            planGeneratedSoFarSummary,
-          });
-
-          if (output?.chunk && output.chunk.length > 0) {
-            for (const dailyPlan of output.chunk) {
-              if (signal.aborted) break;
-              allDailyPlans.push(dailyPlan);
-              pushEvent({ type: 'day', payload: dailyPlan });
-              await new Promise(resolve => setTimeout(resolve, 50)); 
+            const weeklyFocuses = metaPlanResponse.output?.weeklyPlan;
+            if (!weeklyFocuses || weeklyFocuses.length === 0) {
+                throw new Error("The AI failed to generate a high-level weekly plan.");
             }
 
-            const lastDayPlan = output.chunk[output.chunk.length - 1];
-            const topicsCovered = lastDayPlan.tasks.map(t => t.topic).slice(0, 3).join(', ');
-            planGeneratedSoFarSummary = `The plan up to Day ${lastDayPlan.day.split(' ')[1]} is complete. The last few days focused on: ${topicsCovered}. Now continue the plan.`;
-          } else {
-             console.warn(`Generated empty chunk starting from day ${startDay}.`);
-          }
-        } catch (e) {
-          if (signal.aborted) {
-            console.log("Stream generation aborted during AI call.");
-            break;
-          }
-          console.error(`Failed to generate a plan chunk starting from day ${startDay}. Stopping generation.`, e);
-          pushEvent({ type: 'error', payload: 'An error occurred while generating a part of the plan.' });
-          closeStream();
-          return;
-        }
-      }
+            // 2. Fire off all chunk generation requests in parallel
+            const chunkPromises = weeklyFocuses.map((weekFocus, index) => {
+                const startDay = index * 7 + 1;
+                const daysInThisChunk = Math.min(7, totalDays - startDay + 1);
+                if (daysInThisChunk <= 0) return Promise.resolve(null);
 
-      if (!signal.aborted) {
-        const summary = `A comprehensive, ${allDailyPlans.length}-day plan has been generated based on your request for a ${input.timeframe} timeframe.`;
-        pushEvent({ type: 'summary', payload: summary });
-      }
+                return generateStudyPlanChunkPrompt({
+                    ...input,
+                    daysToGenerate: daysInThisChunk,
+                    startDay,
+                    weeklyFocus: weekFocus.focus,
+                });
+            });
+
+            // 3. Await each promise in sequence and stream its results
+            for (const chunkPromise of chunkPromises) {
+                if (signal.aborted) break;
+                
+                const chunkResult = await chunkPromise;
+                if (chunkResult?.output?.chunk) {
+                    for (const dailyPlan of chunkResult.output.chunk) {
+                        if (signal.aborted) break;
+                        allDailyPlans.push(dailyPlan);
+                        pushEvent({ type: 'day', payload: dailyPlan });
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    }
+                }
+            }
+        }
+
+        if (!signal.aborted) {
+          const summary = `A comprehensive, ${allDailyPlans.length}-day plan has been generated based on your request for a ${input.timeframe} timeframe.`;
+          pushEvent({ type: 'summary', payload: summary });
+        }
       
-      closeStream();
+      } catch (e) {
+          if (signal.aborted) {
+            console.log("Stream generation aborted by client.");
+          } else {
+            console.error(`Failed to generate the plan.`, e);
+            pushEvent({ type: 'error', payload: 'An error occurred while generating the plan.' });
+          }
+      } finally {
+        closeStream();
+      }
     },
   });
 
