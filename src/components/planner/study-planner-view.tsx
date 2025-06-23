@@ -8,7 +8,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -62,16 +61,20 @@ const parseDurationToHours = (durationStr: string): number => {
     if (!durationStr) return 0;
     const lowerCaseStr = durationStr.toLowerCase();
     
+    let hours = 0;
     const hoursMatch = lowerCaseStr.match(/([\d.]+)\s*h/);
-    if (hoursMatch) return parseFloat(hoursMatch[1]);
+    if (hoursMatch) hours = parseFloat(hoursMatch[1]);
     
     const minutesMatch = lowerCaseStr.match(/([\d.]+)\s*m/);
-    if (minutesMatch) return parseFloat(minutesMatch[1]) / 60;
+    if (minutesMatch) hours += parseFloat(minutesMatch[1]) / 60;
     
-    const numberMatch = lowerCaseStr.match(/[\d.]+/);
-    if (numberMatch) return parseFloat(numberMatch[0]);
-
-    return 0;
+    // If no h/m suffix, assume it's hours
+    if (!hoursMatch && !minutesMatch) {
+      const numberMatch = lowerCaseStr.match(/[\d.]+/);
+      if (numberMatch) hours = parseFloat(numberMatch[0]);
+    }
+    
+    return hours;
 };
 
 
