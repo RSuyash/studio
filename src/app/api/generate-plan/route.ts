@@ -8,6 +8,9 @@ import {getTimeframeInDays} from '@/ai/flows/study-plan/utils';
 
 const PlannerRequestSchema = GenerateStudyPlanInputSchema;
 
+// Utility to add a small delay, ensuring chunks are sent separately
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 /**
  * API route to generate a study plan using a streaming approach.
  * It generates the plan in weekly chunks and streams them back to the client day-by-day.
@@ -54,6 +57,7 @@ export async function POST(req: NextRequest) {
               for (const dailyPlan of output.chunk) {
                   allDailyPlans.push(dailyPlan);
                   push({ type: 'day', payload: dailyPlan });
+                  await sleep(50); // Small delay to ensure client renders each day
               }
 
               // Create a summary of the generated chunk to inform the next iteration.
