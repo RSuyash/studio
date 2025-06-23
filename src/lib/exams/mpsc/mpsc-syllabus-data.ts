@@ -164,7 +164,7 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-mains-gs1',
         title: 'Paper II: General Studies I',
         icon: 'FileText',
-        description: 'Covers Indian History (with emphasis on Maharashtra), Geography (with emphasis on Maharashtra), and Indian Society. Total Marks: 250.',
+        description: 'Covers History, Geography, and Indian Society, with a focus on Maharashtra. Total Marks: 250.',
         tags: ['gs-1', 'history', 'geography', 'society'],
         mastery: 'none',
         resources: [],
