@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI flow to create a detailed, scheduled study plan.
@@ -12,7 +13,7 @@ import {z} from 'genkit';
 
 const GenerateStudyPlanInputSchema = z.object({
   focusAreas: z.string().describe('A comma-separated string of the main syllabus subjects or topics the user wants to focus on.'),
-  timeframe: z.string().describe('The total duration for the study plan (e.g., "1 Week", "1 Month").'),
+  timeframe: z.string().describe('The total duration for the study plan (e.g., "This Week", "Next Month").'),
   hoursPerWeek: z.number().describe('The total number of hours the user can study per week.'),
   syllabusContext: z.string().describe('A text representation of the entire syllabus tree, including user-defined mastery levels for each topic (e.g., "[id] [Mastery: novice] Title").'),
 });
@@ -20,19 +21,19 @@ export type GenerateStudyPlanInput = z.infer<typeof GenerateStudyPlanInputSchema
 
 const DailyTaskSchema = z.object({
   topicId: z.string().describe('The unique ID of the syllabus topic this task refers to. This ID must come from the provided syllabus context.'),
-  duration: z.string().describe('Suggested time allocation for the task (e.g., "2 hours", "45 mins").'),
+  duration: z.string().describe('Suggested time allocation for the task (e.g., "2h", "45m").'),
   topic: z.string().describe('The specific syllabus topic or concept to study.'),
-  activity: z.enum(['Study', 'Revise', 'Practice', 'Test']).describe('The type of activity to perform.'),
-  suggestion: z.string().describe("A brief, actionable suggestion for the activity, e.g., 'Focus on making short notes' or 'Attempt previous year questions'."),
+  activity: z.enum(['Study', 'Revise', 'Practice', 'Test', 'Weekly Revision', 'Analyze Test']).describe('The type of activity to perform.'),
+  suggestion: z.string().describe("A brief, actionable suggestion for the activity, e.g., 'GS-II Notes' or 'Sectional Test'. Include the GS Paper number if applicable."),
 });
 
 const DailyPlanSchema = z.object({
-    day: z.string().describe('The day of the plan (e.g., "Day 1", "Monday").'),
+    day: z.string().describe('The day of the week (e.g., "Mon", "Tue").'),
     tasks: z.array(DailyTaskSchema).describe('A list of tasks scheduled for that day.'),
 });
 
 const GenerateStudyPlanOutputSchema = z.object({
-  plan: z.array(DailyPlanSchema).describe('A day-by-day breakdown of the study plan.'),
+  plan: z.array(DailyPlanSchema).length(7).describe('A 7-day breakdown of the study plan, one entry for each day from Monday to Sunday.'),
   summary: z.string().describe('A brief, encouraging summary of the generated plan.'),
 });
 export type GenerateStudyPlanOutput = z.infer<typeof GenerateStudyPlanOutputSchema>;
@@ -45,18 +46,19 @@ const prompt = ai.definePrompt({
   name: 'generateStudyPlanPrompt',
   input: {schema: GenerateStudyPlanInputSchema},
   output: {schema: GenerateStudyPlanOutputSchema},
-  prompt: `You are an expert UPSC exam coach who specializes in creating highly efficient and practical study schedules. A student needs a detailed study plan and has provided their current mastery level for each topic.
+  prompt: `You are an expert UPSC exam coach who specializes in creating highly efficient and practical weekly study schedules. A student needs a detailed 7-day study plan and has provided their current mastery level for each topic.
 
-Your task is to act as a hyper-intelligent scheduler. Based on the user's focus areas, available time, and their mastery of the syllabus, create a balanced, day-by-day study plan.
+Your task is to act as a hyper-intelligent scheduler. Based on the user's focus areas, available time, and their mastery of the syllabus, create a balanced, 7-day (Monday to Sunday) study plan.
 
 **Key Instructions:**
-1.  **Prioritize Weak Areas**: Give higher priority and more 'Study' time to topics marked with [Mastery: novice] or [Mastery: none]. These are the user's weaknesses.
-2.  **Schedule Revisions**: For topics marked [Mastery: advanced] or [Mastery: expert], schedule 'Revise' activities to ensure knowledge retention. Do not schedule 'Study' for these.
-3.  **Balance Activities**: The plan should not just be about studying new things. Intelligently mix in 'Revise', 'Practice' (e.g., answer writing), and 'Test' activities.
-4.  **Be Granular**: For each task, provide a short, actionable 'suggestion' to guide the user. For example, for a 'Study' task, suggest "Focus on creating flashcards for key terms". For a 'Practice' task, suggest "Write a 250-word answer on this topic".
-5.  **Return Topic ID**: For every single task you create, you MUST include the original 'topicId' from the syllabus context. This is crucial for linking the plan back to the syllabus.
-6.  **Be Realistic**: The daily schedule should be achievable within the user's weekly hour constraints. Assume a 7-day week if the timeframe is in weeks.
-7.  **Summarize**: Provide a short, encouraging summary of the plan's strategy, referencing how it will tackle weak areas first.
+1.  **Generate a Full 7-Day Plan**: The output 'plan' array MUST contain exactly 7 items, one for each day from "Mon" to "Sun". Some days, like Sunday, might have fewer or different types of tasks (e.g., revision, analysis).
+2.  **Prioritize Weak Areas**: Give higher priority and more 'Study' time to topics marked with [Mastery: novice] or [Mastery: none]. These are the user's weaknesses.
+3.  **Schedule Revisions**: For topics marked [Mastery: advanced] or [Mastery: expert], schedule 'Revise' activities to ensure knowledge retention. Do not schedule 'Study' for these. Use 'Weekly Revision' for broader revision tasks.
+4.  **Balance Activities**: The plan should not just be about studying new things. Intelligently mix in 'Revise', 'Practice', and 'Test' activities. For example, include a 'Take Test' on Friday and an 'Analyze Test' on Sunday.
+5.  **Be Granular**: For each task, provide a short 'suggestion' to guide the user (e.g., 'GS-I (2h)', 'Polity Notes (1h)', 'Sectional (1h)'). This should be very brief.
+6.  **Return Topic ID**: For every single task you create, you MUST include the original 'topicId' from the syllabus context. This is crucial for linking the plan back to the syllabus. For general tasks like 'Weekly Revision', you can use a high-level topic ID like 'preliminary-exam'.
+7.  **Be Realistic**: The daily schedule should be achievable within the user's weekly hour constraints. Distribute the hours logically across the 7 days.
+8.  **Summarize**: Provide a short, encouraging summary of the plan's strategy.
 
 **User's Requirements:**
 -   **Focus Areas**: {{{focusAreas}}}
