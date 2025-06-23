@@ -1,5 +1,6 @@
 import { pool } from './db';
 import type { SyllabusTopic, Resource } from './types';
+import type { PoolClient } from 'pg';
 
 // Helper function to build a tree from a flat list of topics
 const buildSyllabusTree = (topics: any[]): SyllabusTopic[] => {
@@ -50,8 +51,9 @@ export async function getSyllabusDataForExam(examId: 'upsc' | 'mpsc'): Promise<S
         }
     }
 
-    const client = await pool.connect();
+    let client: PoolClient | undefined;
     try {
+        client = await pool.connect();
         console.log(`Fetching syllabus from database for: ${examId}`);
         const query = `
             SELECT 
@@ -76,7 +78,9 @@ export async function getSyllabusDataForExam(examId: 'upsc' | 'mpsc'): Promise<S
             return mpscSyllabusData;
         }
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }
 
@@ -87,8 +91,9 @@ export async function getResourceData(): Promise<Record<string, Resource[]>> {
          return initialResourceData;
     }
 
-    const client = await pool.connect();
+    let client: PoolClient | undefined;
     try {
+        client = await pool.connect();
         console.log('Fetching resources from database.');
         const res = await client.query('SELECT * FROM resources');
         const resourceMap: Record<string, Resource[]> = {};
@@ -116,6 +121,8 @@ export async function getResourceData(): Promise<Record<string, Resource[]>> {
         const { initialResourceData } = await import('@/lib/resources/resource-data');
         return initialResourceData;
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }

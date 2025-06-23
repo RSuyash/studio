@@ -291,8 +291,9 @@ async function getSyllabusDataForExam(examId) {
             return mpscSyllabusData;
         }
     }
-    const client = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pool"].connect();
+    let client;
     try {
+        client = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pool"].connect();
         console.log(`Fetching syllabus from database for: ${examId}`);
         const query = `
             SELECT 
@@ -319,7 +320,9 @@ async function getSyllabusDataForExam(examId) {
             return mpscSyllabusData;
         }
     } finally{
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }
 async function getResourceData() {
@@ -328,8 +331,9 @@ async function getResourceData() {
         const { initialResourceData } = await __turbopack_context__.r("[project]/src/lib/resources/resource-data.ts [app-rsc] (ecmascript, async loader)")(__turbopack_context__.i);
         return initialResourceData;
     }
-    const client = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pool"].connect();
+    let client;
     try {
+        client = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pool"].connect();
         console.log('Fetching resources from database.');
         const res = await client.query('SELECT * FROM resources');
         const resourceMap = {};
@@ -355,7 +359,9 @@ async function getResourceData() {
         const { initialResourceData } = await __turbopack_context__.r("[project]/src/lib/resources/resource-data.ts [app-rsc] (ecmascript, async loader)")(__turbopack_context__.i);
         return initialResourceData;
     } finally{
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }
 __turbopack_async_result__();
