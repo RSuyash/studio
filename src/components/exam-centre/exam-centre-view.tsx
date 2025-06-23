@@ -21,23 +21,23 @@ import {
     Beaker, 
     Stethoscope 
 } from 'lucide-react';
-import type { ExamComparisonData } from '@/lib/exam-comparison-data';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import type { ExamComparisonData } from '@/lib/types';
 
-const otherExams = [
-    { name: 'SSC CGL', icon: FileText },
-    { name: 'CAPF (AC)', icon: Shield },
-    { name: 'NDA/CDS', icon: ShieldCheck },
-    { name: 'EPFO/APFC', icon: BookMarked },
-    { name: 'RBI/NABARD', icon: Landmark },
-    { name: 'Banking (SBI/IBPS)', icon: Landmark },
-    { name: 'UGC NET / CSIR NET', icon: GraduationCap },
-    { name: 'GATE / JAM (Life Sci)', icon: FlaskConical },
-    { name: 'IB ACIO', icon: Eye },
-    { name: 'RRB NTPC / Group B', icon: TramFront },
-    { name: 'Technical Scientist', icon: Beaker },
-    { name: 'Medical/Agri Entrance', icon: Stethoscope },
-];
+// Icon mapping for dynamically rendered exams
+const examIconMap: Record<string, React.ElementType> = {
+    'SSC CGL': FileText,
+    'CAPF (AC)': Shield,
+    'NDA/CDS': ShieldCheck,
+    'EPFO/APFC': BookMarked,
+    'RBI/NABARD': Landmark,
+    'Banking (SBI/IBPS)': Landmark,
+    'UGC NET / CSIR NET': GraduationCap,
+    'GATE / JAM (Life Sci)': FlaskConical,
+    'IB ACIO': Eye,
+    'RRB NTPC / Group B': TramFront,
+    'Technical Scientist': Beaker,
+    'Medical/Agri Entrance': Stethoscope,
+};
 
 interface ExamCentreViewProps {
   setActiveView: (view: View, syllabus?: SyllabusType) => void;
@@ -45,6 +45,11 @@ interface ExamCentreViewProps {
 }
 
 export default function ExamCentreView({ setActiveView, comparisonData }: ExamCentreViewProps) {
+  // Filter out exams that have dedicated, fully implemented cards
+  const otherExams = comparisonData.filter(exam => 
+    !['State PSCs (e.g. MPSC)', 'IFoS'].includes(exam.exam)
+  );
+
   return (
     <>
       <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:px-6">
@@ -112,16 +117,16 @@ export default function ExamCentreView({ setActiveView, comparisonData }: ExamCe
               </Card>
 
               {otherExams.map((exam) => {
-                const Icon = exam.icon;
+                const Icon = examIconMap[exam.exam] || FileText; // Default icon
                 return (
-                  <Card key={exam.name} className="flex flex-col bg-muted/50">
+                  <Card key={exam.exam} className="flex flex-col bg-muted/50">
                      <CardHeader>
                         <div className="bg-muted text-muted-foreground self-start rounded-lg p-3">
                             <Icon className="h-6 w-6" />
                         </div>
                     </CardHeader>
                     <CardContent className="flex-grow space-y-2">
-                      <CardTitle className="text-muted-foreground">{exam.name}</CardTitle>
+                      <CardTitle className="text-muted-foreground">{exam.exam}</CardTitle>
                        <CardDescription>Detailed insights for this exam are coming soon. Stay tuned for updates!</CardDescription>
                     </CardContent>
                     <CardFooter>

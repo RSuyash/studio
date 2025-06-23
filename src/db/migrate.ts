@@ -1,3 +1,4 @@
+
 // A script to migrate data from TS files to a PostgreSQL database.
 //
 // To run this script:
@@ -18,6 +19,7 @@ import { initialResourceData } from '../lib/resources/resource-data';
 import { upscCseExam } from '../lib/exams/upsc/upsc-exam-data';
 import { mpscRajyasevaExam } from '../lib/exams/mpsc/mpsc-exam-data';
 import { ifosExam } from '../lib/exams/ifos/ifos-exam-data';
+import { examComparisonData } from '../lib/exam-comparison-data';
 import type { SyllabusTopic, Resource } from '../lib/types';
 
 if (!process.env.DATABASE_URL) {
@@ -82,6 +84,7 @@ async function main() {
     await client.query('DELETE FROM tags;');
     await client.query('DELETE FROM exam_details;');
     await client.query('DELETE FROM exams;');
+    await client.query('DELETE FROM exam_comparison;');
 
     // 2. Insert exams
     console.log('Inserting exams and their structures...');
@@ -183,6 +186,18 @@ async function main() {
       );
     }
     console.log(`${allResources.length} resources inserted.`);
+
+    // 8. Insert Exam Comparison Data
+    console.log('Inserting exam comparison data...');
+    for (const item of examComparisonData) {
+      await client.query(
+        `INSERT INTO exam_comparison (exam_name, major_topics, overlap_with_upsc, notes)
+         VALUES ($1, $2, $3, $4)`,
+        [item.exam, item.majorTopics, item.overlap, item.notes]
+      );
+    }
+    console.log(`${examComparisonData.length} exam comparison entries inserted.`);
+
 
     await client.query('COMMIT');
     console.log('Migration completed successfully!');

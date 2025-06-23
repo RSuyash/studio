@@ -1,5 +1,5 @@
 import { pool } from './db';
-import type { SyllabusTopic, Resource, Exam } from './types';
+import type { SyllabusTopic, Resource, Exam, ExamComparisonData } from './types';
 import type { PoolClient } from 'pg';
 
 const placeholderIfosExam: Exam = {
@@ -53,8 +53,8 @@ export async function getSyllabusDataForExam(examId: 'upsc' | 'mpsc' | 'ifos'): 
     if (!pool) {
         console.log(`Database not connected. Falling back to mock data for ${examId} syllabus.`);
         if (examId === 'ifos') {
-            console.log('Database not connected. Returning empty syllabus for IFoS.');
-            return [];
+            const { ifosSyllabusData } = await import('@/lib/exams/ifos/ifos-syllabus-data');
+            return ifosSyllabusData;
         }
         if (examId === 'upsc') {
             const { initialSyllabusData } = await import('@/lib/exams/upsc/upsc-syllabus-data');
@@ -86,8 +86,8 @@ export async function getSyllabusDataForExam(examId: 'upsc' | 'mpsc' | 'ifos'): 
     } catch (e) {
         console.error(`Failed to fetch syllabus for ${examId} from database. Falling back to mock data.`, e);
         if (examId === 'ifos') {
-            console.error('Failed to fetch IFoS syllabus from database. Returning empty syllabus.', e);
-            return [];
+            const { ifosSyllabusData } = await import('@/lib/exams/ifos/ifos-syllabus-data');
+            return ifosSyllabusData;
         }
         if (examId === 'upsc') {
             const { initialSyllabusData } = await import('@/lib/exams/upsc/upsc-syllabus-data');
@@ -150,8 +150,8 @@ export async function getExamData(examId: 'upsc' | 'mpsc' | 'ifos'): Promise<Exa
     if (!pool) {
         console.log(`Database not connected. Falling back to mock data for ${examId} exam structure.`);
         if (examId === 'ifos') {
-            console.log('Database not connected. Returning placeholder for IFoS exam data.');
-            return placeholderIfosExam;
+            const { ifosExam } = await import('@/lib/exams/ifos/ifos-exam-data');
+            return ifosExam;
         }
         if (examId === 'upsc') {
             const { upscCseExam } = await import('@/lib/exams/upsc/upsc-exam-data');
@@ -180,8 +180,8 @@ export async function getExamData(examId: 'upsc' | 'mpsc' | 'ifos'): Promise<Exa
     } catch (e) {
         console.error(`Failed to fetch exam structure for ${examId} from database. Falling back to mock data.`, e);
         if (examId === 'ifos') {
-            console.error('Failed to fetch IFoS exam from database. Returning placeholder.', e);
-            return placeholderIfosExam;
+            const { ifosExam } = await import('@/lib/exams/ifos/ifos-exam-data');
+            return ifosExam;
         }
         if (examId === 'upsc') {
             const { upscCseExam } = await import('@/lib/exams/upsc/upsc-exam-data');
@@ -190,6 +190,36 @@ export async function getExamData(examId: 'upsc' | 'mpsc' | 'ifos'): Promise<Exa
             const { mpscRajyasevaExam } = await import('@/lib/exams/mpsc/mpsc-exam-data');
             return mpscRajyasevaExam;
         }
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+export async function getComparisonData(): Promise<ExamComparisonData[]> {
+    if (!pool) {
+        console.log('Database not connected. Falling back to mock data for exam comparison.');
+        const { examComparisonData } = await import('@/lib/exam-comparison-data');
+        return examComparisonData;
+    }
+
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        console.log('Fetching exam comparison from database...');
+        const res = await client.query('SELECT exam_name as exam, major_topics as "majorTopics", overlap_with_upsc as overlap, notes FROM exam_comparison');
+        console.log(`Successfully fetched ${res.rows.length} exam comparison entries from database.`);
+        return res.rows.map(row => ({
+            exam: row.exam,
+            majorTopics: row.majorTopics,
+            overlap: row.overlap,
+            notes: row.notes,
+        }));
+    } catch (e) {
+        console.error('Failed to fetch exam comparison from database. Falling back to mock data.', e);
+        const { examComparisonData } = await import('@/lib/exam-comparison-data');
+        return examComparisonData;
     } finally {
         if (client) {
             client.release();
