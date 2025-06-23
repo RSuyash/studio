@@ -15,9 +15,11 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-prelims-gs1',
         title: 'Paper I: General Studies',
         icon: 'FileText',
-        description: 'This paper is counted for merit ranking in Prelims. It covers a broad range of topics from current affairs to Maharashtra-specific history and geography. Marks: 200.',
+        description: 'This paper is counted for merit ranking in Prelims. It covers a broad range of topics from current affairs to Maharashtra-specific history and geography.',
         tags: ['gs', 'merit-cutoff'],
         mastery: 'none',
+        marks: 200,
+        questions: 100,
         resources: [],
         subtopics: [
           {
@@ -101,9 +103,11 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-prelims-csat',
         title: 'Paper II: CSAT (Qualifying)',
         icon: 'FileText',
-        description: 'A qualifying paper requiring 33% marks (66/200). Tests aptitude and reasoning skills. Marks: 200, Questions: 80.',
+        description: 'A qualifying paper requiring 33% marks (66/200). Tests aptitude and reasoning skills.',
         tags: ['csat', 'aptitude', 'qualifying'],
         mastery: 'none',
+        marks: 200,
+        questions: 80,
         resources: [],
         subtopics: [
             { id: 'mpsc-csat-comprehension', title: 'Comprehension (वाचन समज)', description: 'Reading passages with factual and inference-based questions in both English and Marathi.', tags: [], mastery: 'none', resources: [] },
@@ -128,9 +132,10 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-mains-qualifying',
         title: 'Qualifying Paper – Marathi & English Language',
         icon: 'ShieldCheck',
-        description: 'This is a compulsory paper, but qualifying in nature. Marks are not counted in the final tally. Minimum 25 marks in each section and 35% overall required. Total Marks: 100.',
+        description: 'This is a compulsory paper, but qualifying in nature. Marks are not counted in the final tally. Minimum 25 marks in each section and 35% overall required.',
         tags: ['qualifying', 'language'],
         mastery: 'none',
+        marks: 100,
         resources: [],
         subtopics: [
           {
@@ -155,18 +160,20 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-mains-essay',
         title: 'Paper I: Essay',
         icon: 'FileText',
-        description: 'Candidates need to write three essays on various topics. Total Marks: 250.',
+        description: 'Candidates need to write three essays on various topics.',
         tags: ['essay', 'merit'],
         mastery: 'none',
+        marks: 250,
         resources: [],
       },
       {
         id: 'mpsc-mains-gs1',
         title: 'Paper II: General Studies I',
         icon: 'FileText',
-        description: 'Covers History, Geography, and Indian Society, with a focus on Maharashtra. Total Marks: 250.',
+        description: 'Covers History, Geography, and Indian Society, with a focus on Maharashtra.',
         tags: ['gs-1', 'history', 'geography', 'society'],
         mastery: 'none',
+        marks: 250,
         resources: [],
         subtopics: [
           { id: 'mpsc-mains-gs1-history-culture', title: 'History and Culture', description: 'Ancient/Medieval India, Modern India (1757–1947), Social reform movements, Post-independence consolidation, History of Maharashtra, Art & Culture.', tags: [], mastery: 'none', resources: [] },
@@ -178,9 +185,10 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-mains-gs2',
         title: 'Paper III: General Studies II',
         icon: 'FileText',
-        description: 'Covers Constitution, Polity, Governance, Law, Social Justice, and International Relations. Total Marks: 250.',
+        description: 'Covers Constitution, Polity, Governance, Law, Social Justice, and International Relations.',
         tags: ['gs-2', 'polity', 'governance', 'law'],
         mastery: 'none',
+        marks: 250,
         resources: [],
         subtopics: [
             { 
@@ -245,9 +253,10 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-mains-gs3',
         title: 'Paper IV: General Studies III',
         icon: 'FileText',
-        description: 'Covers Indian Economy, Agriculture, Science, Technology, Environment, and Internal Security. Total Marks: 250.',
+        description: 'Covers Indian Economy, Agriculture, Science, Technology, Environment, and Internal Security.',
         tags: ['gs-3', 'economy', 'sci-tech', 'agriculture'],
         mastery: 'none',
+        marks: 250,
         resources: [],
          subtopics: [
             { 
@@ -320,9 +329,10 @@ export const mpscSyllabusData: SyllabusTopic[] = [
         id: 'mpsc-mains-gs4',
         title: 'Paper V: General Studies IV',
         icon: 'FileText',
-        description: 'Covers Ethics, Integrity, and Aptitude, using case studies to test practical application. Total Marks: 250.',
+        description: 'Covers Ethics, Integrity, and Aptitude, using case studies to test practical application.',
         tags: ['gs-4', 'ethics', 'aptitude'],
         mastery: 'none',
+        marks: 250,
         resources: [],
         subtopics: [
             { 
@@ -368,9 +378,10 @@ export const mpscSyllabusData: SyllabusTopic[] = [
     id: 'mpsc-interview',
     title: 'Stage III: Interview / Personality Test',
     icon: 'Users',
-    description: 'A personality test for candidates who clear the Main Examination, assessing their suitability for a career in public administration. Total Marks: 100.',
+    description: 'A personality test for candidates who clear the Main Examination, assessing their suitability for a career in public administration.',
     tags: ['interview', 'personality-test', 'final-stage'],
     mastery: 'none',
+    marks: 100,
     resources: []
   },
 ];

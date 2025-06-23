@@ -6,7 +6,7 @@ import type { SyllabusTopic, MasteryLevel, Resource, ResourceCategory } from "@/
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
-import { Tag, Plus, MoreVertical, Edit, Trash2, Library, Book, Video, FileText, StickyNote, BarChartHorizontal, ChevronRight } from 'lucide-react';
+import { Tag, Plus, MoreVertical, Edit, Trash2, Library, Book, Video, FileText, StickyNote, BarChartHorizontal, ChevronRight, HelpCircle, Target } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
@@ -172,6 +172,29 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate, onSelectTo
                 </div>
 
                 <p className="text-muted-foreground">{topic.description}</p>
+                
+                {(topic.marks || topic.questions) && (
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border bg-muted/50 p-4">
+                        {topic.marks && (
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <Target className="h-4 w-4 text-primary" />
+                                <div>
+                                    <span className="font-semibold text-foreground">{topic.marks}</span>
+                                    <span className="ml-1.5">Marks</span>
+                                </div>
+                            </div>
+                        )}
+                        {topic.questions && (
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <HelpCircle className="h-4 w-4 text-primary" />
+                                <div>
+                                    <span className="font-semibold text-foreground">{topic.questions}</span>
+                                    <span className="ml-1.5">Questions</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
                 
                 <div>
                     <h4 className="mb-3 text-sm font-semibold text-muted-foreground">Tags</h4>

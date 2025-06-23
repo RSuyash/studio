@@ -15,9 +15,11 @@ export const initialSyllabusData: SyllabusTopic[] = [
         id: 'prelims-gs1',
         title: 'Paper I: General Studies (GS)',
         icon: 'FileText',
-        description: 'Decides the cut-off for the Main exam. Syllabus covers a wide range of subjects from current events to general science. Marks: 200, Questions: 100.',
+        description: 'Decides the cut-off for the Main exam. Syllabus covers a wide range of subjects from current events to general science.',
         tags: ['gs', 'merit-cutoff'],
         mastery: 'none',
+        marks: 200,
+        questions: 100,
         resources: [],
         subtopics: [
           {
@@ -101,9 +103,11 @@ export const initialSyllabusData: SyllabusTopic[] = [
         id: 'prelims-csat',
         title: 'Paper II: CSAT (Civil Services Aptitude Test)',
         icon: 'FileText',
-        description: 'A qualifying paper requiring 33% marks (66/200). Tests aptitude and reasoning skills. Marks: 200, Questions: 80.',
+        description: 'A qualifying paper requiring 33% marks (66/200). Tests aptitude and reasoning skills.',
         tags: ['csat', 'aptitude', 'qualifying'],
         mastery: 'none',
+        marks: 200,
+        questions: 80,
         resources: [],
         subtopics: [
             { id: 'prelims-csat-comprehension', title: 'Comprehension', description: 'Reading passages with factual and inference-based questions.', tags: [], mastery: 'none', resources: [] },
@@ -140,6 +144,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
             title: 'Paper A: Indian Language',
             description: 'Any language from the Eighth Schedule. The pattern is similar to the English paper, focusing on comprehension, précis, and translation.',
             tags: ['indian-language'],
+            marks: 300,
             mastery: 'none',
             resources: [],
           },
@@ -148,6 +153,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
             title: 'Paper B: English',
             description: 'Tests comprehension of given passages, précis writing, usage and vocabulary, and short essays. Class X level.',
             tags: ['english'],
+            marks: 300,
             mastery: 'none',
             resources: [],
           },
@@ -157,8 +163,9 @@ export const initialSyllabusData: SyllabusTopic[] = [
         id: 'mains-essay',
         title: 'Paper I: Essay',
         icon: 'FileText',
-        description: 'Candidates write two essays on a variety of topics, testing their ability to organize ideas and write concisely. Marks: 250.',
+        description: 'Candidates write two essays on a variety of topics, testing their ability to organize ideas and write concisely.',
         tags: ['essay', 'merit'],
+        marks: 250,
         mastery: 'none',
         resources: [],
       },
@@ -166,9 +173,10 @@ export const initialSyllabusData: SyllabusTopic[] = [
         id: 'mains-gs1',
         title: 'Paper II: General Studies I',
         icon: 'FileText',
-        description: 'This paper covers Indian Heritage and Culture, History and Geography of the World, and Society. Marks: 250.',
+        description: 'Covers Indian Heritage and Culture, History and Geography of the World, and Society.',
         tags: ['gs-1', 'history', 'geography', 'society'],
         mastery: 'none',
+        marks: 250,
         resources: [],
         subtopics: [
           { 
@@ -226,9 +234,10 @@ export const initialSyllabusData: SyllabusTopic[] = [
         id: 'mains-gs2',
         title: 'Paper III: General Studies II',
         icon: 'FileText',
-        description: 'This paper covers Governance, Constitution, Polity, Social Justice and International relations. Marks: 250.',
+        description: 'Covers Governance, Constitution, Polity, Social Justice and International relations.',
         tags: ['gs-2', 'polity', 'governance', 'ir'],
         mastery: 'none',
+        marks: 250,
         resources: [],
         subtopics: [
             { 
@@ -291,9 +300,10 @@ export const initialSyllabusData: SyllabusTopic[] = [
         id: 'mains-gs3',
         title: 'Paper IV: General Studies III',
         icon: 'FileText',
-        description: 'This paper covers Technology, Economic Development, Bio diversity, Environment, Security and Disaster Management. Marks: 250.',
+        description: 'Covers Technology, Economic Development, Bio diversity, Environment, Security and Disaster Management.',
         tags: ['gs-3', 'economy', 'sci-tech', 'security'],
         mastery: 'none',
+        marks: 250,
         resources: [],
         subtopics: [
             { 
@@ -354,9 +364,10 @@ export const initialSyllabusData: SyllabusTopic[] = [
         id: 'mains-gs4',
         title: 'Paper V: General Studies IV',
         icon: 'FileText',
-        description: 'This paper covers Ethics, Integrity, and Aptitude, including case studies to test problem-solving and ethical approaches. Marks: 250.',
+        description: 'Covers Ethics, Integrity, and Aptitude, including case studies to test problem-solving and ethical approaches.',
         tags: ['gs-4', 'ethics', 'aptitude'],
         mastery: 'none',
+        marks: 250,
         resources: [],
         subtopics: [
             { 
@@ -401,6 +412,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
         description: 'Candidates choose one subject from a list for two papers. This tests in-depth, graduate-level knowledge of the chosen discipline.',
         tags: ['optional', 'specialized', 'merit'],
         mastery: 'none',
+        marks: 500,
         resources: [],
         subtopics: [
           {
@@ -416,6 +428,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
                 title: 'Paper I: Foundations of Psychology',
                 description: 'Covers the fundamental principles and theories of psychology.',
                 tags: [],
+                marks: 250,
                 mastery: 'none',
                 resources: [],
                 subtopics: [
@@ -440,6 +453,7 @@ export const initialSyllabusData: SyllabusTopic[] = [
                 title: 'Paper II: Psychology: Issues and Applications',
                 description: 'Focuses on the practical application of psychological principles.',
                 tags: [],
+                marks: 250,
                 mastery: 'none',
                 resources: [],
                 subtopics: [
@@ -469,9 +483,10 @@ export const initialSyllabusData: SyllabusTopic[] = [
     id: 'interview',
     title: 'Stage III: Personality Test / Interview',
     icon: 'Users',
-    description: 'The final stage to assess suitability for a career in public service. It evaluates mental alertness, critical thinking, leadership, and integrity. Total marks: 275.',
+    description: 'The final stage to assess suitability for a career in public service. It evaluates mental alertness, critical thinking, leadership, and integrity.',
     tags: ['interview', 'personality-test', 'final-stage'],
     mastery: 'none',
+    marks: 275,
     resources: [],
     subtopics: [
       {

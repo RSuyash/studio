@@ -53,6 +53,8 @@ export interface SyllabusTopic {
   subtopics?: SyllabusTopic[];
   icon?: string;
   resources?: Resource[];
+  marks?: number;
+  questions?: number;
 }
 
 export interface ExamComparisonData {
