@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -16,16 +16,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import type { SyllabusTopic } from '@/lib/types';
 import { generateStudyPlan, type GenerateStudyPlanOutput } from '@/ai/flows/create-study-plan-flow';
-import { serializeSyllabusWithMastery, findTopicById } from '@/lib/resource-utils';
-import { BrainCircuit, CheckCircle, BookOpen, Repeat, Pencil, Clock, ListChecks, ArrowRight, Lightbulb, Plus, X } from 'lucide-react';
-import { View, SyllabusType } from '../main-layout';
+import { serializeSyllabusWithMastery } from '@/lib/resource-utils';
+import { BrainCircuit, BookOpen, Repeat, Pencil, Clock, ListChecks, ArrowRight, Lightbulb, CalendarDays, BarChart, FileText, Activity } from 'lucide-react';
+import type { View, SyllabusType } from '../main-layout';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 
 const plannerFormSchema = z.object({
-  topics: z.array(z.string()).min(1, 'Please select at least one topic.'),
+  focusAreas: z.string().min(10, 'Please describe your focus areas, e.g., "UPSC GS Paper II and Ethics"'),
   timeframe: z.string({ required_error: 'Please select a timeframe.' }),
   hoursPerWeek: z.number().min(1, 'Please enter at least 1 hour.').max(100, 'Please enter a realistic number of hours.'),
 });
@@ -33,6 +33,15 @@ const plannerFormSchema = z.object({
 type PlannerFormValues = z.infer<typeof plannerFormSchema>;
 
 type ActivityType = 'Study' | 'Revise' | 'Practice' | 'Test' | 'Weekly Revision' | 'Analyze Test';
+
+const activityIconMap: Record<ActivityType, React.ElementType> = {
+    Study: BookOpen,
+    Revise: Repeat,
+    'Weekly Revision': CalendarDays,
+    Test: ListChecks,
+    'Analyze Test': BrainCircuit,
+    Practice: Pencil,
+};
 
 const activityColors: Record<ActivityType, string> = {
     Study: 'border-blue-500',
@@ -42,12 +51,6 @@ const activityColors: Record<ActivityType, string> = {
     'Analyze Test': 'border-pink-500',
     Practice: 'border-yellow-500',
 };
-
-const activityLegend: Record<string, { color: string, label: string}> = {
-    Study: { color: 'bg-blue-500', label: 'Study' },
-    Revise: { color: 'bg-green-500', label: 'Revision' },
-    Test: { color: 'bg-pink-500', label: 'Test' },
-}
 
 // Mock data for AI-suggested priorities
 const suggestedPriorities = [
@@ -61,11 +64,15 @@ const parseDurationToHours = (durationStr: string): number => {
     const value = parseFloat(lowerCaseStr.match(/[\d.]+/)?.[0] || '0');
     if (isNaN(value)) return 0;
 
-    if (lowerCaseStr.includes('hr') || lowerCaseStr.includes('hour')) {
+    if (lowerCaseStr.includes('h')) { // Catches 'h', 'hr', 'hour', 'hours'
         return value;
     }
-    if (lowerCaseStr.includes('min') || lowerCaseStr.includes('minute')) {
+    if (lowerCaseStr.includes('m')) { // Catches 'm', 'min', 'minute', 'minutes'
         return value / 60;
+    }
+    // Fallback for just a number, assume it's hours
+    if (!isNaN(parseFloat(durationStr))) {
+        return parseFloat(durationStr);
     }
     return 0;
 };
@@ -84,9 +91,9 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
   const form = useForm<PlannerFormValues>({
     resolver: zodResolver(plannerFormSchema),
     defaultValues: {
-      topics: ['mains-gs2-polity-constitution', 'mains-gs1-modern-history', 'mains-gs3-env-conservation'],
+      focusAreas: 'UPSC GS Paper II (Polity & Governance) and GS Paper IV (Ethics), with some time for revision of Modern History.',
       timeframe: 'This Week',
-      hoursPerWeek: 20,
+      hoursPerWeek: 25,
     },
   });
 
@@ -97,13 +104,10 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
 
   const onSubmit = async (values: PlannerFormValues) => {
     setIsLoading(true);
-    setStudyPlan(null); // Clear previous plan
+    setStudyPlan(null);
     try {
-      // For now, we join the selected topics into the string the AI expects
-      const focusAreas = values.topics.map(id => findTopicById(Object.values(allSyllabusData).flat(), id)?.title || id).join(', ');
-
       const result = await generateStudyPlan({
-        focusAreas,
+        focusAreas: values.focusAreas,
         timeframe: values.timeframe,
         hoursPerWeek: values.hoursPerWeek,
         syllabusContext,
@@ -122,56 +126,58 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
   };
 
   const planHours = React.useMemo(() => {
-    if (!studyPlan) return { Study: 0, Revise: 0, Test: 0 };
-    return studyPlan.plan.flatMap(day => day.tasks).reduce((acc, task) => {
+    if (!studyPlan) return { total: 0, study: 0, revise: 0, test: 0 };
+    let study = 0, revise = 0, test = 0;
+
+    studyPlan.plan.flatMap(day => day.tasks).forEach(task => {
         const hours = parseDurationToHours(task.duration);
-        if (task.activity.includes('Study')) acc.Study += hours;
-        else if (task.activity.includes('Revise')) acc.Revise += hours;
-        else if (task.activity.includes('Test')) acc.Test += hours;
-        return acc;
-    }, { Study: 0, Revise: 0, Test: 0 });
+        if (task.activity.toLowerCase().includes('study')) study += hours;
+        else if (task.activity.toLowerCase().includes('revise')) revise += hours;
+        else if (task.activity.toLowerCase().includes('test') || task.activity.toLowerCase().includes('practice')) test += hours;
+    });
+
+    return { total: study + revise + test, study, revise, test };
   }, [studyPlan]);
 
-  const selectedTopics = form.watch('topics');
+  const handleTaskClick = (topicId: string) => {
+    let syllabusType: SyllabusType = 'upsc'; // Default
+    if (Object.values(allSyllabusData.mpsc).find(t => t.id === topicId)) syllabusType = 'mpsc';
+    if (Object.values(allSyllabusData.ifos).find(t => t.id === topicId)) syllabusType = 'ifos';
+    
+    setActiveView('syllabus', syllabusType, topicId);
+  }
 
   return (
       <div className="flex h-screen flex-col bg-muted/40">
         <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-background px-4 md:px-6">
             <Icons.ListTodo className="h-6 w-6" />
             <h2 className="text-lg font-semibold">Strategic Study Planner</h2>
-            <span className="hidden sm:inline-block text-sm text-muted-foreground ml-2">Co-create your perfect study schedule with your AI co-pilot.</span>
         </header>
 
         <div className="flex min-h-0 flex-1">
-            {/* Left Control Panel */}
             <aside className="hidden w-full max-w-sm flex-col border-r bg-background p-4 md:flex">
                 <ScrollArea className="flex-1">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                            {/* 1. Select Topics */}
-                            <div className="space-y-4">
-                                <h3 className="font-semibold">1. Select Your Topics</h3>
-                                <Card className="p-4">
-                                    <div className="flex flex-col gap-2">
-                                        {selectedTopics.map(topicId => {
-                                            const topic = findTopicById(Object.values(allSyllabusData).flat(), topicId);
-                                            return (
-                                                <Badge key={topicId} variant="secondary" className="flex justify-between py-1.5 text-sm">
-                                                    <span>{topic ? topic.title : topicId}</span>
-                                                    <button onClick={() => form.setValue('topics', selectedTopics.filter(id => id !== topicId))}>
-                                                        <X className="h-3 w-3" />
-                                                    </button>
-                                                </Badge>
-                                            )
-                                        })}
-                                    </div>
-                                    <Button variant="ghost" className="mt-2 w-full justify-start text-muted-foreground">
-                                        <Plus className="mr-2 h-4 w-4" /> Add more topics from Syllabus
-                                    </Button>
-                                </Card>
-                            </div>
+                            <FormField
+                                control={form.control}
+                                name="focusAreas"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>1. What are your focus areas?</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="e.g., plan for MPSC GS Paper IV and revise UPSC Modern History"
+                                                className="resize-none"
+                                                rows={4}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                            {/* 2. Set Time Commitment */}
                             <div className="space-y-4">
                                 <h3 className="font-semibold">2. Set Your Time Commitment</h3>
                                 <FormField
@@ -215,7 +221,6 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
                                 />
                             </div>
 
-                            {/* 3. AI-Suggested Priorities */}
                             <div className="space-y-4">
                                 <h3 className="font-semibold">3. AI-Suggested Priorities</h3>
                                 <div className="space-y-2">
@@ -245,66 +250,99 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
                 </ScrollArea>
             </aside>
 
-            {/* Right Plan View */}
-            <main className="flex-1 p-4 md:p-6 lg:p-8">
+            <main className="flex-1 overflow-hidden">
                 <ScrollArea className="h-full">
-                <div className="flex items-center justify-between mb-4">
-                     <h2 className="text-xl font-bold">Your Generated Weekly Plan</h2>
-                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        {Object.entries(activityLegend).map(([key, {color, label}]) => (
-                            <div key={key} className="flex items-center gap-2">
-                                <span className={cn("h-2.5 w-2.5 rounded-full", color)}></span>
-                                <span>{label}: {planHours[key as keyof typeof planHours].toFixed(0)}h</span>
+                    <div className="p-4 md:p-6 lg:p-8">
+                        {!studyPlan && !isLoading && (
+                            <div className="flex h-full min-h-[60vh] flex-col items-center justify-center rounded-lg border-2 border-dashed bg-card/50 p-12 text-center">
+                                <Icons.ListTodo className="h-16 w-16 text-muted-foreground/30 mb-4" />
+                                <h3 className="text-2xl font-semibold tracking-tight">Your AI-Powered Plan Awaits</h3>
+                                <p className="mt-2 max-w-md text-muted-foreground">
+                                Use the controls on the left to generate a dynamic study schedule tailored to your mastery levels and priorities.
+                                </p>
                             </div>
-                        ))}
-                    </div>
-                </div>
+                        )}
+                        
+                        {isLoading && (
+                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+                                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                                    <div key={day} className="space-y-4">
+                                        <h4 className="text-center font-semibold">{day}</h4>
+                                        <Skeleton className="h-24 w-full" />
+                                        <Skeleton className="h-24 w-full" />
+                                    </div>
+                                ))}
+                             </div>
+                        )}
 
-                {!studyPlan && !isLoading && (
-                    <div className="flex h-full min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed bg-card/50 p-12 text-center">
-                        <Icons.ListTodo className="h-16 w-16 text-muted-foreground/30 mb-4" />
-                        <h3 className="text-2xl font-semibold tracking-tight">Your AI-Powered Plan Awaits</h3>
-                        <p className="mt-2 max-w-md text-muted-foreground">
-                        Use the controls on the left to generate a dynamic study schedule tailored to your mastery levels and priorities.
-                        </p>
-                    </div>
-                )}
-                
-                {isLoading && (
-                     <div className="grid grid-cols-7 gap-4">
-                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                            <div key={day} className="space-y-4">
-                                <h4 className="text-center font-semibold">{day}</h4>
-                                <Skeleton className="h-24 w-full" />
-                                <Skeleton className="h-24 w-full" />
-                            </div>
-                        ))}
-                     </div>
-                )}
+                        {studyPlan && (
+                            <div className="space-y-6">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Generated Plan Analytics</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="grid grid-cols-2 gap-6 md:grid-cols-4">
+                                        <div className="flex flex-col items-center rounded-lg border p-4">
+                                            <Clock className="h-6 w-6 text-primary mb-2" />
+                                            <p className="text-2xl font-bold">{planHours.total.toFixed(0)}h</p>
+                                            <p className="text-sm text-muted-foreground">Total Hours</p>
+                                        </div>
+                                        <div className="flex flex-col items-center rounded-lg border p-4">
+                                            <BookOpen className="h-6 w-6 text-blue-500 mb-2" />
+                                            <p className="text-2xl font-bold">{planHours.study.toFixed(0)}h</p>
+                                            <p className="text-sm text-muted-foreground">Study Time</p>
+                                        </div>
+                                        <div className="flex flex-col items-center rounded-lg border p-4">
+                                            <Repeat className="h-6 w-6 text-green-500 mb-2" />
+                                            <p className="text-2xl font-bold">{planHours.revise.toFixed(0)}h</p>
+                                            <p className="text-sm text-muted-foreground">Revision Time</p>
+                                        </div>
+                                         <div className="flex flex-col items-center rounded-lg border p-4">
+                                            <ListChecks className="h-6 w-6 text-pink-500 mb-2" />
+                                            <p className="text-2xl font-bold">{planHours.test.toFixed(0)}h</p>
+                                            <p className="text-sm text-muted-foreground">Test/Practice</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
 
-                {studyPlan && (
-                    <div className="grid grid-cols-7 gap-x-2 md:gap-x-4">
-                        {studyPlan.plan.map((dailyPlan, index) => (
-                            <div key={index} className="space-y-3">
-                                <h4 className="text-center font-semibold text-muted-foreground">{dailyPlan.day}</h4>
-                                <div className="space-y-3">
-                                {dailyPlan.tasks.map((task, taskIndex) => {
-                                    const colorClass = activityColors[task.activity as ActivityType] || 'border-gray-400';
-                                    return (
-                                        <Card key={taskIndex} className={cn("p-2 text-xs border-l-4 bg-card", colorClass)}>
-                                            <p className="font-semibold">{task.topic}</p>
-                                            <p className="text-muted-foreground">{task.suggestion.split(" ")[0]} ({task.duration})</p>
-                                        </Card>
-                                    )
-                                })}
+                                <div>
+                                    <h2 className="text-xl font-bold mb-4">Your Generated Weekly Plan</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 lg:gap-4">
+                                        {studyPlan.plan.map((dailyPlan, index) => (
+                                            <div key={index} className="space-y-3 rounded-lg bg-card p-2">
+                                                <h4 className="text-center font-semibold text-muted-foreground">{dailyPlan.day}</h4>
+                                                <div className="space-y-3">
+                                                {dailyPlan.tasks.length > 0 ? dailyPlan.tasks.map((task, taskIndex) => {
+                                                    const Icon = activityIconMap[task.activity as ActivityType] || Activity;
+                                                    const colorClass = activityColors[task.activity as ActivityType] || 'border-gray-400';
+                                                    return (
+                                                        <button key={taskIndex} onClick={() => handleTaskClick(task.topicId)} className={cn("w-full cursor-pointer p-2 text-left text-xs border-l-4 rounded bg-background shadow-sm hover:bg-muted", colorClass)}>
+                                                            <div className="flex items-start gap-2">
+                                                                <Icon className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
+                                                                <div className="flex-1">
+                                                                    <p className="font-semibold text-foreground">{task.topic}</p>
+                                                                    <p className="text-muted-foreground">{task.suggestion.split(" ")[0]} ({task.duration})</p>
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    )
+                                                }) : (
+                                                    <div className="text-center text-xs text-muted-foreground py-8">Rest Day</div>
+                                                )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-4 text-center">{studyPlan.summary}</p>
                                 </div>
                             </div>
-                        ))}
+                        )}
                     </div>
-                )}
                 </ScrollArea>
             </main>
         </div>
     </div>
   );
 }
+
+    
