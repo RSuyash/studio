@@ -11,25 +11,7 @@ import { useStudyPlanStream } from '@/hooks/use-study-plan-stream';
 import { useToast } from '@/hooks/use-toast';
 import { saveStudyPlan } from '@/actions/study-plan-actions';
 import SavePlanDialog from './save-plan-dialog';
-
-const parseDurationToHours = (durationStr: string): number => {
-    if (!durationStr) return 0;
-    const lowerCaseStr = durationStr.toLowerCase();
-    
-    let hours = 0;
-    const hoursMatch = lowerCaseStr.match(/([\d.]+)\s*h/);
-    if (hoursMatch) hours = parseFloat(hoursMatch[1]);
-    
-    const minutesMatch = lowerCaseStr.match(/([\d.]+)\s*m/);
-    if (minutesMatch) hours += parseFloat(minutesMatch[1]) / 60;
-    
-    if (!hoursMatch && !minutesMatch && !lowerCaseStr.includes('rest')) {
-      const numberMatch = lowerCaseStr.match(/[\d.]+/);
-      if (numberMatch) hours = parseFloat(numberMatch[0]);
-    }
-    
-    return hours;
-};
+import { processPlanAnalytics, type PlanAnalytics } from '@/lib/planner-analytics-utils';
 
 interface StudyPlannerViewProps {
     allSyllabusData: { upsc: SyllabusTopic[], mpsc: SyllabusTopic[], ifos: SyllabusTopic[] };
@@ -63,24 +45,13 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
     setSaveDialogOpen(false);
   };
 
-  const planHours = React.useMemo(() => {
-    if (!studyPlan) return { total: 0, study: 0, revise: 0, test: 0 };
-    let study = 0, revise = 0, test = 0;
+  const analytics = React.useMemo<PlanAnalytics>(() => {
+    if (!studyPlan) {
+      return { totalHours: 0, studyHours: 0, reviseHours: 0, testHours: 0, paperBreakdown: [] };
+    }
+    return processPlanAnalytics(studyPlan, allSyllabusData);
+  }, [studyPlan, allSyllabusData]);
 
-    studyPlan.plan.flatMap(day => day.tasks).forEach(task => {
-        const hours = parseDurationToHours(task.duration);
-        if (task.activity.toLowerCase().includes('study')) study += hours;
-        else if (task.activity.toLowerCase().includes('revise')) revise += hours;
-        else if (task.activity.toLowerCase().includes('test') || task.activity.toLowerCase().includes('practice')) test += hours;
-    });
-    
-    const total = Math.round(study + revise + test);
-    study = Math.round(study);
-    revise = Math.round(revise);
-    test = Math.round(test);
-
-    return { total, study, revise, test };
-  }, [studyPlan]);
 
   const handleTaskClick = (topicId: string) => {
     const primarySyllabus = currentInputs?.exam || 'upsc';
@@ -110,7 +81,7 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
             <PlannerResults
               isLoading={isLoading}
               studyPlan={studyPlan}
-              planHours={planHours}
+              analytics={analytics}
               onTaskClick={handleTaskClick}
               onSavePlan={() => setSaveDialogOpen(true)}
             />

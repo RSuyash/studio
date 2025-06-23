@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -11,11 +10,12 @@ import DailyPlanCard from './daily-plan-card';
 import { Button } from '../ui/button';
 import { Save } from 'lucide-react';
 import { Card } from '../ui/card';
+import type { PlanAnalytics } from '@/lib/planner-analytics-utils';
 
 interface PlannerResultsProps {
   isLoading: boolean;
   studyPlan: StudyPlanData | null;
-  planHours: { total: number; study: number; revise: number; test: number };
+  analytics: Pick<PlanAnalytics, 'totalHours' | 'studyHours' | 'reviseHours' | 'testHours'>;
   onTaskClick: (topicId: string) => void;
   onSavePlan: () => void;
 }
@@ -23,7 +23,7 @@ interface PlannerResultsProps {
 export default function PlannerResults({
   isLoading,
   studyPlan,
-  planHours,
+  analytics,
   onTaskClick,
   onSavePlan,
 }: PlannerResultsProps) {
@@ -58,12 +58,12 @@ export default function PlannerResults({
 
           {studyPlan && (
             <div className="space-y-8">
-              <PlannerAnalytics planHours={planHours} />
+              <PlannerAnalytics analytics={analytics} />
 
               <div>
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
                     <h2 className="text-2xl font-bold font-headline tracking-tight">Your Generated Study Plan</h2>
-                    <Button onClick={onSavePlan} disabled={isLoading}>
+                    <Button onClick={onSavePlan} disabled={isLoading || !studyPlan.summary}>
                         <Save className="mr-2 h-4 w-4" />
                         Save Plan
                     </Button>
@@ -90,7 +90,7 @@ export default function PlannerResults({
                   </div>
                 )}
                 
-                {!isLoading && (
+                {!isLoading && studyPlan.summary && (
                     <Card className="mt-6 bg-muted/50 p-4 text-center text-sm text-muted-foreground">
                        <p>{studyPlan.summary}</p>
                     </Card>

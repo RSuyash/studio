@@ -12,27 +12,8 @@ import { format } from 'date-fns';
 import PlannerAnalytics from './planner-analytics';
 import DailyPlanCard from './daily-plan-card';
 import { findTopicById } from '@/lib/resource-utils';
-
-// This function is duplicated from study-planner-view.tsx for now
-// In a larger refactor, it would move to a shared utils file.
-const parseDurationToHours = (durationStr: string): number => {
-    if (!durationStr) return 0;
-    const lowerCaseStr = durationStr.toLowerCase();
-    
-    let hours = 0;
-    const hoursMatch = lowerCaseStr.match(/([\d.]+)\s*h/);
-    if (hoursMatch) hours = parseFloat(hoursMatch[1]);
-    
-    const minutesMatch = lowerCaseStr.match(/([\d.]+)\s*m/);
-    if (minutesMatch) hours += parseFloat(minutesMatch[1]) / 60;
-    
-    if (!hoursMatch && !minutesMatch && !lowerCaseStr.includes('rest')) {
-      const numberMatch = lowerCaseStr.match(/[\d.]+/);
-      if (numberMatch) hours = parseFloat(numberMatch[0]);
-    }
-    
-    return hours;
-};
+import { processPlanAnalytics, type PlanAnalytics } from '@/lib/planner-analytics-utils';
+import PlanBreakdownChart from './plan-breakdown-chart';
 
 interface PlanViewerProps {
     plan: SavedStudyPlan;
@@ -57,24 +38,12 @@ const examNameMap = {
 
 export default function PlanViewer({ plan, setActiveView, allSyllabusData }: PlanViewerProps) {
 
-  const planHours = React.useMemo(() => {
-    if (!plan) return { total: 0, study: 0, revise: 0, test: 0 };
-    let study = 0, revise = 0, test = 0;
-
-    plan.plan_data.plan.flatMap(day => day.tasks).forEach(task => {
-        const hours = parseDurationToHours(task.duration);
-        if (task.activity.toLowerCase().includes('study')) study += hours;
-        else if (task.activity.toLowerCase().includes('revise')) revise += hours;
-        else if (task.activity.toLowerCase().includes('test') || task.activity.toLowerCase().includes('practice')) test += hours;
-    });
-    
-    const total = Math.round(study + revise + test);
-    study = Math.round(study);
-    revise = Math.round(revise);
-    test = Math.round(test);
-
-    return { total, study, revise, test };
-  }, [plan]);
+  const analytics = React.useMemo<PlanAnalytics>(() => {
+    if (!plan) {
+        return { totalHours: 0, studyHours: 0, reviseHours: 0, testHours: 0, paperBreakdown: [] };
+    }
+    return processPlanAnalytics(plan.plan_data, allSyllabusData);
+  }, [plan, allSyllabusData]);
 
   const handleTaskClick = (topicId: string) => {
     const primarySyllabus = plan.input_details.exam;
@@ -133,7 +102,9 @@ export default function PlanViewer({ plan, setActiveView, allSyllabusData }: Pla
                 </CardContent>
             </Card>
 
-            <PlannerAnalytics planHours={planHours} />
+            <PlannerAnalytics analytics={analytics} />
+
+            <PlanBreakdownChart analytics={analytics} />
 
             <div className="space-y-6">
                 <h2 className="text-2xl font-bold font-headline tracking-tight">Daily Breakdown</h2>
