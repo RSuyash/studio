@@ -6,7 +6,7 @@ import type { SyllabusTopic, MasteryLevel, Resource, ResourceCategory } from "@/
 import { Badge } from '@/components/ui/badge';
 import MasteryControl from "./mastery-control";
 import { Button } from '@/components/ui/button';
-import { Tag, Link as LinkIcon, Plus, MoreHorizontal, Edit, Trash2, FileText, Library } from 'lucide-react';
+import { Tag, Plus, MoreVertical, Edit, Trash2, Library, Book, Video, FileText, StickyNote, BarChartHorizontal } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
@@ -27,32 +27,56 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { SyllabusBreadcrumb } from "./syllabus-breadcrumb";
 import { findTopicPath } from "@/lib/resource-utils";
-import { cn } from "@/lib/utils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Textarea } from "../ui/textarea";
 
-const ResourceDisplayCard = ({ resource }: { resource: Resource }) => {
-    const isLink = resource.category === 'lecture-playlist' || resource.category === 'lecture-video';
-    const Icon = isLink ? LinkIcon : FileText;
+// Mapping category to icon and color
+const categoryInfo: Record<ResourceCategory, { icon: React.ElementType, color: string }> = {
+    book: { icon: Book, color: 'bg-blue-100 text-blue-600' },
+    video: { icon: Video, color: 'bg-red-100 text-red-600' },
+    pdf: { icon: FileText, color: 'bg-green-100 text-green-600' },
+    note: { icon: StickyNote, color: 'bg-yellow-100 text-yellow-600' },
+};
+
+const ResourceCard = ({ resource, onEdit, onDelete }: { resource: Resource; onEdit: (resource: Resource) => void; onDelete: (resource: Resource) => void; }) => {
+    const { icon: Icon, color } = categoryInfo[resource.category] || categoryInfo.note;
 
     return (
-        <a href={resource.url} target="_blank" rel="noopener noreferrer" className="block rounded-lg border bg-card text-card-foreground shadow-sm transition-colors hover:bg-muted/50">
-            <div className="flex items-center gap-4 p-4">
-                 <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-                    isLink ? "bg-yellow-100 text-yellow-600" : "bg-red-100 text-red-600"
-                 )}>
+        <div className="group relative rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-colors hover:bg-muted/50">
+            <div className="flex items-start gap-4">
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${color}`}>
                     <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1 truncate">
-                    <p className="truncate font-medium">{resource.title}</p>
-                    <p className="truncate text-xs text-muted-foreground">{resource.url}</p>
+                    <a href={resource.url} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">
+                        {resource.title}
+                    </a>
+                    <p className="truncate text-xs text-muted-foreground">{resource.description || resource.url}</p>
                 </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => onEdit(resource)}>
+                            <Edit className="mr-2 h-4 w-4" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onDelete(resource)} className="text-destructive focus:text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
-        </a>
-    )
-}
+        </div>
+    );
+};
 
 const EmptyState = () => (
     <div className="flex h-full flex-col items-center justify-center p-8 text-center text-muted-foreground">
@@ -78,30 +102,16 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
         }
     }, [selectedTopicId, syllabusData]);
 
-    // State for adding new items
+    // Resource form state
+    const [isResourceDialogOpen, setResourceDialogOpen] = React.useState(false);
+    const [editingResource, setEditingResource] = React.useState<Resource | null>(null);
+    
+    // State for deleting resources
+    const [resourceToDelete, setResourceToDelete] = React.useState<Resource | null>(null);
+    
+    // State for adding/editing tags
     const [newTag, setNewTag] = React.useState('');
     const [tagPopoverOpen, setTagPopoverOpen] = React.useState(false);
-    
-    // Resource form state
-    const [resourcePopoverOpen, setResourcePopoverOpen] = React.useState(false);
-    const [newResourceTitle, setNewResourceTitle] = React.useState('');
-    const [newResourceUrl, setNewResourceUrl] = React.useState('');
-    const [newResourceCategory, setNewResourceCategory] = React.useState<ResourceCategory>('book');
-
-    // State for editing/deleting resources
-    const [editingResource, setEditingResource] = React.useState<Resource | null>(null);
-    const [resourceToDelete, setResourceToDelete] = React.useState<Resource | null>(null);
-    const [editTitle, setEditTitle] = React.useState('');
-    const [editUrl, setEditUrl] = React.useState('');
-    const [editCategory, setEditCategory] = React.useState<ResourceCategory>('book');
-    
-    React.useEffect(() => {
-        if (editingResource) {
-            setEditTitle(editingResource.title);
-            setEditUrl(editingResource.url);
-            setEditCategory(editingResource.category);
-        }
-    }, [editingResource]);
 
     if (!topic) {
         return <EmptyState />;
@@ -120,41 +130,24 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
         }
     };
     
-    const handleAddResource = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (newResourceTitle && newResourceUrl) {
-            let url = newResourceUrl;
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = `https://${url}`;
-            }
-            const newResource: Resource = {
-                id: `res-${Date.now()}`,
-                title: newResourceTitle,
-                url: url,
-                category: newResourceCategory,
-                status: 'todo',
-            };
-            const updatedResources = [...(topic.resources || []), newResource];
-            onUpdate(topic.id, { resources: updatedResources });
-            setNewResourceTitle('');
-            setNewResourceUrl('');
-            setResourcePopoverOpen(false);
-        }
-    };
+    const handleAddOrEditResource = (values: { title: string, url: string, description?: string, category: ResourceCategory }) => {
+        const resource: Omit<Resource, 'id' | 'status'> = {
+            title: values.title,
+            url: values.url.startsWith('http') ? values.url : `https://${values.url}`,
+            description: values.description,
+            category: values.category,
+        };
 
-    const handleEditResourceSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!editingResource || !editTitle || !editUrl) return;
-        
-        let url = editUrl;
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            url = `https://${url}`;
+        let updatedResources;
+        if (editingResource) {
+            updatedResources = (topic.resources || []).map(r => r.id === editingResource.id ? { ...editingResource, ...resource } : r);
+        } else {
+            const newResource: Resource = { ...resource, id: `res-${Date.now()}`, status: 'todo' };
+            updatedResources = [...(topic.resources || []), newResource];
         }
-        
-        const updatedResource: Resource = { ...editingResource, title: editTitle, url, category: editCategory, status: editingResource.status };
-        const updatedResources = (topic.resources || []).map(r => r.id === updatedResource.id ? updatedResource : r);
         
         onUpdate(topic.id, { resources: updatedResources });
+        setResourceDialogOpen(false);
         setEditingResource(null);
     };
 
@@ -164,14 +157,17 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
         onUpdate(topic.id, { resources: updatedResources });
         setResourceToDelete(null);
     };
-    
+
+    const externalResources = topic.resources?.filter(r => r.category !== 'note') || [];
+    const notes = topic.resources?.filter(r => r.category === 'note') || [];
+
     return (
         <ScrollArea className="h-full">
-            <div className="space-y-6 p-6">
+            <div className="space-y-8 p-6">
                 <SyllabusBreadcrumb path={path} />
 
                 <div className="flex items-start justify-between gap-4">
-                    <h1 className="text-3xl font-bold">{topic.title}</h1>
+                    <h1 className="text-3xl font-bold font-headline">{topic.title}</h1>
                     <MasteryControl currentLevel={topic.mastery} onLevelChange={handleMasteryChange} />
                 </div>
 
@@ -207,91 +203,75 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
                     </div>
                 </div>
                 
-                <div>
-                    <h4 className="mb-3 text-sm font-semibold text-muted-foreground">Resources</h4>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        {(topic.resources && topic.resources.length > 0) &&
-                            topic.resources.map((resource) => (
-                                <ResourceDisplayCard key={resource.id} resource={resource} />
-                            ))
-                        }
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-semibold">Resources</h4>
+                        <Button variant="outline" size="sm" onClick={() => { setEditingResource(null); setResourceDialogOpen(true); }}>
+                            <Plus className="mr-2 h-4 w-4" /> Add Resource
+                        </Button>
                     </div>
-
-                    <Popover open={resourcePopoverOpen} onOpenChange={(isOpen) => { setResourcePopoverOpen(isOpen); if(!isOpen) { setNewResourceTitle(''); setNewResourceUrl(''); } }}>
-                        <PopoverTrigger asChild>
-                           <Button variant="ghost" className="mt-4 w-full justify-start border-2 border-dashed p-4 text-muted-foreground hover:bg-muted/50 hover:text-foreground">
-                                <Plus className="mr-2 h-4 w-4" />
-                                Add Resource
-                           </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                            <form onSubmit={handleAddResource} className="grid gap-4">
-                                <div className="space-y-2">
-                                    <h4 className="font-medium leading-none">Add Resource</h4>
-                                    <p className="text-sm text-muted-foreground">Add a link to a helpful resource.</p>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="resource-title">Title</Label>
-                                    <Input id="resource-title" value={newResourceTitle} onChange={(e) => setNewResourceTitle(e.target.value)} placeholder="e.g., 'NCERT Chapter PDF'" />
-                                </div>
-                                 <div className="grid gap-2">
-                                    <Label htmlFor="resource-url">URL</Label>
-                                    <Input id="resource-url" value={newResourceUrl} onChange={(e) => setNewResourceUrl(e.target.value)} placeholder="example.com" />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="resource-category">Category</Label>
-                                    <Select onValueChange={(v) => setNewResourceCategory(v as ResourceCategory)} defaultValue={newResourceCategory}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="book">Reference Book</SelectItem>
-                                            <SelectItem value="pdf">NCERT Book</SelectItem>
-                                            <SelectItem value="video">YouTube Playlist</SelectItem>
-                                            <SelectItem value="note">YouTube Video</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <Button type="submit" size="sm">Add Resource</Button>
-                            </form>
-                        </PopoverContent>
-                    </Popover>
+                    {externalResources.length > 0 ? (
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            {externalResources.map((resource) => (
+                                <ResourceCard 
+                                    key={resource.id} 
+                                    resource={resource}
+                                    onEdit={() => { setEditingResource(resource); setResourceDialogOpen(true); }}
+                                    onDelete={() => setResourceToDelete(resource)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                         <p className="text-sm text-muted-foreground">No external resources added yet.</p>
+                    )}
                 </div>
+
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-semibold">My Notes</h4>
+                         <Button variant="outline" size="sm" disabled>
+                            <Plus className="mr-2 h-4 w-4" /> Add Note (Coming Soon)
+                        </Button>
+                    </div>
+                    {notes.length > 0 ? (
+                       <div className="grid gap-4 sm:grid-cols-2">
+                            {notes.map((resource) => (
+                                <ResourceCard 
+                                    key={resource.id} 
+                                    resource={resource}
+                                    onEdit={() => { setEditingResource(resource); setResourceDialogOpen(true); }}
+                                    onDelete={() => setResourceToDelete(resource)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                         <p className="text-sm text-muted-foreground">No notes created for this topic yet.</p>
+                    )}
+                </div>
+
+                <div className="space-y-4">
+                     <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-semibold">Performance Analytics</h4>
+                    </div>
+                    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-card p-12 text-center">
+                        <BarChartHorizontal className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                        <h3 className="text-xl font-semibold">Analytics Coming Soon</h3>
+                        <p className="max-w-md text-sm text-muted-foreground">
+                            After you take mock tests, your performance data for this topic will appear here.
+                        </p>
+                    </div>
+                </div>
+
             </div>
 
-             {/* Edit Resource Dialog - Kept for functionality */}
-            <Dialog open={!!editingResource} onOpenChange={(isOpen) => !isOpen && setEditingResource(null)}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit Resource</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleEditResourceSubmit} className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="edit-resource-title">Title</Label>
-                            <Input id="edit-resource-title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="edit-resource-url">URL</Label>
-                            <Input id="edit-resource-url" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} />
-                        </div>
-                         <div className="grid gap-2">
-                            <Label htmlFor="edit-resource-category">Category</Label>
-                            <Select onValueChange={(v) => setEditCategory(v as ResourceCategory)} value={editCategory}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="book">Reference Book</SelectItem>
-                                    <SelectItem value="pdf">NCERT Book</SelectItem>
-                                    <SelectItem value="video">YouTube Playlist</SelectItem>
-                                    <SelectItem value="note">YouTube Video</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <DialogFooter>
-                            <Button type="submit">Save Changes</Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            <ResourceFormDialog
+                key={editingResource?.id || 'new'}
+                isOpen={isResourceDialogOpen}
+                onOpenChange={setResourceDialogOpen}
+                onSubmit={handleAddOrEditResource}
+                resource={editingResource}
+            />
             
-            {/* Delete Confirmation Dialog */}
             <AlertDialog open={!!resourceToDelete} onOpenChange={(isOpen) => !isOpen && setResourceToDelete(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -309,3 +289,63 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
         </ScrollArea>
     );
 };
+
+// A sub-component for the resource form dialog
+function ResourceFormDialog({ isOpen, onOpenChange, onSubmit, resource }: {
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSubmit: (values: { title: string, url: string, description?: string, category: ResourceCategory }) => void;
+    resource: Resource | null;
+}) {
+    const [title, setTitle] = React.useState(resource?.title || '');
+    const [url, setUrl] = React.useState(resource?.url || '');
+    const [description, setDescription] = React.useState(resource?.description || '');
+    const [category, setCategory] = React.useState<ResourceCategory>(resource?.category || 'book');
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSubmit({ title, url, description, category });
+    };
+    
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{resource ? 'Edit Resource' : 'Add Resource'}</DialogTitle>
+                    <DialogDescription>
+                        {resource ? 'Update the details for this resource.' : 'Link a new external resource to this topic.'}
+                    </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="resource-title">Title</Label>
+                        <Input id="resource-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., 'Chapter 5: Parliament'" required />
+                    </div>
+                     <div className="grid gap-2">
+                        <Label htmlFor="resource-url">URL</Label>
+                        <Input id="resource-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="www.example.com" required />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="resource-description">Description (Optional)</Label>
+                        <Textarea id="resource-description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="A short note about this resource..." />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="resource-category">Category</Label>
+                        <Select onValueChange={(v) => setCategory(v as ResourceCategory)} value={category}>
+                            <SelectTrigger id="resource-category"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="book">Book/Article</SelectItem>
+                                <SelectItem value="pdf">PDF Document</SelectItem>
+                                <SelectItem value="video">YouTube Video/Playlist</SelectItem>
+                                <SelectItem value="note">External Note</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit">{resource ? 'Save Changes' : 'Add Resource'}</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
+}
