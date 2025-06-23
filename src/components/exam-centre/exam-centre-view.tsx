@@ -64,7 +64,7 @@ export default function ExamCentreView({ setActiveView, comparisonData }: ExamCe
                 <CardFooter className="flex flex-col gap-2 sm:flex-row">
                    <Button className="w-full" onClick={() => setActiveView('mpsc-explorer')}>Structure</Button>
                    <Button className="w-full" variant="outline" onClick={() => setActiveView('syllabus', 'mpsc')}>Syllabus</Button>
-                   <Button className="w-full" variant="outline" onClick={() => setActiveView('mpsc-insights')}>Insights</Button>
+                   <Button className="w-full" variant="outline" onClick={() => setActiveView('insights')}>Insights</Button>
                 </CardFooter>
               </Card>
 
