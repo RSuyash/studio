@@ -13,6 +13,7 @@ import {
   SidebarFooter,
   SidebarSeparator,
   SidebarInset,
+  SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Icons } from '@/components/icons'
 import { initialSyllabusData } from "@/lib/exams/upsc/upsc-syllabus-data";
@@ -89,12 +90,15 @@ export default function MainLayout({ comparisonData }: MainLayoutProps) {
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader className="border-b border-sidebar-border">
-          <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Icons.Logo className="size-5" />
+            <div className="flex w-full items-center justify-between p-2">
+                <div className="flex items-center gap-2">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                        <Icons.Logo className="size-5" />
+                    </div>
+                    <h1 className="text-lg font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">Nexus Cortex</h1>
+                </div>
+                <SidebarTrigger className="hidden group-data-[collapsible=icon]:flex" />
             </div>
-            <h1 className="text-xl font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">Nexus Cortex</h1>
-          </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
@@ -122,7 +126,7 @@ export default function MainLayout({ comparisonData }: MainLayoutProps) {
             </Avatar>
             <div className="flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">
                 <p className="truncate text-sm font-semibold text-sidebar-foreground">UPSC Aspirant</p>
-                <p className="truncate text-xs text-sidebar-foreground/70">aspirant@nexus.com</p>
+                <p className="truncate text-xs text-sidebar-foreground/70">Test User</p>
             </div>
             <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent group-data-[collapsible=icon]:hidden">
                 <LogOut className="size-4" />
