@@ -9,6 +9,7 @@ import { Icons } from '../icons';
 import type { View, SyllabusType } from '../main-layout';
 import { Landmark, FileText, Shield } from 'lucide-react';
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const otherExams = [
     { name: 'SSC CGL', icon: FileText },
