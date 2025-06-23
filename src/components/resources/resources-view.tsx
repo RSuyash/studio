@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '../ui/scroll-area';
-import { updateTopicInTree, getAllResources, getHighLevelTopicName } from '@/lib/resource-utils';
+import { getAllResources, getHighLevelTopicName } from '@/lib/resource-utils';
 import type { ResourceFormValues } from './resource-form-dialog';
 import ResourceFormDialog from './resource-form-dialog';
 import ResourceCard from './resource-card';
@@ -38,11 +38,13 @@ const EmptyState = () => (
 
 
 export default function ResourcesView({
-  syllabusData,
-  setSyllabusData,
+  resourceData,
+  setResourceData,
+  allSyllabusData,
 }: {
-  syllabusData: SyllabusTopic[];
-  setSyllabusData: React.Dispatch<React.SetStateAction<SyllabusTopic[]>>;
+  resourceData: Record<string, Resource[]>;
+  setResourceData: React.Dispatch<React.SetStateAction<Record<string, Resource[]>>>;
+  allSyllabusData: { upsc: SyllabusTopic[], mpsc: SyllabusTopic[] };
 }) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingResource, setEditingResource] = React.useState<ResourceWithTopicInfo | null>(null);
@@ -52,7 +54,11 @@ export default function ResourcesView({
   const [typeFilter, setTypeFilter] = React.useState<ResourceCategory | 'all'>('all');
   const [statusFilter, setStatusFilter] = React.useState<ResourceStatus | 'all'>('all');
 
-  const allResources = React.useMemo(() => getAllResources(syllabusData), [syllabusData]);
+  const allResources = React.useMemo(() => {
+    // Combine both syllabus trees for a comprehensive resource list
+    const combinedSyllabus = [...allSyllabusData.upsc, ...allSyllabusData.mpsc];
+    return getAllResources(resourceData, combinedSyllabus);
+  }, [resourceData, allSyllabusData]);
 
   const filteredResources = React.useMemo(() => {
     return allResources.filter(resource => {
@@ -82,65 +88,63 @@ export default function ResourcesView({
   const handleConfirmDelete = () => {
     if (!resourceToDelete) return;
     
-    setSyllabusData(currentData =>
-      updateTopicInTree(currentData, resourceToDelete.topicId, (topic) => ({
-        ...topic,
-        resources: (topic.resources || []).filter(r => r.id !== resourceToDelete.id),
-      }))
-    );
+    setResourceData(currentData => {
+      const newData = { ...currentData };
+      const topicResources = (newData[resourceToDelete.topicId] || []).filter(
+        r => r.id !== resourceToDelete.id
+      );
+
+      if (topicResources.length > 0) {
+        newData[resourceToDelete.topicId] = topicResources;
+      } else {
+        delete newData[resourceToDelete.topicId];
+      }
+      return newData;
+    });
     setResourceToDelete(null);
   };
   
   const handleFormSubmit = (values: ResourceFormValues) => {
-    const { topicId, ...resourceData } = values;
+    const { topicId, ...resourceDataValues } = values;
     
-    if (editingResource) { 
-      const updatedResource: Resource = {
-        id: editingResource.id,
-        title: resourceData.title,
-        url: resourceData.url,
-        category: resourceData.category,
-        description: resourceData.description,
-        status: resourceData.status,
-      };
+    setResourceData(currentData => {
+      const newData = { ...currentData };
       
-      setSyllabusData(currentData => {
-        let newData = [...currentData];
-        if (editingResource.topicId !== topicId) {
-          newData = updateTopicInTree(newData, editingResource.topicId, topic => ({
-            ...topic,
-            resources: (topic.resources || []).filter(r => r.id !== editingResource.id),
-          }));
-          newData = updateTopicInTree(newData, topicId, topic => ({
-            ...topic,
-            resources: [...(topic.resources || []), updatedResource],
-          }));
+      // Handle moving a resource to a new topic
+      if (editingResource && editingResource.topicId !== topicId) {
+        // Remove from old topic
+        const oldTopicResources = (newData[editingResource.topicId] || []).filter(r => r.id !== editingResource.id);
+        if (oldTopicResources.length > 0) {
+          newData[editingResource.topicId] = oldTopicResources;
         } else {
-          newData = updateTopicInTree(newData, topicId, topic => ({
-            ...topic,
-            resources: (topic.resources || []).map(r => r.id === editingResource.id ? updatedResource : r),
-          }));
+          delete newData[editingResource.topicId];
         }
-        return newData;
-      });
-      
-    } else { 
-      const newResource: Resource = {
-        id: `res-${Date.now()}`,
-        title: resourceData.title,
-        url: resourceData.url,
-        category: resourceData.category,
-        description: resourceData.description,
-        status: resourceData.status,
+      }
+
+      const resource: Resource = {
+        id: editingResource ? editingResource.id : `res-${Date.now()}`,
+        title: resourceDataValues.title,
+        url: resourceDataValues.url,
+        category: resourceDataValues.category,
+        description: resourceDataValues.description,
+        status: resourceDataValues.status,
       };
+
+      const targetTopicResources = [...(newData[topicId] || [])];
+      const existingIndex = targetTopicResources.findIndex(r => r.id === resource.id);
+
+      if (existingIndex > -1) {
+        // Update existing resource in the target topic
+        targetTopicResources[existingIndex] = resource;
+      } else {
+        // Add new resource to the target topic
+        targetTopicResources.push(resource);
+      }
       
-      setSyllabusData(currentData =>
-        updateTopicInTree(currentData, topicId, topic => ({
-          ...topic,
-          resources: [...(topic.resources || []), newResource],
-        }))
-      );
-    }
+      newData[topicId] = targetTopicResources;
+      return newData;
+    });
+    
     setDialogOpen(false);
     setEditingResource(null);
   };
@@ -218,7 +222,7 @@ export default function ResourcesView({
         onOpenChange={handleDialogClose}
         onSubmit={handleFormSubmit}
         resourceToEdit={editingResource}
-        syllabusData={syllabusData}
+        syllabusData={[...allSyllabusData.upsc, ...allSyllabusData.mpsc]}
       />
       
       <AlertDialog open={!!resourceToDelete} onOpenChange={(isOpen) => !isOpen && setResourceToDelete(null)}>

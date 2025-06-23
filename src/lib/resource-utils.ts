@@ -17,11 +17,11 @@ export const findTopicById = (topics: SyllabusTopic[], id: string): SyllabusTopi
 export const updateTopicInTree = (
   topics: SyllabusTopic[],
   id: string,
-  updater: (topic: SyllabusTopic) => SyllabusTopic
+  updater: (topic: SyllabusTopic) => Partial<SyllabusTopic>
 ): SyllabusTopic[] => {
   return topics.map((topic) => {
     if (topic.id === id) {
-      return updater(topic);
+      return { ...topic, ...updater(topic) };
     }
     if (topic.subtopics) {
       return {
@@ -35,26 +35,27 @@ export const updateTopicInTree = (
 
 // Helper to get a flat list of all resources with their topic path
 export const getAllResources = (
+  resourceData: Record<string, Resource[]>,
   topics: SyllabusTopic[],
-  currentPath: string[] = []
 ): ResourceWithTopicInfo[] => {
   let results: ResourceWithTopicInfo[] = [];
-  topics.forEach((topic) => {
-    const newPath = [...currentPath, topic.title];
-    if (topic.resources && topic.resources.length > 0) {
-      topic.resources.forEach(resource => {
-        results.push({
-          ...resource,
-          topicId: topic.id,
-          topicTitle: topic.title,
-          topicPath: newPath.join(' / '),
+
+  for (const topicId in resourceData) {
+    const resources = resourceData[topicId];
+    const topicInfo = findTopicPath(topics, topicId);
+    if (topicInfo && resources) {
+        const topicPath = topicInfo.path.map(p => p.title).join(' / ');
+        resources.forEach(resource => {
+            results.push({
+                ...resource,
+                topicId: topicId,
+                topicTitle: topicInfo.topic.title,
+                topicPath: topicPath,
+            });
         });
-      });
     }
-    if (topic.subtopics) {
-      results = [...results, ...getAllResources(topic.subtopics, newPath)];
-    }
-  });
+  }
+
   return results;
 };
 

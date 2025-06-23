@@ -52,7 +52,6 @@ export interface SyllabusTopic {
   mastery: MasteryLevel;
   subtopics?: SyllabusTopic[];
   icon?: string;
-  resources?: Resource[];
   marks?: number;
   questions?: number;
 }

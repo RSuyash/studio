@@ -18,7 +18,7 @@ import {
 import { Icons } from '@/components/icons'
 import { initialSyllabusData } from "@/lib/exams/upsc/upsc-syllabus-data";
 import { mpscSyllabusData } from "@/lib/exams/mpsc/mpsc-syllabus-data";
-import type { SyllabusTopic, ExamComparisonData } from '@/lib/types';
+import type { SyllabusTopic, ExamComparisonData, Resource } from '@/lib/types';
 import SyllabusViewer from '@/components/syllabus/syllabus-viewer'
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -29,6 +29,7 @@ import { DashboardView } from './dashboard/dashboard-view';
 import ExamCentreView from './exam-centre/exam-centre-view';
 import InsightsView from './insights/insights-view';
 import { LogOut } from 'lucide-react';
+import { initialResourceData } from '@/lib/resources/resource-data';
 
 export type View = 'dashboard' | 'syllabus' | 'resources' | 'exam-explorer' | 'exam-centre' | 'insights' | 'mpsc-explorer';
 export type SyllabusType = 'upsc' | 'mpsc';
@@ -43,6 +44,7 @@ export default function MainLayout({ comparisonData }: MainLayoutProps) {
 
   const [upscData, setUpscData] = React.useState(initialSyllabusData);
   const [mpscData, setMpscData] = React.useState(mpscSyllabusData);
+  const [resourceData, setResourceData] = React.useState<Record<string, Resource[]>>(initialResourceData);
 
   const menuItems = [
     { view: 'dashboard', label: 'Dashboard', icon: Icons.LayoutDashboard },
@@ -60,8 +62,7 @@ export default function MainLayout({ comparisonData }: MainLayoutProps) {
   };
 
   const renderActiveView = () => {
-    const syllabusForResourceView = activeSyllabus === 'upsc' ? upscData : mpscData;
-    const syllabusSetterForResourceView = activeSyllabus === 'upsc' ? setUpscData : setMpscData;
+    const allSyllabusData = { upsc: upscData, mpsc: mpscData };
 
     switch (activeView) {
         case 'dashboard':
@@ -77,10 +78,21 @@ export default function MainLayout({ comparisonData }: MainLayoutProps) {
         case 'syllabus': {
             const data = activeSyllabus === 'upsc' ? upscData : mpscData;
             const setData = activeSyllabus === 'upsc' ? setUpscData : setMpscData;
-            return <SyllabusViewer syllabusData={data} setSyllabusData={setData} activeSyllabus={activeSyllabus} setActiveSyllabus={setActiveSyllabus} />;
+            return <SyllabusViewer 
+                syllabusData={data} 
+                setSyllabusData={setData} 
+                activeSyllabus={activeSyllabus} 
+                setActiveSyllabus={setActiveSyllabus}
+                resourceData={resourceData}
+                setResourceData={setResourceData}
+            />;
         }
         case 'resources':
-             return <ResourcesView syllabusData={syllabusForResourceView} setSyllabusData={syllabusSetterForResourceView} />;
+             return <ResourcesView 
+                resourceData={resourceData}
+                setResourceData={setResourceData}
+                allSyllabusData={allSyllabusData}
+             />;
         default:
             return <DashboardView setActiveView={handleViewChange} />;
     }

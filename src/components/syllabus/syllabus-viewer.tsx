@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import type { SyllabusTopic } from "@/lib/types";
+import type { SyllabusTopic, Resource } from "@/lib/types";
 import FilterPanel from "./filter-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { updateTopicInTree, getAllTagsFromTree, filterSyllabus, findTopicById } from "@/lib/resource-utils";
@@ -43,7 +43,7 @@ const SyllabusHeader = ({
                   <SelectItem value="mpsc">MPSC Rajyaseva</SelectItem>
               </SelectContent>
           </Select>
-          <Button variant="outline" size="icon" onClick={onFilterToggle}>
+          <Button variant="outline" size="icon" onClick={onFilterToggle} className="md:hidden">
               <SlidersHorizontal className="h-4 w-4" />
           </Button>
         </div>
@@ -54,20 +54,24 @@ export default function SyllabusViewer({
   syllabusData, 
   setSyllabusData, 
   activeSyllabus, 
-  setActiveSyllabus 
+  setActiveSyllabus,
+  resourceData,
+  setResourceData,
 }: { 
   syllabusData: SyllabusTopic[], 
   setSyllabusData: React.Dispatch<React.SetStateAction<SyllabusTopic[]>>,
   activeSyllabus: SyllabusType,
   setActiveSyllabus: (syllabus: SyllabusType) => void,
+  resourceData: Record<string, Resource[]>,
+  setResourceData: React.Dispatch<React.SetStateAction<Record<string, Resource[]>>>
 }) {
   const [selectedTopicId, setSelectedTopicId] = React.useState<string | null>(null);
   const [selectedTags, setSelectedTags] = React.useState(new Set<string>());
-  const [mobileFilterOpen, setMobileFilterOpen] = React.useState(false);
+  const [mobileSheetOpen, setMobileSheetOpen] = React.useState(false);
   
   const handleUpdateTopic = React.useCallback(
     (id: string, updates: Partial<SyllabusTopic>) => {
-      setSyllabusData((currentData) => updateTopicInTree(currentData, id, updates));
+      setSyllabusData((currentData) => updateTopicInTree(currentData, id, () => updates));
     },
     [setSyllabusData]
   );
@@ -112,7 +116,7 @@ export default function SyllabusViewer({
   return (
     <div className="flex h-screen flex-col">
       <SyllabusHeader 
-        onFilterToggle={() => setMobileFilterOpen(true)}
+        onFilterToggle={() => setMobileSheetOpen(true)}
         activeSyllabus={activeSyllabus}
         onSyllabusChange={(syllabus) => {
           setActiveSyllabus(syllabus);
@@ -120,7 +124,7 @@ export default function SyllabusViewer({
       />
       <main className="flex min-h-0 flex-1">
         <div className="hidden h-full w-full max-w-xs border-r md:block">
-          <SyllabusExplorer
+           <SyllabusExplorer
             data={filteredData}
             selectedTopicId={selectedTopicId}
             onSelectTopic={setSelectedTopicId}
@@ -131,30 +135,31 @@ export default function SyllabusViewer({
           <DetailPane 
             syllabusData={syllabusData}
             selectedTopicId={selectedTopicId}
-            onUpdate={handleUpdateTopic}
+            onUpdateTopic={handleUpdateTopic}
             onSelectTopic={setSelectedTopicId}
+            resourceData={resourceData}
+            setResourceData={setResourceData}
           />
         </div>
       </main>
 
-      <Sheet open={mobileFilterOpen} onOpenChange={setMobileFilterOpen}>
-        <SheetContent>
+      <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+        <SheetContent className="flex flex-col">
             <SheetHeader>
-                <SheetTitle>Filter Syllabus</SheetTitle>
+                <SheetTitle>Syllabus Menu</SheetTitle>
             </SheetHeader>
             <div className="py-4">
+                <h3 className="mb-4 text-sm font-semibold text-muted-foreground">Filters</h3>
                 {filterPanelContent}
             </div>
-             <SheetHeader className="mt-4 border-t pt-4">
-                <SheetTitle>Explore Syllabus</SheetTitle>
-            </SheetHeader>
-             <div className="py-4">
+            <div className="flex-1 overflow-y-auto">
+                <h3 className="mb-4 mt-4 border-t pt-4 text-sm font-semibold text-muted-foreground">Explorer</h3>
                 <SyllabusExplorer
                   data={filteredData}
                   selectedTopicId={selectedTopicId}
                   onSelectTopic={(id) => {
                     setSelectedTopicId(id);
-                    setMobileFilterOpen(false); // Close sheet on selection
+                    setMobileSheetOpen(false); // Close sheet on selection
                   }}
                   title={activeSyllabus === 'upsc' ? "UPSC Syllabus" : "MPSC Syllabus"}
                 />

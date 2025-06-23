@@ -34,6 +34,7 @@ import { SyllabusBreadcrumb } from "./syllabus-breadcrumb";
 import { findTopicPath } from "@/lib/resource-utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Textarea } from "../ui/textarea";
+import { cn } from "@/lib/utils";
 
 // Mapping category to icon and color
 const categoryInfo: Record<ResourceCategory, { icon: React.ElementType, color: string }> = {
@@ -49,7 +50,7 @@ const ResourceCard = ({ resource, onEdit, onDelete }: { resource: Resource; onEd
     return (
         <div className="group relative rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-colors hover:bg-muted/50">
             <div className="flex items-start gap-4">
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${color}`}>
+                <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", color)}>
                     <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1 truncate">
@@ -86,7 +87,21 @@ const EmptyState = () => (
     </div>
 )
 
-export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate, onSelectTopic }: { syllabusData: SyllabusTopic[], selectedTopicId: string | null, onUpdate: (id: string, updates: Partial<SyllabusTopic>) => void, onSelectTopic: (id: string) => void }) => {
+export const DetailPane = ({ 
+    syllabusData, 
+    selectedTopicId, 
+    onUpdateTopic, 
+    onSelectTopic,
+    resourceData,
+    setResourceData
+}: { 
+    syllabusData: SyllabusTopic[], 
+    selectedTopicId: string | null, 
+    onUpdateTopic: (id: string, updates: Partial<SyllabusTopic>) => void, 
+    onSelectTopic: (id: string) => void,
+    resourceData: Record<string, Resource[]>,
+    setResourceData: React.Dispatch<React.SetStateAction<Record<string, Resource[]>>>
+}) => {
     
     const [topic, setTopic] = React.useState<SyllabusTopic | null>(null);
     const [path, setPath] = React.useState<SyllabusTopic[]>([]);
@@ -101,6 +116,8 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate, onSelectTo
             setPath([]);
         }
     }, [selectedTopicId, syllabusData]);
+
+    const topicResources = (selectedTopicId && resourceData[selectedTopicId]) || [];
 
     // Resource form state
     const [isResourceDialogOpen, setResourceDialogOpen] = React.useState(false);
@@ -118,48 +135,72 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate, onSelectTo
     }
 
     const handleMasteryChange = (level: MasteryLevel) => {
-        onUpdate(topic.id, { mastery: level });
+        onUpdateTopic(topic.id, { mastery: level });
     };
 
     const handleAddTag = (e: React.FormEvent) => {
         e.preventDefault();
         if (newTag && !topic.tags.includes(newTag.toLowerCase())) {
-            onUpdate(topic.id, { tags: [...topic.tags, newTag.toLowerCase().trim()] });
+            onUpdateTopic(topic.id, { tags: [...topic.tags, newTag.toLowerCase().trim()] });
             setNewTag('');
             setTagPopoverOpen(false);
         }
     };
     
     const handleAddOrEditResource = (values: { title: string, url: string, description?: string, category: ResourceCategory }) => {
-        const resource: Omit<Resource, 'id' | 'status'> = {
-            title: values.title,
-            url: values.url.startsWith('http') ? values.url : `https://${values.url}`,
-            description: values.description,
-            category: values.category,
-        };
-
-        let updatedResources;
-        if (editingResource) {
-            updatedResources = (topic.resources || []).map(r => r.id === editingResource.id ? { ...editingResource, ...resource } : r);
-        } else {
-            const newResource: Resource = { ...resource, id: `res-${Date.now()}`, status: 'todo' };
-            updatedResources = [...(topic.resources || []), newResource];
-        }
+        const topicId = topic.id;
         
-        onUpdate(topic.id, { resources: updatedResources });
+        setResourceData(currentData => {
+            const newData = { ...currentData };
+            const currentTopicResources = [...(newData[topicId] || [])];
+            
+            const resource: Omit<Resource, 'id' | 'status'> = {
+                title: values.title,
+                url: values.url.startsWith('http') ? values.url : `https://${values.url}`,
+                description: values.description,
+                category: values.category,
+            };
+
+            if (editingResource) {
+                const index = currentTopicResources.findIndex(r => r.id === editingResource.id);
+                if (index > -1) {
+                    currentTopicResources[index] = { ...currentTopicResources[index], ...resource };
+                }
+            } else {
+                const newResource: Resource = { ...resource, id: `res-${Date.now()}`, status: 'todo' };
+                currentTopicResources.push(newResource);
+            }
+
+            newData[topicId] = currentTopicResources;
+            return newData;
+        });
+        
         setResourceDialogOpen(false);
         setEditingResource(null);
     };
 
     const handleConfirmDelete = () => {
         if (!resourceToDelete) return;
-        const updatedResources = (topic.resources || []).filter(r => r.id !== resourceToDelete.id);
-        onUpdate(topic.id, { resources: updatedResources });
+        const topicId = topic.id;
+
+        setResourceData(currentData => {
+            const newData = { ...currentData };
+            const updatedResources = (newData[topicId] || []).filter(r => r.id !== resourceToDelete.id);
+            
+            if (updatedResources.length > 0) {
+                newData[topicId] = updatedResources;
+            } else {
+                delete newData[topicId];
+            }
+            
+            return newData;
+        });
+
         setResourceToDelete(null);
     };
 
-    const externalResources = topic.resources?.filter(r => r.category !== 'note') || [];
-    const notes = topic.resources?.filter(r => r.category === 'note') || [];
+    const externalResources = topicResources.filter(r => r.category !== 'note');
+    const notes = topicResources.filter(r => r.category === 'note');
 
     return (
         <ScrollArea className="h-full">
@@ -338,10 +379,19 @@ function ResourceFormDialog({ isOpen, onOpenChange, onSubmit, resource }: {
     onSubmit: (values: { title: string, url: string, description?: string, category: ResourceCategory }) => void;
     resource: Resource | null;
 }) {
-    const [title, setTitle] = React.useState(resource?.title || '');
-    const [url, setUrl] = React.useState(resource?.url || '');
-    const [description, setDescription] = React.useState(resource?.description || '');
-    const [category, setCategory] = React.useState<ResourceCategory>(resource?.category || 'book');
+    const [title, setTitle] = React.useState('');
+    const [url, setUrl] = React.useState('');
+    const [description, setDescription] = React.useState('');
+    const [category, setCategory] = React.useState<ResourceCategory>('book');
+
+    React.useEffect(() => {
+        if (isOpen) {
+            setTitle(resource?.title || '');
+            setUrl(resource?.url || '');
+            setDescription(resource?.description || '');
+            setCategory(resource?.category || 'book');
+        }
+    }, [isOpen, resource]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
