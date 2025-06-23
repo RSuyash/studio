@@ -3,50 +3,29 @@
 import * as React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { calculateExamStats, type ExamStats } from '@/lib/insights-utils';
-
 import { upscCseExam } from '@/lib/exams/upsc/upsc-exam-data';
 import { initialSyllabusData } from '@/lib/exams/upsc/upsc-syllabus-data';
 import { mpscRajyasevaExam } from '@/lib/exams/mpsc/mpsc-exam-data';
 import { mpscSyllabusData } from '@/lib/exams/mpsc/mpsc-syllabus-data';
-
-import { FileText, CheckCircle, ListTree, Layers, BookOpen } from 'lucide-react';
 import StatCard from './stat-card';
-import AnalysisSection from './analysis-section';
-
-const statIcons = {
-    totalPapers: FileText,
-    meritPapers: CheckCircle,
-    qualifyingPapers: BookOpen,
-    totalStages: Layers,
-    totalTopics: ListTree,
-    optionalSubjects: ListTree,
-};
-
-const statTitles: Record<keyof ExamStats, string> = {
-    totalPapers: 'Total Written Papers',
-    meritPapers: 'Merit-Based Papers',
-    qualifyingPapers: 'Qualifying Papers',
-    totalStages: 'Exam Stages',
-    totalTopics: 'Syllabus Topics',
-    optionalSubjects: 'Optional Subjects',
-};
-
+import PaperBreakdownChart from './paper-breakdown-chart';
+import { Layers, ListTree, Plus } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 export default function InsightsView() {
   const [selectedExam, setSelectedExam] = React.useState<'upsc' | 'mpsc'>('upsc');
 
-  const examInfo = React.useMemo(() => {
+  const { exam, syllabus, title } = React.useMemo(() => {
     return selectedExam === 'upsc'
       ? { exam: upscCseExam, syllabus: initialSyllabusData, title: 'UPSC CSE' }
       : { exam: mpscRajyasevaExam, syllabus: mpscSyllabusData, title: 'MPSC Rajyaseva' };
   }, [selectedExam]);
 
   const stats = React.useMemo(() => {
-    return calculateExamStats(examInfo.exam, examInfo.syllabus);
-  }, [examInfo]);
-
+    return calculateExamStats(exam, syllabus);
+  }, [exam, syllabus]);
 
   return (
     <>
@@ -55,37 +34,53 @@ export default function InsightsView() {
         <h2 className="text-lg font-semibold">Exam Insights</h2>
       </header>
       <ScrollArea className="h-[calc(100vh-3.5rem)]">
-        <main className="flex-1 space-y-8 p-4 md:p-6">
-            <Tabs defaultValue="upsc" onValueChange={(value) => setSelectedExam(value as 'upsc' | 'mpsc')} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="upsc">UPSC CSE</TabsTrigger>
-                    <TabsTrigger value="mpsc">MPSC Rajyaseva</TabsTrigger>
-                </TabsList>
-                <div className="pt-6">
-                    <h2 className="mb-4 text-2xl font-headline font-bold">{examInfo.title}: At a Glance</h2>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {Object.entries(stats).map(([key, statData]) => {
-                            if (!statData) return null;
-                            const statKey = key as keyof ExamStats;
-                            const Icon = statIcons[statKey];
-                            const title = statTitles[statKey];
-                            
-                            return (
-                                <StatCard 
-                                    key={title}
-                                    Icon={Icon}
-                                    title={title}
-                                    value={statData.value}
-                                    description={statData.description}
-                                />
-                            );
-                        })}
+        <main className="flex-1 space-y-6 p-4 md:p-6 lg:p-8">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-2xl font-headline font-bold">{title}: At a Glance</h2>
+                 <Tabs defaultValue="upsc" onValueChange={(value) => setSelectedExam(value as 'upsc' | 'mpsc')}>
+                    <TabsList>
+                        <TabsTrigger value="upsc">UPSC CSE</TabsTrigger>
+                        <TabsTrigger value="mpsc">MPSC Rajyaseva</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            </div>
+          
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                    <PaperBreakdownChart stats={stats} />
+                </div>
+                <div className="space-y-6">
+                    <StatCard
+                        Icon={Layers}
+                        title="Exam Stages"
+                        value={stats.totalStages.value}
+                        description={stats.totalStages.description}
+                    />
+                    <StatCard
+                        Icon={ListTree}
+                        title="Syllabus Topics"
+                        value={stats.totalTopics.value}
+                        description={stats.totalTopics.description}
+                    />
+                </div>
+            </div>
+
+            {stats.optionalSubjects && (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                     <div className="lg:col-span-2">
+                        <Card>
+                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Optional Subjects</CardTitle>
+                                <Plus className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-3xl font-bold">{stats.optionalSubjects.value}</div>
+                                <p className="text-xs text-muted-foreground">{stats.optionalSubjects.description}</p>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
-            </Tabs>
-          
-          <AnalysisSection examTitle={examInfo.title} />
-
+            )}
         </main>
       </ScrollArea>
     </>

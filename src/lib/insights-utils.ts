@@ -17,28 +17,33 @@ const countSyllabusEntries = (topics: SyllabusTopic[]): number => {
 
 export interface ExamStats {
     totalPapers: { value: number; description: string };
-    meritPapers: { value: number; description: string };
+    meritPapersMains: { value: number; description: string };
     qualifyingPapers: { value: number; description: string };
+    meritPapersPrelims: { value: number; description: string };
     totalStages: { value: number; description: string };
     totalTopics: { value: number; description: string };
     optionalSubjects?: { value: number; description: string };
 }
 
 export const calculateExamStats = (exam: Exam, syllabus: SyllabusTopic[]): ExamStats => {
-    let totalPapers = 0;
     let qualifyingPapers = 0;
+    let meritPapersMains = 0;
+    let meritPapersPrelims = 0;
 
     exam.stages.forEach(stage => {
-        totalPapers += stage.papers?.length ?? 0;
         qualifyingPapers += stage.papers?.filter(p => p.nature === 'Qualifying').length ?? 0;
+        
+        if (stage.title.toLowerCase().includes('main')) {
+            meritPapersMains += stage.papers?.filter(p => p.nature === 'Merit').length ?? 0;
+        } else if (stage.title.toLowerCase().includes('preliminary')) {
+            meritPapersPrelims += stage.papers?.filter(p => p.nature === 'Merit').length ?? 0;
+        }
     });
-
-    const mainStage = exam.stages.find(s => s.title.toLowerCase().includes('main'));
-    const meritPapers = mainStage?.papers?.filter(p => p.nature === 'Merit').length ?? 0;
     
+    const totalPapers = meritPapersMains + meritPapersPrelims + qualifyingPapers;
     const totalStages = exam.stages.length;
     const totalTopics = countSyllabusEntries(syllabus);
-
+    const mainStage = exam.stages.find(s => s.title.toLowerCase().includes('main'));
     const optionalSubjectsPaper = mainStage?.papers?.find(p => p.subject.toLowerCase().includes('optional'));
     
     const stats: ExamStats = {
@@ -46,28 +51,32 @@ export const calculateExamStats = (exam: Exam, syllabus: SyllabusTopic[]): ExamS
             value: totalPapers,
             description: "Total written papers across all stages."
         },
-        meritPapers: {
-            value: meritPapers,
-            description: "Papers in Mains for final merit ranking."
+        meritPapersMains: {
+            value: meritPapersMains,
+            description: "Merit-Based (Mains)"
         },
         qualifyingPapers: {
             value: qualifyingPapers,
-            description: "Papers that don't count for merit."
+            description: "Qualifying"
+        },
+        meritPapersPrelims: {
+            value: meritPapersPrelims,
+            description: "Merit-Based (Prelims)"
         },
         totalStages: {
             value: totalStages,
-            description: "Distinct stages in the examination process."
+            description: "Distinct stages in the examination"
         },
         totalTopics: {
             value: totalTopics,
-            description: "Detailed topics & sub-topics combined."
+            description: "Detailed topics & sub-topics"
         }
     };
 
     if (optionalSubjectsPaper) {
         stats.optionalSubjects = {
-            value: 1,
-            description: "Number of optional subjects to choose."
+            value: 1, // Assuming one choice of optional subject
+            description: "Number of optional subjects to choose"
         };
     }
     
