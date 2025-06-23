@@ -31,6 +31,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { SyllabusBreadcrumb } from "./syllabus-breadcrumb";
 import { findTopicPath } from "@/lib/resource-utils";
+import { cn } from "@/lib/utils";
 
 const ResourceDisplayCard = ({ resource }: { resource: Resource }) => {
     const isLink = resource.category === 'lecture-playlist' || resource.category === 'lecture-video';
@@ -85,14 +86,14 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
     const [resourcePopoverOpen, setResourcePopoverOpen] = React.useState(false);
     const [newResourceTitle, setNewResourceTitle] = React.useState('');
     const [newResourceUrl, setNewResourceUrl] = React.useState('');
-    const [newResourceCategory, setNewResourceCategory] = React.useState<ResourceCategory>('book-reference');
+    const [newResourceCategory, setNewResourceCategory] = React.useState<ResourceCategory>('book');
 
     // State for editing/deleting resources
     const [editingResource, setEditingResource] = React.useState<Resource | null>(null);
     const [resourceToDelete, setResourceToDelete] = React.useState<Resource | null>(null);
     const [editTitle, setEditTitle] = React.useState('');
     const [editUrl, setEditUrl] = React.useState('');
-    const [editCategory, setEditCategory] = React.useState<ResourceCategory>('book-reference');
+    const [editCategory, setEditCategory] = React.useState<ResourceCategory>('book');
     
     React.useEffect(() => {
         if (editingResource) {
@@ -131,6 +132,7 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
                 title: newResourceTitle,
                 url: url,
                 category: newResourceCategory,
+                status: 'todo',
             };
             const updatedResources = [...(topic.resources || []), newResource];
             onUpdate(topic.id, { resources: updatedResources });
@@ -149,7 +151,7 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
             url = `https://${url}`;
         }
         
-        const updatedResource: Resource = { ...editingResource, title: editTitle, url, category: editCategory };
+        const updatedResource: Resource = { ...editingResource, title: editTitle, url, category: editCategory, status: editingResource.status };
         const updatedResources = (topic.resources || []).map(r => r.id === updatedResource.id ? updatedResource : r);
         
         onUpdate(topic.id, { resources: updatedResources });
@@ -241,10 +243,10 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
                                     <Select onValueChange={(v) => setNewResourceCategory(v as ResourceCategory)} defaultValue={newResourceCategory}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="book-reference">Reference Book</SelectItem>
-                                            <SelectItem value="book-ncert">NCERT Book</SelectItem>
-                                            <SelectItem value="lecture-playlist">YouTube Playlist</SelectItem>
-                                            <SelectItem value="lecture-video">YouTube Video</SelectItem>
+                                            <SelectItem value="book">Reference Book</SelectItem>
+                                            <SelectItem value="pdf">NCERT Book</SelectItem>
+                                            <SelectItem value="video">YouTube Playlist</SelectItem>
+                                            <SelectItem value="note">YouTube Video</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -275,10 +277,10 @@ export const DetailPane = ({ syllabusData, selectedTopicId, onUpdate }: { syllab
                             <Select onValueChange={(v) => setEditCategory(v as ResourceCategory)} value={editCategory}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="book-reference">Reference Book</SelectItem>
-                                    <SelectItem value="book-ncert">NCERT Book</SelectItem>
-                                    <SelectItem value="lecture-playlist">YouTube Playlist</SelectItem>
-                                    <SelectItem value="lecture-video">YouTube Video</SelectItem>
+                                    <SelectItem value="book">Reference Book</SelectItem>
+                                    <SelectItem value="pdf">NCERT Book</SelectItem>
+                                    <SelectItem value="video">YouTube Playlist</SelectItem>
+                                    <SelectItem value="note">YouTube Video</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
