@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { SyllabusTopic } from '@/lib/types';
-import { generateStudyPlan, type GenerateStudyPlanOutput } from '@/ai/flows/study-plan';
+import type { GenerateStudyPlanOutput } from '@/ai/flows/study-plan';
 import { serializeSyllabusWithMastery, findTopicById } from '@/lib/resource-utils';
 import { Icons } from '../icons';
 import type { View, SyllabusType } from '../main-layout';
@@ -46,21 +46,68 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
 
   const onSubmit = async (values: { focusAreas: string, timeframe: string, hoursPerWeek: number }) => {
     setIsLoading(true);
-    setStudyPlan(null);
+    setStudyPlan(null); // Clear previous plan
+
     try {
-      const result = await generateStudyPlan({
-        focusAreas: values.focusAreas,
-        timeframe: values.timeframe,
-        hoursPerWeek: values.hoursPerWeek,
-        syllabusContext,
-      });
-      setStudyPlan(result);
+        const response = await fetch('/api/generate-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...values, syllabusContext }),
+        });
+
+        if (!response.ok || !response.body) {
+            throw new Error(`Failed to generate plan. Status: ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedJson = '';
+
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            accumulatedJson += decoder.decode(value, { stream: true });
+
+            let boundary = accumulatedJson.indexOf('\n');
+            while (boundary !== -1) {
+                const jsonString = accumulatedJson.substring(0, boundary);
+                accumulatedJson = accumulatedJson.substring(boundary + 1);
+
+                if (jsonString.trim()) {
+                    try {
+                        const parsed = JSON.parse(jsonString);
+
+                        if (parsed.type === 'chunk') {
+                            setStudyPlan(prevPlan => ({
+                                plan: [...(prevPlan?.plan || []), ...parsed.payload],
+                                summary: prevPlan?.summary || 'Generating plan, please wait...'
+                            }));
+                        } else if (parsed.type === 'summary') {
+                             setStudyPlan(prevPlan => ({
+                                plan: prevPlan?.plan || [],
+                                summary: parsed.payload
+                            }));
+                        } else if (parsed.type === 'error') {
+                            throw new Error(parsed.payload);
+                        }
+
+                    } catch (e) {
+                        console.error("Failed to parse JSON chunk:", e, jsonString);
+                    }
+                }
+                boundary = accumulatedJson.indexOf('\n');
+            }
+        }
+
     } catch (error) {
       console.error('Failed to generate study plan:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       toast({
         variant: 'destructive',
         title: 'Error Generating Plan',
-        description: 'The AI failed to create a plan. Please try adjusting your inputs or try again later.',
+        description: `The AI failed to create a plan. ${errorMessage}`,
       });
     } finally {
       setIsLoading(false);
