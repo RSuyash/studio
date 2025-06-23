@@ -7,13 +7,37 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import type { View, SyllabusType } from '../main-layout';
-import { Landmark, FileText, Shield } from 'lucide-react';
+import { 
+    Landmark, 
+    FileText, 
+    Shield, 
+    BookMarked, 
+    ShieldCheck, 
+    GraduationCap, 
+    FlaskConical, 
+    Sprout, 
+    Eye, 
+    TramFront, 
+    Beaker, 
+    Stethoscope 
+} from 'lucide-react';
 import type { ExamComparisonData } from '@/lib/exam-comparison-data';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const otherExams = [
     { name: 'SSC CGL', icon: FileText },
     { name: 'CAPF (AC)', icon: Shield },
+    { name: 'NDA/CDS', icon: ShieldCheck },
+    { name: 'EPFO/APFC', icon: BookMarked },
+    { name: 'RBI/NABARD', icon: Landmark },
+    { name: 'Banking (SBI/IBPS)', icon: Landmark },
+    { name: 'UGC NET / CSIR NET', icon: GraduationCap },
+    { name: 'GATE / JAM (Life Sci)', icon: FlaskConical },
+    { name: 'IFoS', icon: Sprout },
+    { name: 'IB ACIO', icon: Eye },
+    { name: 'RRB NTPC / Group B', icon: TramFront },
+    { name: 'Technical Scientist', icon: Beaker },
+    { name: 'Medical/Agri Entrance', icon: Stethoscope },
 ];
 
 interface ExamCentreViewProps {
@@ -36,7 +60,7 @@ export default function ExamCentreView({ setActiveView, comparisonData }: ExamCe
             <p className="text-muted-foreground">Select an exam to explore its structure, syllabus, and insights.</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <Card className="flex flex-col border-t-4 border-primary">
                 <CardHeader>
                     <div className="bg-primary/10 text-primary self-start rounded-lg p-3">
