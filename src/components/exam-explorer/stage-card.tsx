@@ -22,32 +22,6 @@ export default function StageCard({ stage, stageNumber }: StageCardProps) {
       <CardContent className="space-y-4">
         {stage.papers && <PaperTable papers={stage.papers} />}
         
-        {stage.syllabus && stage.syllabus.length > 0 && (
-          <div>
-            <h4 className="font-semibold mb-2">Syllabus</h4>
-            <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-              {stage.syllabus.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {stage.subStages && stage.subStages.map((subStage, index) => (
-             <div key={index} className="rounded-lg border bg-muted/20 p-4">
-                <h4 className="font-semibold mb-2">{subStage.title}</h4>
-                <p className="text-sm text-muted-foreground mb-4">{subStage.description}</p>
-                {subStage.syllabus && subStage.syllabus.length > 0 && (
-                     <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                        {subStage.syllabus.map((item, i) => (
-                            <li key={i}>{item}</li>
-                        ))}
-                    </ul>
-                )}
-                {subStage.papers && <PaperTable papers={subStage.papers} />}
-             </div>
-        ))}
-        
         {stage.notes && stage.notes.length > 0 && (
           <div>
             <h4 className="font-semibold mb-2">Key Assessment Areas</h4>
