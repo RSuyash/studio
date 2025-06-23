@@ -10,7 +10,7 @@ const PlannerRequestSchema = GenerateStudyPlanInputSchema;
 
 /**
  * API route to generate a study plan using a streaming approach.
- * It generates the plan in weekly chunks and streams them back to the client.
+ * It generates the plan in weekly chunks and streams them back to the client day-by-day.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -50,8 +50,11 @@ export async function POST(req: NextRequest) {
             });
 
             if (output?.chunk && output.chunk.length > 0) {
-              allDailyPlans.push(...output.chunk);
-              push({type: 'chunk', payload: output.chunk});
+              // Stream each day plan individually for a more engaging UI update
+              for (const dailyPlan of output.chunk) {
+                  allDailyPlans.push(dailyPlan);
+                  push({ type: 'day', payload: dailyPlan });
+              }
 
               // Create a summary of the generated chunk to inform the next iteration.
               const lastDayPlan = output.chunk[output.chunk.length - 1];
@@ -62,7 +65,6 @@ export async function POST(req: NextRequest) {
               planGeneratedSoFarSummary = `The plan up to Day ${lastDayPlan.day.split(' ')[1]} is complete. The last few days focused on: ${topicsCovered}. Now continue the plan, moving on to other topics from the focus areas or syllabus.`;
             } else {
               console.warn(`Generated empty chunk starting from day ${startDay}.`);
-              // If one chunk is empty, we can try to continue, but it might indicate a problem.
             }
           } catch (e) {
              console.error(`Failed to generate a plan chunk starting from day ${startDay}. Stopping generation.`, e);

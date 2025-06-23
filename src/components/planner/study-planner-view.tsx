@@ -86,9 +86,9 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
                     try {
                         const parsed = JSON.parse(jsonString);
 
-                        if (parsed.type === 'chunk') {
+                        if (parsed.type === 'day') {
                             setStudyPlan(prevPlan => ({
-                                plan: [...(prevPlan?.plan || []), ...parsed.payload],
+                                plan: [...(prevPlan?.plan || []), parsed.payload],
                                 summary: prevPlan?.summary || 'Generating plan, please wait...'
                             }));
                         } else if (parsed.type === 'summary') {
