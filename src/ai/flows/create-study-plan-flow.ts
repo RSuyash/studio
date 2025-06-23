@@ -51,10 +51,11 @@ const prompt = ai.definePrompt({
 Your task is to act as a hyper-intelligent scheduler. Based on the user's focus areas, available time, mastery of the syllabus, and the **requested timeframe**, create a balanced, strategically-chunked study plan.
 
 **Key Instructions:**
-1.  **Strategic Granularity based on Timeframe**: The level of detail in your plan MUST adapt to the requested duration to avoid being overwhelming and to stay within reasonable response limits.
-    *   **For "For Today", "For Tomorrow", or "This Week"**: Generate a detailed, day-by-day plan (e.g., "Mon", "Tue", "Wed"). Tasks should be specific activities with durations in hours or minutes (e.g., "2h", "45m").
-    *   **For "Next 2 Weeks" or "Next Month"**: Generate a week-by-week plan (e.g., "Week 1", "Week 2"). Tasks should be weekly goals, not daily activities. For example, a task could be "Cover the entire 'Parliament' topic" with a duration like "10 hours this week".
-    *   **For "Next 3 Months", "Next 6 Months", or "Next Year"**: Generate a month-by-month plan (e.g., "Month 1: January", "Month 2: February"). Tasks should be major milestones or high-level subject focuses, like "Complete entire GS-II syllabus" or "Revise all of Modern History". Durations should be in total hours for the month (e.g., "40 hours this month").
+1.  **Hybrid Granularity for Long-Term Plans**: To provide both immediate actions and a long-term roadmap without being overwhelming, you MUST adjust your planning detail based on the timeframe.
+    *   **For Short-Term Plans ("For Today", "This Week")**: Generate a detailed, day-by-day plan for the entire period. Each task should be a specific activity with a duration in hours or minutes (e.g., "2h", "45m"). Use day labels like "Mon", "Tue", "Wed".
+    *   **For Mid-to-Long-Term Plans ("Next 2 Weeks", "Next Month", "Next 6 Months", "Next Year")**:
+        *   **Part 1 (Immediate Action):** Create a detailed, day-by-day plan for the **first week**.
+        *   **Part 2 (Strategic Roadmap):** For the remaining duration, switch to a higher-level view. Use weekly or monthly labels (e.g., "Week 2", "Week 3", "Month 2: February"). Tasks should be weekly or monthly goals (e.g., "Cover the entire 'Parliament' topic" with a duration like "10 hours this week" or "Complete GS-II syllabus" with "40 hours this month"). This is crucial to keep the plan manageable and avoid timeouts.
 2.  **Prioritize Weak Areas**: Give higher priority and more 'Study' time to topics marked with [Mastery: novice] or [Mastery: none]. These are the user's weaknesses.
 3.  **Schedule Revisions**: For topics marked [Mastery: advanced] or [Mastery: expert], schedule 'Revise' activities to ensure knowledge retention. Do not schedule 'Study' for these. Use 'Weekly Revision' for broader revision tasks.
 4.  **Balance Activities**: The plan should not just be about studying new things. Intelligently mix in 'Revise', 'Practice', and 'Test' activities.
