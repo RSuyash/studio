@@ -36,7 +36,7 @@ export default function PlannerResults({
             </div>
           )}
 
-          {isLoading && (
+          {isLoading && !studyPlan && (
             <div className="space-y-6">
               <Skeleton className="h-24 w-full" />
               <div className="grid grid-cols-1 gap-4">
@@ -66,7 +66,21 @@ export default function PlannerResults({
                     />
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground mt-6 text-center">{studyPlan.summary}</p>
+                
+                {isLoading && (
+                  <div className="flex flex-col items-center justify-center pt-8">
+                    <div className="flex items-center space-x-2">
+                        <Skeleton className="h-4 w-4 rounded-full animate-bounce [animation-delay:0ms]" />
+                        <Skeleton className="h-4 w-4 rounded-full animate-bounce [animation-delay:150ms]" />
+                        <Skeleton className="h-4 w-4 rounded-full animate-bounce [animation-delay:300ms]" />
+                    </div>
+                    <p className="mt-4 text-sm text-muted-foreground">The AI is building the rest of your plan...</p>
+                  </div>
+                )}
+                
+                {!isLoading && (
+                  <p className="text-sm text-muted-foreground mt-6 text-center">{studyPlan.summary}</p>
+                )}
               </div>
             </div>
           )}

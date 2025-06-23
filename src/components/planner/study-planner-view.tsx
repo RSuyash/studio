@@ -4,12 +4,19 @@
 import * as React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { SyllabusTopic } from '@/lib/types';
-import type { GenerateStudyPlanOutput } from '@/ai/flows/study-plan';
+import type { DailyPlanSchema } from '@/ai/flows/study-plan/schemas';
 import { serializeSyllabusWithMastery, findTopicById } from '@/lib/resource-utils';
 import { Icons } from '../icons';
 import type { View, SyllabusType } from '../main-layout';
 import PlannerForm from './planner-form';
 import PlannerResults from './planner-results';
+import type { z } from 'zod';
+
+interface GenerateStudyPlanOutput {
+    plan: z.infer<typeof DailyPlanSchema>[];
+    summary: string;
+}
+
 
 const parseDurationToHours = (durationStr: string): number => {
     if (!durationStr) return 0;
