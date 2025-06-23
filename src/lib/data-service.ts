@@ -54,7 +54,7 @@ export async function getSyllabusDataForExam(examId: 'upsc' | 'mpsc'): Promise<S
     let client: PoolClient | undefined;
     try {
         client = await pool.connect();
-        console.log(`Fetching syllabus from database for: ${examId}`);
+        console.log(`Fetching syllabus from database for: ${examId}...`);
         const query = `
             SELECT 
                 st.id, st.title, st.description, st.icon, st.marks, st.questions, st.mastery, st.parent_id,
@@ -67,6 +67,7 @@ export async function getSyllabusDataForExam(examId: 'upsc' | 'mpsc'): Promise<S
             ORDER BY st.title;
         `;
         const res = await client.query(query, [examId]);
+        console.log(`Successfully fetched ${res.rows.length} total topic entries for ${examId} from database.`);
         return buildSyllabusTree(res.rows);
     } catch (e) {
         console.error(`Failed to fetch syllabus for ${examId} from database. Falling back to mock data.`, e);
@@ -94,7 +95,7 @@ export async function getResourceData(): Promise<Record<string, Resource[]>> {
     let client: PoolClient | undefined;
     try {
         client = await pool.connect();
-        console.log('Fetching resources from database.');
+        console.log('Fetching resources from database...');
         const res = await client.query('SELECT * FROM resources');
         const resourceMap: Record<string, Resource[]> = {};
         
@@ -114,7 +115,7 @@ export async function getResourceData(): Promise<Record<string, Resource[]>> {
             }
             resourceMap[row.topic_id].push(resource);
         });
-
+        console.log(`Successfully fetched resources for ${Object.keys(resourceMap).length} topics from database.`);
         return resourceMap;
     } catch (e) {
         console.error('Failed to fetch resources from database. Falling back to mock data.', e);

@@ -223,6 +223,7 @@ if (process.env.DATABASE_URL) {
     pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__["Pool"]({
         connectionString: process.env.DATABASE_URL
     });
+    console.log("PostgreSQL connection pool created successfully.");
 } else {
     // In a real app, you might want to throw an error here
     // or handle it more gracefully. For this context, we'll
@@ -294,7 +295,7 @@ async function getSyllabusDataForExam(examId) {
     let client;
     try {
         client = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pool"].connect();
-        console.log(`Fetching syllabus from database for: ${examId}`);
+        console.log(`Fetching syllabus from database for: ${examId}...`);
         const query = `
             SELECT 
                 st.id, st.title, st.description, st.icon, st.marks, st.questions, st.mastery, st.parent_id,
@@ -309,6 +310,7 @@ async function getSyllabusDataForExam(examId) {
         const res = await client.query(query, [
             examId
         ]);
+        console.log(`Successfully fetched ${res.rows.length} total topic entries for ${examId} from database.`);
         return buildSyllabusTree(res.rows);
     } catch (e) {
         console.error(`Failed to fetch syllabus for ${examId} from database. Falling back to mock data.`, e);
@@ -334,7 +336,7 @@ async function getResourceData() {
     let client;
     try {
         client = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pool"].connect();
-        console.log('Fetching resources from database.');
+        console.log('Fetching resources from database...');
         const res = await client.query('SELECT * FROM resources');
         const resourceMap = {};
         res.rows.forEach((row)=>{
@@ -353,6 +355,7 @@ async function getResourceData() {
             }
             resourceMap[row.topic_id].push(resource);
         });
+        console.log(`Successfully fetched resources for ${Object.keys(resourceMap).length} topics from database.`);
         return resourceMap;
     } catch (e) {
         console.error('Failed to fetch resources from database. Falling back to mock data.', e);

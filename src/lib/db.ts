@@ -6,6 +6,7 @@ if (process.env.DATABASE_URL) {
     pool = new Pool({
         connectionString: process.env.DATABASE_URL,
     });
+    console.log("PostgreSQL connection pool created successfully.");
 } else {
     // In a real app, you might want to throw an error here
     // or handle it more gracefully. For this context, we'll
