@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { BrainCircuit, Lightbulb } from 'lucide-react';
 
 const plannerFormSchema = z.object({
+  exam: z.enum(['upsc', 'mpsc', 'ifos', 'combined'], { required_error: 'Please select an exam focus.'}),
   focusAreas: z.string().min(10, 'Please describe your focus areas, e.g., "UPSC GS Paper II and Ethics"'),
   timeframe: z.string({ required_error: 'Please select a timeframe.' }),
   hoursPerWeek: z.number().min(1, 'Please enter at least 1 hour.').max(100, 'Please enter a realistic number of hours.'),
@@ -47,6 +48,7 @@ export default function PlannerForm({ isLoading, onSubmit }: PlannerFormProps) {
   const form = useForm<PlannerFormValues>({
     resolver: zodResolver(plannerFormSchema),
     defaultValues: {
+      exam: 'upsc',
       focusAreas: 'UPSC GS Paper II (Polity & Governance) and GS Paper IV (Ethics), with some time for revision of Modern History.',
       timeframe: 'This Week',
       hoursPerWeek: 25,
@@ -58,6 +60,28 @@ export default function PlannerForm({ isLoading, onSubmit }: PlannerFormProps) {
       <ScrollArea className="flex-1 pr-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="exam"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Primary Exam Focus</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="upsc">UPSC CSE</SelectItem>
+                      <SelectItem value="mpsc">MPSC Rajyaseva</SelectItem>
+                      <SelectItem value="ifos">IFoS</SelectItem>
+                      <SelectItem value="combined">Combined (Cross-Syllabus)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="focusAreas"
@@ -95,6 +119,7 @@ export default function PlannerForm({ isLoading, onSubmit }: PlannerFormProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

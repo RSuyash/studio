@@ -5,7 +5,7 @@ import type { SavedStudyPlan, SyllabusTopic, View, SyllabusType } from '@/lib/ty
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
-import { ArrowLeft, Calendar, Clock, Target } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Target, Layers } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { format } from 'date-fns';
@@ -48,6 +48,13 @@ const Stat = ({ icon: Icon, value, label }: { icon: React.ElementType, value: st
     </div>
 );
 
+const examNameMap = {
+    upsc: 'UPSC CSE',
+    mpsc: 'MPSC Rajyaseva',
+    ifos: 'IFoS',
+    combined: 'Combined Focus'
+};
+
 export default function PlanViewer({ plan, setActiveView, allSyllabusData }: PlanViewerProps) {
 
   const planHours = React.useMemo(() => {
@@ -70,12 +77,21 @@ export default function PlanViewer({ plan, setActiveView, allSyllabusData }: Pla
   }, [plan]);
 
   const handleTaskClick = (topicId: string) => {
-    let syllabusType: SyllabusType = 'upsc';
-    if (findTopicById(allSyllabusData.mpsc, topicId)) syllabusType = 'mpsc';
-    else if (findTopicById(allSyllabusData.ifos, topicId)) syllabusType = 'ifos';
+    const primarySyllabus = plan.input_details.exam;
     
-    setActiveView('syllabus', syllabusType, topicId);
+    if (primarySyllabus === 'combined') {
+        // Fallback search logic for combined plans
+        let syllabusType: SyllabusType = 'upsc'; // Default
+        if (findTopicById(allSyllabusData.mpsc, topicId)) syllabusType = 'mpsc';
+        else if (findTopicById(allSyllabusData.ifos, topicId)) syllabusType = 'ifos';
+        setActiveView('syllabus', syllabusType, topicId);
+    } else {
+        // Use the explicitly saved primary syllabus for direct linking
+        setActiveView('syllabus', primarySyllabus, topicId);
+    }
   };
+
+  const examName = examNameMap[plan.input_details.exam] || 'Custom Plan';
 
   return (
     <>
@@ -99,6 +115,7 @@ export default function PlanViewer({ plan, setActiveView, allSyllabusData }: Pla
                 <CardContent className="space-y-4">
                     <CardTitle className="text-lg">Original Inputs</CardTitle>
                     <div className="grid gap-3 sm:grid-cols-2">
+                        <Stat icon={Layers} value={examName} label="Primary Focus" />
                         <Stat icon={Calendar} value={plan.input_details.timeframe} label="Duration" />
                         <Stat icon={Clock} value={`${plan.input_details.hoursPerWeek}h / week`} label="Commitment" />
                     </div>

@@ -8,6 +8,7 @@ export const GenerateStudyPlanInputSchema = z.object({
   timeframe: z.string().describe('The total duration for the study plan (e.g., "This Week", "Next Month", "For Today").'),
   hoursPerWeek: z.number().describe('The total number of hours the user can study per week.'),
   syllabusContext: z.string().describe('A text representation of the entire syllabus tree, including user-defined mastery levels for each topic (e.g., "[id] [Mastery: novice] Title").'),
+  exam: z.enum(['upsc', 'mpsc', 'ifos', 'combined']).describe('The primary exam focus for the plan.'),
 });
 
 export const DailyTaskSchema = z.object({

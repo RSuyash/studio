@@ -91,6 +91,8 @@ export async function POST(req: NextRequest) {
             if (!weeklyFocuses || weeklyFocuses.length === 0) {
                 throw new Error("The AI failed to generate a high-level weekly plan.");
             }
+            
+            pushEvent({ type: 'meta', payload: metaPlanResponse.output });
 
             // 2. Fire off all chunk generation requests in parallel
             const chunkPromises = weeklyFocuses.map((weekFocus, index) => {

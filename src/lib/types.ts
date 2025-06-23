@@ -70,10 +70,13 @@ export interface ResourceWithTopicInfo extends Resource {
 }
 
 // Types related to saved study plans
+export type ExamFocus = 'upsc' | 'mpsc' | 'ifos' | 'combined';
+
 export interface StudyPlanInput {
   focusAreas: string;
   timeframe: string;
   hoursPerWeek: number;
+  exam: ExamFocus;
 }
 
 export interface DailyTask {

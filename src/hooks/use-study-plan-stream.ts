@@ -24,7 +24,8 @@ export const useStudyPlanStream = () => {
     setCurrentInputs({ 
       focusAreas: values.focusAreas,
       timeframe: values.timeframe,
-      hoursPerWeek: values.hoursPerWeek
+      hoursPerWeek: values.hoursPerWeek,
+      exam: values.exam,
     });
     setStudyPlan(null);
     setIsLoading(true);

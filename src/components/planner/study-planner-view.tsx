@@ -83,11 +83,15 @@ export default function StudyPlannerView({ allSyllabusData, setActiveView }: Stu
   }, [studyPlan]);
 
   const handleTaskClick = (topicId: string) => {
-    let syllabusType: SyllabusType = 'upsc';
-    if (findTopicById(allSyllabusData.mpsc, topicId)) syllabusType = 'mpsc';
-    else if (findTopicById(allSyllabusData.ifos, topicId)) syllabusType = 'ifos';
-    
-    setActiveView('syllabus', syllabusType, topicId);
+    const primarySyllabus = currentInputs?.exam || 'upsc';
+    if (primarySyllabus === 'combined') {
+      let syllabusType: SyllabusType = 'upsc';
+      if (findTopicById(allSyllabusData.mpsc, topicId)) syllabusType = 'mpsc';
+      else if (findTopicById(allSyllabusData.ifos, topicId)) syllabusType = 'ifos';
+      setActiveView('syllabus', syllabusType, topicId);
+    } else {
+      setActiveView('syllabus', primarySyllabus, topicId);
+    }
   };
   
   return (

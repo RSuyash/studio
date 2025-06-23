@@ -17,6 +17,7 @@ export const generateMetaPlanPrompt = ai.definePrompt({
     prompt: `You are a master UPSC exam coach. Your first task is to create a high-level, strategic, week-by-week roadmap for a student.
 
     **Overall Plan Goal:**
+    - Primary Exam Focus: {{{exam}}}
     - Focus Areas: {{{focusAreas}}}
     - Total Duration: {{{timeframe}}}
     - Study Time: {{{hoursPerWeek}}} hours per week
@@ -29,7 +30,8 @@ export const generateMetaPlanPrompt = ai.definePrompt({
         - Good examples: "Master GS-II Polity fundamentals", "Complete Modern History up to 1857 & revise Polity", "Focus on Environment concepts and start practicing CSAT".
     4.  Ensure a logical progression. Don't jump between unrelated heavy topics. Incorporate revision weeks where appropriate.
     5.  Prioritize topics marked with [Mastery: novice] or [Mastery: none]. Schedule revision for topics with [Mastery: advanced] or [Mastery: expert].
-    6.  Do NOT generate a daily plan. Your ONLY output is the high-level weekly focus plan in JSON format.
+    6.  Prioritize using topics from the primary exam syllabus ('{{{exam}}}') unless the user's focus areas specifically mention another exam.
+    7.  Do NOT generate a daily plan. Your ONLY output is the high-level weekly focus plan in JSON format.
 
     **Full Syllabus with User's Mastery Levels:**
     \`\`\`
@@ -53,6 +55,7 @@ export const generateStudyPlanChunkPrompt = ai.definePrompt({
     prompt: `You are an expert UPSC exam coach creating one chunk of a larger, hyper-detailed study schedule.
 
     **Overall Plan Goal:**
+    - Primary Exam Focus: {{{exam}}}
     - Focus Areas: {{{focusAreas}}}
     - Total Duration: {{{timeframe}}}
     - Study Time: {{{hoursPerWeek}}} hours per week
@@ -69,9 +72,10 @@ export const generateStudyPlanChunkPrompt = ai.definePrompt({
     2.  Label each day as "Day X" where X is the absolute day number.
     3.  Prioritize weak areas ([Mastery: novice] or [Mastery: none]) for 'Study' tasks.
     4.  Schedule 'Revise' activities for strong areas ([Mastery: advanced] or [Mastery: expert]).
-    5.  Use the full syllabus context provided below to ensure every task has a valid 'topicId'.
-    6.  Distribute the weekly hours realistically across the days.
-    7.  Do NOT add any summary or intro/outro text. Just return the JSON for the days.
+    5.  Use the full syllabus context provided below. For each task, you MUST select the most specific, granular, leaf-node 'topicId' possible from the syllabus. Do not assign tasks to high-level parent topics like 'Paper II: General Studies I'. Instead, assign it to a specific sub-topic like '[mains-gs1-modern-history] Modern Indian History'.
+    6.  Prioritize using topic IDs from the primary exam syllabus ('{{{exam}}}'), but you may use IDs from other syllabi if specified in the focus areas.
+    7.  Distribute the weekly hours realistically across the days.
+    8.  Do NOT add any summary or intro/outro text. Just return the JSON for the days.
 
     **Full Syllabus with User's Mastery Levels:**
     \`\`\`
