@@ -148,3 +148,20 @@ export const getHighLevelTopicName = (topicPath: string): string => {
     }
     return parts[0] || 'General';
 };
+
+// New function to serialize the syllabus tree for an AI prompt
+export const serializeSyllabusForPrompt = (topics: SyllabusTopic[]): string => {
+  let result = '';
+  const recurse = (items: SyllabusTopic[], depth: number) => {
+    items.forEach(item => {
+      const prefix = '  '.repeat(depth);
+      // Format as "[id] title"
+      result += `${prefix}- [${item.id}] ${item.title}\n`;
+      if (item.subtopics) {
+        recurse(item.subtopics, depth + 1);
+      }
+    });
+  };
+  recurse(topics, 0);
+  return result;
+};

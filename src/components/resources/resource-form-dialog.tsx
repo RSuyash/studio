@@ -33,7 +33,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { SyllabusTopic, ResourceWithTopicInfo, ResourceCategory, ResourceStatus } from '@/lib/types';
-import { findTopicById, findPathToTopicId } from '@/lib/resource-utils';
+import { findTopicById, findPathToTopicId, serializeSyllabusForPrompt } from '@/lib/resource-utils';
+import { suggestSyllabusTopic } from '@/ai/flows/suggest-topic-flow';
+import { useToast } from '@/hooks/use-toast';
+import { Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
 
 const resourceCategories: ResourceCategory[] = ['book', 'video', 'pdf', 'note'];
 const resourceStatuses: ResourceStatus[] = ['todo', 'in-progress', 'completed'];
@@ -77,6 +82,8 @@ export default function ResourceFormDialog({
     });
 
     const [selectedPath, setSelectedPath] = React.useState<string[]>([]);
+    const [isSuggesting, setIsSuggesting] = React.useState(false);
+    const { toast } = useToast();
     const formId = React.useId();
 
     React.useEffect(() => {
@@ -105,6 +112,58 @@ export default function ResourceFormDialog({
             }
         }
     }, [resourceToEdit, form, isOpen, syllabusData]);
+    
+    const handleSuggestTopic = async () => {
+        const title = form.getValues('title');
+        if (!title) {
+            toast({
+                variant: 'destructive',
+                title: 'Title is required',
+                description: 'Please enter a title before suggesting a topic.',
+            });
+            return;
+        }
+
+        setIsSuggesting(true);
+        try {
+            const syllabusTreeText = serializeSyllabusForPrompt(syllabusData);
+            const result = await suggestSyllabusTopic({
+                resourceTitle: title,
+                resourceDescription: form.getValues('description'),
+                syllabusTreeText,
+            });
+            
+            const suggestedTopicId = result.topicId;
+            const path = findPathToTopicId(syllabusData, suggestedTopicId);
+
+            if (path) {
+                setSelectedPath(path);
+                const selectedTopic = findTopicById(syllabusData, suggestedTopicId);
+                 if (selectedTopic && (!selectedTopic.subtopics || selectedTopic.subtopics.length === 0)) {
+                    form.setValue('topicId', suggestedTopicId, { shouldValidate: true });
+                } else {
+                    form.setValue('topicId', '', { shouldValidate: true });
+                }
+                toast({
+                    title: 'AI Suggestion Successful',
+                    description: `The topic has been set to "${selectedTopic?.title}".`,
+                });
+            } else {
+                throw new Error('AI returned an invalid topic ID.');
+            }
+
+        } catch (error) {
+            console.error("AI topic suggestion failed:", error);
+            toast({
+                variant: "destructive",
+                title: "AI Suggestion Failed",
+                description: "Could not suggest a topic. Please select one manually.",
+            });
+        } finally {
+            setIsSuggesting(false);
+        }
+    };
+
 
     const renderCascadingSelects = () => {
         const selects = [];
@@ -263,6 +322,13 @@ export default function ResourceFormDialog({
                                 name="topicId"
                                 render={({ field }) => (
                                     <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="text-sm font-medium">Syllabus Link</h4>
+                                            <Button type="button" variant="outline" size="sm" onClick={handleSuggestTopic} disabled={isSuggesting}>
+                                                <Sparkles className={cn("mr-2 h-4 w-4", isSuggesting && "animate-spin")} />
+                                                {isSuggesting ? 'Thinking...' : 'Suggest Topic'}
+                                            </Button>
+                                        </div>
                                         {renderCascadingSelects()}
                                         <input type="hidden" {...field} />
                                         <FormMessage />
